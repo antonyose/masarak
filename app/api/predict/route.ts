@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
+import { trackEvent } from "@/lib/analytics";
 import { getMaxScore } from "@/lib/grade-scales";
 import { predictFaculties } from "@/lib/prediction";
 import { predictionSchema } from "@/lib/schemas";
@@ -9,6 +10,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    trackEvent("predict");
     const body = predictionSchema.safeParse(await request.json());
     if (!body.success) {
       return NextResponse.json(

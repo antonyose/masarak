@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
@@ -57,6 +58,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body>
+        <AnalyticsTracker />
         <SiteHeader />
         <main>{children}</main>
         <SiteFooter />

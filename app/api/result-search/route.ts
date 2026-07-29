@@ -226,7 +226,14 @@ async function searchDatabase({
   return result.rows;
 }
 
+import { trackEvent } from "@/lib/analytics";
+import {
+  hasLocalResultsDatabase,
+  searchLocalResults,
+} from "@/lib/local-results";
+
 export async function POST(request: Request) {
+  trackEvent("search");
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   const requestKey = forwarded || "local";
   if (await isRateLimited(requestKey)) {
