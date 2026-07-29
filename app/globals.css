@@ -898,56 +898,93 @@ a {
 }
 
 /* Instagram Lock Card & Vodafone Cash Support */
-.instagram-lock-card {
-  margin-top: 1rem;
-  padding: 1.25rem;
-  background: linear-gradient(135deg, oklch(0.97 0.03 330), oklch(0.98 0.02 260));
-  border: 1.5px dashed oklch(0.7 0.18 330);
+.locked-faculty-wrapper {
+  position: relative;
+  margin-top: 0.75rem;
   border-radius: var(--radius-md);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.85rem;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px dashed oklch(0.65 0.22 330);
+  background: oklch(0.98 0.02 330);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 4px 16px rgba(225, 48, 108, 0.12);
 }
 
-.instagram-lock-header {
+.locked-faculty-wrapper:hover {
+  transform: translateY(-2px);
+  border-color: oklch(0.55 0.25 330);
+  box-shadow: 0 6px 22px rgba(225, 48, 108, 0.22);
+}
+
+.blurred-faculty-preview {
+  filter: blur(5px) opacity(0.35);
+  pointer-events: none;
+  user-select: none;
+  padding: 0.75rem;
+}
+
+.instagram-lock-overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(255, 240, 245, 0.94), rgba(255, 250, 252, 0.97));
+  backdrop-filter: blur(3px);
+}
+
+.lock-overlay-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .lock-icon-badge {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: oklch(0.9 0.12 330);
-  color: oklch(0.4 0.22 330);
+  background: linear-gradient(135deg, #e1306c, #c13584);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(225, 48, 108, 0.35);
 }
 
-.instagram-lock-card h3 {
+.lock-overlay-content h3 {
   margin: 0;
-  font-size: 1.05rem;
-  color: oklch(0.25 0.1 330);
+  font-size: 0.95rem;
+  color: oklch(0.25 0.12 330);
+  font-weight: 800;
 }
 
-.instagram-lock-card p {
-  margin: 0.2rem 0 0;
+.lock-overlay-content p {
+  margin: 0.15rem 0 0;
   color: var(--muted);
-  font-size: 0.76rem;
-  max-width: 440px;
+  font-size: 0.73rem;
 }
 
 .instagram-unlock-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.55rem;
-  padding: 0.75rem 1.4rem;
+  gap: 0.5rem;
+  padding: 0.65rem 1.2rem;
+  background: linear-gradient(135deg, #e1306c, #c13584, #833ab4);
+  color: white;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(225, 48, 108, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  white-space: nowrap;
+}
   background: linear-gradient(135deg, #e1306c, #c13584, #833ab4);
   color: white;
   border: 0;

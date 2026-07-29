@@ -995,7 +995,12 @@ function PredictionResults({
         )}
 
         {!isUnlocked && highlights.length > 1 ? (
-          <InstagramLockCard onUnlock={handleUnlock} />
+          <InstagramLockCard
+            onUnlock={handleUnlock}
+            remainingCount={Math.max(1, highlights.length - 1)}
+            nextFaculty={highlights[1]}
+            showProximity={Boolean(prediction.governorate)}
+          />
         ) : null}
       </div>
 
@@ -1150,24 +1155,52 @@ function FacultyResult({
   );
 }
 
-function InstagramLockCard({ onUnlock }: { onUnlock: () => void }) {
+function InstagramLockCard({
+  onUnlock,
+  remainingCount,
+  nextFaculty,
+  showProximity = false,
+}: {
+  onUnlock: () => void;
+  remainingCount: number;
+  nextFaculty?: FacultyPrediction;
+  showProximity?: boolean;
+}) {
   return (
-    <div className="instagram-lock-card">
-      <div className="instagram-lock-header">
-        <div className="lock-icon-badge">
-          <LockKeyhole size={24} aria-hidden="true" />
+    <div
+      className="locked-faculty-wrapper"
+      onClick={onUnlock}
+      role="button"
+      tabIndex={0}
+      title="اضغط للمتابعة على Instagram وتفعيل باقي الكليات"
+    >
+      {nextFaculty ? (
+        <div className="blurred-faculty-preview" aria-hidden="true">
+          <FacultyResult faculty={nextFaculty} showProximity={showProximity} />
         </div>
-        <div>
-          <h3>تابعنا على إنستغرام لفتح باقي الكليات المتوقعة 🎓</h3>
-          <p>
-            دعمًا للمطور ولمساعدتنا في الاستمرار وتطوير ميزات وأدوات جديدة لطلاب الثانوية العامة.
-          </p>
+      ) : null}
+      <div className="instagram-lock-overlay">
+        <div className="lock-overlay-content">
+          <div className="lock-icon-badge">
+            <LockKeyhole size={20} aria-hidden="true" />
+          </div>
+          <div>
+            <h3>🔒 +{remainingCount} كليات واختيارات إضافية مقفولة</h3>
+            <p>تابعنا على إنستغرام لفك القفل فوراً وإظهار باقي الكليات 🎓</p>
+          </div>
         </div>
+        <button
+          type="button"
+          className="instagram-unlock-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onUnlock();
+          }}
+        >
+          <Instagram size={18} aria-hidden="true" />
+          تابعنا على Instagram لفك القفل
+        </button>
       </div>
-      <button type="button" className="instagram-unlock-btn" onClick={onUnlock}>
-        <Instagram size={20} aria-hidden="true" />
-        تابعنا على Instagram لفك القفل وإظهار باقي الكليات
-      </button>
     </div>
   );
 }
