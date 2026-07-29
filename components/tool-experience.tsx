@@ -972,11 +972,12 @@ function PredictionResults({
           </div>
         </div>
         {displayedHighlights.length ? (
-          displayedHighlights.map((faculty) => (
+          displayedHighlights.map((faculty, idx) => (
             <FacultyResult
               key={faculty.id}
               faculty={faculty}
               showProximity={Boolean(prediction.governorate)}
+              numberIndex={idx + 1}
             />
           ))
         ) : (
@@ -997,8 +998,7 @@ function PredictionResults({
         {!isUnlocked && highlights.length > 1 ? (
           <InstagramLockCard
             onUnlock={handleUnlock}
-            remainingCount={Math.max(1, highlights.length - 1)}
-            nextFaculty={highlights[1]}
+            remainingFaculties={highlights.slice(1)}
             showProximity={Boolean(prediction.governorate)}
           />
         ) : null}
@@ -1089,9 +1089,11 @@ function PredictionResults({
 function FacultyResult({
   faculty,
   showProximity = false,
+  numberIndex,
 }: {
   faculty: FacultyPrediction;
   showProximity?: boolean;
+  numberIndex?: number;
 }) {
   const expectedMidpoint =
     (faculty.expectedRange[0] + faculty.expectedRange[1]) / 2;
@@ -1115,6 +1117,9 @@ function FacultyResult({
     <article className="faculty-result">
       <div>
         <h4>
+          {numberIndex !== undefined ? (
+            <span className="faculty-number-badge">{numberIndex}</span>
+          ) : null}
           {faculty.facultyName} — {faculty.universityName}
         </h4>
         <div className="faculty-meta">
@@ -1157,49 +1162,57 @@ function FacultyResult({
 
 function InstagramLockCard({
   onUnlock,
-  remainingCount,
-  nextFaculty,
+  remainingFaculties = [],
   showProximity = false,
 }: {
   onUnlock: () => void;
-  remainingCount: number;
-  nextFaculty?: FacultyPrediction;
+  remainingFaculties?: FacultyPrediction[];
   showProximity?: boolean;
 }) {
+  const remainingCount = remainingFaculties.length;
+
   return (
     <div
-      className="locked-faculty-wrapper"
+      className="locked-faculties-container"
       onClick={onUnlock}
       role="button"
       tabIndex={0}
       title="اضغط للمتابعة على Instagram وتفعيل باقي الكليات"
     >
-      {nextFaculty ? (
-        <div className="blurred-faculty-preview" aria-hidden="true">
-          <FacultyResult faculty={nextFaculty} showProximity={showProximity} />
-        </div>
-      ) : null}
-      <div className="instagram-lock-overlay">
-        <div className="lock-overlay-content">
+      <div className="blurred-faculties-list" aria-hidden="true">
+        {remainingFaculties.map((faculty, idx) => (
+          <FacultyResult
+            key={`locked-${faculty.id}`}
+            faculty={faculty}
+            showProximity={showProximity}
+            numberIndex={idx + 2}
+          />
+        ))}
+      </div>
+
+      <div className="instagram-lock-floating-overlay">
+        <div className="lock-floating-card">
           <div className="lock-icon-badge">
-            <LockKeyhole size={20} aria-hidden="true" />
+            <LockKeyhole size={24} aria-hidden="true" />
           </div>
-          <div>
+          <div className="lock-card-info">
             <h3>🔒 +{remainingCount} كليات واختيارات إضافية مقفولة</h3>
-            <p>تابعنا على إنستغرام لفك القفل فوراً وإظهار باقي الكليات 🎓</p>
+            <p>
+              تابعنا على إنستغرام لفك القفل فوراً وإظهار باقي الكليات 2 ، 3 ، 4 ، 5 🎓
+            </p>
           </div>
+          <button
+            type="button"
+            className="instagram-unlock-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onUnlock();
+            }}
+          >
+            <Instagram size={20} aria-hidden="true" />
+            تابعنا على Instagram لفك القفل وإظهار الكليات
+          </button>
         </div>
-        <button
-          type="button"
-          className="instagram-unlock-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            onUnlock();
-          }}
-        >
-          <Instagram size={18} aria-hidden="true" />
-          تابعنا على Instagram لفك القفل
-        </button>
       </div>
     </div>
   );
