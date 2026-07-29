@@ -971,6 +971,7 @@ function PredictionResults({
             </p>
           </div>
         </div>
+        {/* Option ① — always visible */}
         {displayedHighlights.length ? (
           displayedHighlights.map((faculty, idx) => (
             <FacultyResult
@@ -995,12 +996,24 @@ function PredictionResults({
           </div>
         )}
 
+        {/* Compact lock strip + locked options ②③④⑤ */}
         {!isUnlocked && highlights.length > 1 ? (
-          <InstagramLockCard
-            onUnlock={handleUnlock}
-            remainingFaculties={highlights.slice(1)}
-            showProximity={Boolean(prediction.governorate)}
-          />
+          <>
+            <InstagramLockStrip
+              onUnlock={handleUnlock}
+              remainingCount={highlights.length - 1}
+            />
+            {highlights.slice(1).map((faculty, idx) => (
+              <FacultyResult
+                key={`locked-${faculty.id}`}
+                faculty={faculty}
+                showProximity={Boolean(prediction.governorate)}
+                numberIndex={idx + 2}
+                isLocked
+                onUnlock={handleUnlock}
+              />
+            ))}
+          </>
         ) : null}
       </div>
 
@@ -1090,10 +1103,14 @@ function FacultyResult({
   faculty,
   showProximity = false,
   numberIndex,
+  isLocked = false,
+  onUnlock,
 }: {
   faculty: FacultyPrediction;
   showProximity?: boolean;
   numberIndex?: number;
+  isLocked?: boolean;
+  onUnlock?: () => void;
 }) {
   const expectedMidpoint =
     (faculty.expectedRange[0] + faculty.expectedRange[1]) / 2;
@@ -1114,106 +1131,116 @@ function FacultyResult({
             : "نحتاج بيانات أكثر قبل تقدير فرصتك.";
 
   return (
-    <article className="faculty-result">
+    <article
+      className={`faculty-result${isLocked ? " locked" : ""}`}
+      onClick={isLocked && onUnlock ? onUnlock : undefined}
+      role={isLocked ? "button" : undefined}
+      tabIndex={isLocked ? 0 : undefined}
+    >
       <div>
         <h4>
           {numberIndex !== undefined ? (
             <span className="faculty-number-badge">{numberIndex}</span>
           ) : null}
-          {faculty.facultyName} — {faculty.universityName}
+          {isLocked ? (
+            <span className="locked-text">████████ — ██████████</span>
+          ) : (
+            <>
+              {faculty.facultyName} — {faculty.universityName}
+            </>
+          )}
         </h4>
         <div className="faculty-meta">
           <span className="faculty-location">
             <MapPin size={13} aria-hidden="true" />
-            {faculty.governorate}
+            {isLocked ? (
+              <span className="locked-text">████</span>
+            ) : (
+              faculty.governorate
+            )}
           </span>
-          {showProximity ? (
+          {showProximity && !isLocked ? (
             <span className={`proximity-badge proximity-${faculty.proximityTier}`}>
               {faculty.proximityLabel}
             </span>
           ) : null}
-          <span>{faculty.sector}</span>
+          <span>
+            {isLocked ? <span className="locked-text">██████</span> : faculty.sector}
+          </span>
         </div>
         <div className="faculty-cutoffs">
           <span>
             المتوقع 2026:{" "}
-            <b className="ltr-number">
-              {faculty.expectedRange[0]}%–{faculty.expectedRange[1]}%
-            </b>
+            {isLocked ? (
+              <b className="locked-text">██.██%–██.██%</b>
+            ) : (
+              <b className="ltr-number">
+                {faculty.expectedRange[0]}%–{faculty.expectedRange[1]}%
+              </b>
+            )}
           </span>
           <span>
             حد 2025:{" "}
-            <b className="ltr-number">
-              {faculty.official2025Score} / 320
-            </b>
+            {isLocked ? (
+              <b className="locked-text">███ / 320</b>
+            ) : (
+              <b className="ltr-number">
+                {faculty.official2025Score} / 320
+              </b>
+            )}
           </span>
         </div>
-        <p className="faculty-chance-copy">{categorySummary}</p>
+        <p className="faculty-chance-copy">
+          {isLocked ? (
+            <span className="locked-text">████████████████████████</span>
+          ) : (
+            categorySummary
+          )}
+        </p>
       </div>
-      <span
-        className={`category-badge ${categoryClass[faculty.category]}`}
-        title={`مستوى الثقة: ${faculty.confidence}`}
-      >
-        {categoryLabels[faculty.category]}
-      </span>
+      {isLocked ? (
+        <span className="category-badge locked-badge">
+          <LockKeyhole size={14} aria-hidden="true" />
+          مقفول
+        </span>
+      ) : (
+        <span
+          className={`category-badge ${categoryClass[faculty.category]}`}
+          title={`مستوى الثقة: ${faculty.confidence}`}
+        >
+          {categoryLabels[faculty.category]}
+        </span>
+      )}
     </article>
   );
 }
 
-function InstagramLockCard({
+function InstagramLockStrip({
   onUnlock,
-  remainingFaculties = [],
-  showProximity = false,
+  remainingCount,
 }: {
   onUnlock: () => void;
-  remainingFaculties?: FacultyPrediction[];
-  showProximity?: boolean;
+  remainingCount: number;
 }) {
-  const remainingCount = remainingFaculties.length;
-
   return (
-    <div
-      className="locked-faculties-container"
-      onClick={onUnlock}
-      role="button"
-      tabIndex={0}
-      title="اضغط للمتابعة على Instagram وتفعيل باقي الكليات"
-    >
-      <div className="blurred-faculties-list" aria-hidden="true">
-        {remainingFaculties.map((faculty, idx) => (
-          <FacultyResult
-            key={`locked-${faculty.id}`}
-            faculty={faculty}
-            showProximity={showProximity}
-            numberIndex={idx + 2}
-          />
-        ))}
+    <div className="instagram-lock-strip" onClick={onUnlock} role="button" tabIndex={0}>
+      <div className="lock-strip-info">
+        <LockKeyhole size={16} aria-hidden="true" />
+        <span>
+          <strong>+{remainingCount}</strong> كليات إضافية مقفولة
+        </span>
       </div>
-
-      <div className="instagram-lock-floating-overlay">
-        <div className="lock-floating-card">
-          <div className="lock-icon-badge">
-            <LockKeyhole size={24} aria-hidden="true" />
-          </div>
-          <div className="lock-card-info">
-            <h3>🔒 +{remainingCount} كليات واختيارات إضافية مقفولة</h3>
-            <p>
-              تابعنا على إنستغرام لفك القفل فوراً وإظهار باقي الكليات 2 ، 3 ، 4 ، 5 🎓
-            </p>
-          </div>
-          <button
-            type="button"
-            className="instagram-unlock-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onUnlock();
-            }}
-          >
-            <Instagram size={20} aria-hidden="true" />
-            تابعنا على Instagram لفك القفل وإظهار الكليات
-          </button>
-        </div>
-      </div>
+      <button
+        type="button"
+        className="instagram-unlock-btn"
+        onClick={(e) => {
+          e.stopPropagation();
+          onUnlock();
+        }}
+      >
+        <Instagram size={16} aria-hidden="true" />
+        تابعنا لفك القفل
+      </button>
     </div>
   );
 }
