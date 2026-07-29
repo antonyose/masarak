@@ -398,35 +398,7 @@ export function ToolExperience({
                   </div>
                 </div>
 
-                <div className="field">
-                  <span className="field-label" id="system-label">
-                    نظام الثانوية
-                  </span>
-                  <div
-                    className="segmented"
-                    role="group"
-                    aria-labelledby="system-label"
-                  >
-                    <button
-                      className="segment"
-                      type="button"
-                      aria-pressed={system === "new"}
-                      disabled={!getMaxScore(year, "new")}
-                      onClick={() => chooseSystem("new")}
-                    >
-                      النظام الجديد
-                    </button>
-                    <button
-                      className="segment"
-                      type="button"
-                      aria-pressed={system === "old"}
-                      disabled={!getMaxScore(year, "old")}
-                      onClick={() => chooseSystem("old")}
-                    >
-                      النظام القديم
-                    </button>
-                  </div>
-                </div>
+
 
                 <div className="field field-full">
                   <label htmlFor="prediction-branch">الشعبة</label>
