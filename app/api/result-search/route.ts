@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { createHmac } from "node:crypto";
 import { getDatabase } from "@/db/client";
+import { trackEvent } from "@/lib/analytics";
 import {
   hasLocalResultsDatabase,
   searchLocalResults,
@@ -225,12 +226,6 @@ async function searchDatabase({
   `);
   return result.rows;
 }
-
-import { trackEvent } from "@/lib/analytics";
-import {
-  hasLocalResultsDatabase,
-  searchLocalResults,
-} from "@/lib/local-results";
 
 export async function POST(request: Request) {
   trackEvent("search");
