@@ -1,0 +1,565 @@
+{
+  "generatedAt": "2026-07-29T10:48:12.070Z",
+  "workbooks": [
+    {
+      "file": "2023.xlsx",
+      "sizeBytes": 37023481,
+      "sha256": "8612501616cccb38c925a1b211e5b29ab508614a0c6732035cb944244c614906",
+      "estimatedYear": 2023,
+      "sheetCount": 1,
+      "sheets": [
+        {
+          "name": "Stage_New_Search",
+          "range": "A1:F764463",
+          "headerRow": 1,
+          "rowCount": 764462,
+          "columnCount": 6,
+          "columns": [
+            {
+              "index": 0,
+              "label": "seating_no",
+              "normalizedLabel": "seating no",
+              "kind": "seatNumber",
+              "confidence": "high"
+            },
+            {
+              "index": 1,
+              "label": "arabic_name",
+              "normalizedLabel": "arabic name",
+              "kind": "name",
+              "confidence": "medium"
+            },
+            {
+              "index": 2,
+              "label": "total_degree",
+              "normalizedLabel": "total degree",
+              "kind": "totalScore",
+              "confidence": "medium"
+            },
+            {
+              "index": 3,
+              "label": "student_case",
+              "normalizedLabel": "student case",
+              "kind": "status",
+              "confidence": "medium"
+            },
+            {
+              "index": 4,
+              "label": "student_case_desc",
+              "normalizedLabel": "student case desc",
+              "kind": "status",
+              "confidence": "high"
+            },
+            {
+              "index": 5,
+              "label": "c_flage",
+              "normalizedLabel": "c flage",
+              "kind": "unknown",
+              "confidence": "low"
+            }
+          ],
+          "detected": {
+            "seatNumber": {
+              "index": 0,
+              "label": "seating_no",
+              "normalizedLabel": "seating no",
+              "kind": "seatNumber",
+              "confidence": "high"
+            },
+            "name": {
+              "index": 1,
+              "label": "arabic_name",
+              "normalizedLabel": "arabic name",
+              "kind": "name",
+              "confidence": "medium"
+            },
+            "totalScore": {
+              "index": 2,
+              "label": "total_degree",
+              "normalizedLabel": "total degree",
+              "kind": "totalScore",
+              "confidence": "medium"
+            },
+            "status": {
+              "index": 4,
+              "label": "student_case_desc",
+              "normalizedLabel": "student case desc",
+              "kind": "status",
+              "confidence": "high"
+            }
+          },
+          "subjectColumns": [],
+          "sampleRows": [
+            {
+              "seating_no": "****500",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 636.25,
+              "student_case": 1,
+              "student_case_desc": "ناجح دور أول",
+              "c_flage": 3
+            },
+            {
+              "seating_no": "****501",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 547.150024414063,
+              "student_case": 1,
+              "student_case_desc": "ناجح دور أول",
+              "c_flage": 3
+            },
+            {
+              "seating_no": "****502",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 608.239990234375,
+              "student_case": 1,
+              "student_case_desc": "ناجح دور أول",
+              "c_flage": 3
+            },
+            {
+              "seating_no": "****503",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 626.710021972656,
+              "student_case": 1,
+              "student_case_desc": "ناجح دور أول",
+              "c_flage": 3
+            },
+            {
+              "seating_no": "****504",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 632.809997558594,
+              "student_case": 1,
+              "student_case_desc": "ناجح دور أول",
+              "c_flage": 3
+            }
+          ],
+          "score": {
+            "numericCount": 764462,
+            "minimum": 0,
+            "maximum": 661.299987792969,
+            "median": 265,
+            "percentile95": 359,
+            "countAbove320": 138470,
+            "countAbove410": 1807
+          },
+          "missing": {
+            "names": 0,
+            "seatNumbers": 0,
+            "totalScores": 0
+          },
+          "duplicateSeatNumbers": 0,
+          "branchInformation": false,
+          "likelyEducationSystems": [
+            "old"
+          ],
+          "likelyStatuses": [
+            "ناجح دور أول",
+            "راسب دور أول",
+            "دور ثان"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "2026 sheet.xlsx",
+      "sizeBytes": 31152110,
+      "sha256": "10505889431ae00b31b6c4cdf7c37fd0e34a5d082a81d1456ac0bbee8f663671",
+      "estimatedYear": 2026,
+      "sheetCount": 1,
+      "sheets": [
+        {
+          "name": "نسخة البحث الدور الأول 2026 - ن",
+          "range": "A1:D919397",
+          "headerRow": 1,
+          "rowCount": 919396,
+          "columnCount": 4,
+          "columns": [
+            {
+              "index": 0,
+              "label": "seating_no",
+              "normalizedLabel": "seating no",
+              "kind": "seatNumber",
+              "confidence": "high"
+            },
+            {
+              "index": 1,
+              "label": "arabic_name",
+              "normalizedLabel": "arabic name",
+              "kind": "name",
+              "confidence": "medium"
+            },
+            {
+              "index": 2,
+              "label": "total_degree",
+              "normalizedLabel": "total degree",
+              "kind": "totalScore",
+              "confidence": "medium"
+            },
+            {
+              "index": 3,
+              "label": "student_case_desc",
+              "normalizedLabel": "student case desc",
+              "kind": "status",
+              "confidence": "high"
+            }
+          ],
+          "detected": {
+            "seatNumber": {
+              "index": 0,
+              "label": "seating_no",
+              "normalizedLabel": "seating no",
+              "kind": "seatNumber",
+              "confidence": "high"
+            },
+            "name": {
+              "index": 1,
+              "label": "arabic_name",
+              "normalizedLabel": "arabic name",
+              "kind": "name",
+              "confidence": "medium"
+            },
+            "totalScore": {
+              "index": 2,
+              "label": "total_degree",
+              "normalizedLabel": "total degree",
+              "kind": "totalScore",
+              "confidence": "medium"
+            },
+            "status": {
+              "index": 3,
+              "label": "student_case_desc",
+              "normalizedLabel": "student case desc",
+              "kind": "status",
+              "confidence": "high"
+            }
+          },
+          "subjectColumns": [],
+          "sampleRows": [
+            {
+              "seating_no": "****970",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 290,
+              "student_case_desc": "ناجح دور أول"
+            },
+            {
+              "seating_no": "****971",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 287,
+              "student_case_desc": "ناجح دور أول"
+            },
+            {
+              "seating_no": "****972",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 179.5,
+              "student_case_desc": "ناجح دور أول"
+            },
+            {
+              "seating_no": "****973",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 240,
+              "student_case_desc": "ناجح دور أول"
+            },
+            {
+              "seating_no": "****974",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 222,
+              "student_case_desc": "ناجح دور أول"
+            }
+          ],
+          "score": {
+            "numericCount": 919396,
+            "minimum": 0,
+            "maximum": 320,
+            "median": 203.5,
+            "percentile95": 286.5,
+            "countAbove320": 0,
+            "countAbove410": 0
+          },
+          "missing": {
+            "names": 0,
+            "seatNumbers": 0,
+            "totalScores": 0
+          },
+          "duplicateSeatNumbers": 0,
+          "branchInformation": false,
+          "likelyEducationSystems": [
+            "new"
+          ],
+          "likelyStatuses": [
+            "ناجح دور أول",
+            "دور ثان",
+            "راسب دور أول",
+            "غياب كلى دور أول"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "نتيجة الثانوية 24.xlsx",
+      "sizeBytes": 35689534,
+      "sha256": "e68877ebc54ddcbf7b94a85e38cfee31079ea87491cfaef55b697f361d2dd5c5",
+      "estimatedYear": 2024,
+      "sheetCount": 1,
+      "sheets": [
+        {
+          "name": "Stage_New_Search",
+          "range": "A1:F734991",
+          "headerRow": 1,
+          "rowCount": 734990,
+          "columnCount": 6,
+          "columns": [
+            {
+              "index": 0,
+              "label": "رقم الجلوس",
+              "normalizedLabel": "رقم الجلوس",
+              "kind": "seatNumber",
+              "confidence": "high"
+            },
+            {
+              "index": 1,
+              "label": "الاسم",
+              "normalizedLabel": "الاسم",
+              "kind": "name",
+              "confidence": "high"
+            },
+            {
+              "index": 2,
+              "label": "الدرجة",
+              "normalizedLabel": "الدرجة",
+              "kind": "totalScore",
+              "confidence": "medium"
+            },
+            {
+              "index": 3,
+              "label": "student_case",
+              "normalizedLabel": "student case",
+              "kind": "status",
+              "confidence": "medium"
+            },
+            {
+              "index": 4,
+              "label": "student_case_desc",
+              "normalizedLabel": "student case desc",
+              "kind": "status",
+              "confidence": "high"
+            },
+            {
+              "index": 5,
+              "label": "c_flage",
+              "normalizedLabel": "c flage",
+              "kind": "unknown",
+              "confidence": "low"
+            }
+          ],
+          "detected": {
+            "seatNumber": {
+              "index": 0,
+              "label": "رقم الجلوس",
+              "normalizedLabel": "رقم الجلوس",
+              "kind": "seatNumber",
+              "confidence": "high"
+            },
+            "name": {
+              "index": 1,
+              "label": "الاسم",
+              "normalizedLabel": "الاسم",
+              "kind": "name",
+              "confidence": "high"
+            },
+            "totalScore": {
+              "index": 2,
+              "label": "الدرجة",
+              "normalizedLabel": "الدرجة",
+              "kind": "totalScore",
+              "confidence": "medium"
+            },
+            "status": {
+              "index": 4,
+              "label": "student_case_desc",
+              "normalizedLabel": "student case desc",
+              "kind": "status",
+              "confidence": "high"
+            }
+          },
+          "subjectColumns": [],
+          "sampleRows": [
+            {
+              "رقم الجلوس": "***000",
+              "الاسم": "[محجوب لحماية الخصوصية]",
+              "الدرجة": 539.27001953125,
+              "student_case": 1,
+              "student_case_desc": "ناجح دور أول",
+              "c_flage": 3
+            },
+            {
+              "رقم الجلوس": "***001",
+              "الاسم": "[محجوب لحماية الخصوصية]",
+              "الدرجة": 595.580017089844,
+              "student_case": 1,
+              "student_case_desc": "ناجح دور أول",
+              "c_flage": 3
+            },
+            {
+              "رقم الجلوس": "***002",
+              "الاسم": "[محجوب لحماية الخصوصية]",
+              "الدرجة": 613.919982910156,
+              "student_case": 1,
+              "student_case_desc": "ناجح دور أول",
+              "c_flage": 3
+            },
+            {
+              "رقم الجلوس": "***003",
+              "الاسم": "[محجوب لحماية الخصوصية]",
+              "الدرجة": 573.130004882813,
+              "student_case": 1,
+              "student_case_desc": "ناجح دور أول",
+              "c_flage": 3
+            },
+            {
+              "رقم الجلوس": "***004",
+              "الاسم": "[محجوب لحماية الخصوصية]",
+              "الدرجة": 576.179992675781,
+              "student_case": 1,
+              "student_case_desc": "ناجح دور أول",
+              "c_flage": 3
+            }
+          ],
+          "score": {
+            "numericCount": 734990,
+            "minimum": 0,
+            "maximum": 671.909973144531,
+            "median": 279,
+            "percentile95": 369.5,
+            "countAbove320": 194293,
+            "countAbove410": 1630
+          },
+          "missing": {
+            "names": 0,
+            "seatNumbers": 0,
+            "totalScores": 0
+          },
+          "duplicateSeatNumbers": 0,
+          "branchInformation": false,
+          "likelyEducationSystems": [
+            "old"
+          ],
+          "likelyStatuses": [
+            "ناجح دور أول",
+            "راسب دور أول",
+            "دور ثان",
+            "غياب كلى دور أول"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "نتيجة الثانوية العامة 2025.xlsx",
+      "sizeBytes": 29663911,
+      "sha256": "afc2041db4be063cf6bd2aeec94e1e21db5a2ed3671399ed16aaee9146acf5bf",
+      "estimatedYear": 2025,
+      "sheetCount": 1,
+      "sheets": [
+        {
+          "name": "النظام الجديد",
+          "range": "A1:C810981",
+          "headerRow": 1,
+          "rowCount": 810980,
+          "columnCount": 3,
+          "columns": [
+            {
+              "index": 0,
+              "label": "seating_no",
+              "normalizedLabel": "seating no",
+              "kind": "seatNumber",
+              "confidence": "high"
+            },
+            {
+              "index": 1,
+              "label": "arabic_name",
+              "normalizedLabel": "arabic name",
+              "kind": "name",
+              "confidence": "medium"
+            },
+            {
+              "index": 2,
+              "label": "total_degree",
+              "normalizedLabel": "total degree",
+              "kind": "totalScore",
+              "confidence": "medium"
+            }
+          ],
+          "detected": {
+            "seatNumber": {
+              "index": 0,
+              "label": "seating_no",
+              "normalizedLabel": "seating no",
+              "kind": "seatNumber",
+              "confidence": "high"
+            },
+            "name": {
+              "index": 1,
+              "label": "arabic_name",
+              "normalizedLabel": "arabic name",
+              "kind": "name",
+              "confidence": "medium"
+            },
+            "totalScore": {
+              "index": 2,
+              "label": "total_degree",
+              "normalizedLabel": "total degree",
+              "kind": "totalScore",
+              "confidence": "medium"
+            }
+          },
+          "subjectColumns": [],
+          "sampleRows": [
+            {
+              "seating_no": "****660",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 163.5
+            },
+            {
+              "seating_no": "****661",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 187.5
+            },
+            {
+              "seating_no": "****662",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 168
+            },
+            {
+              "seating_no": "****663",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 212
+            },
+            {
+              "seating_no": "****664",
+              "arabic_name": "[محجوب لحماية الخصوصية]",
+              "total_degree": 154
+            }
+          ],
+          "score": {
+            "numericCount": 810980,
+            "minimum": 0,
+            "maximum": 404,
+            "median": 217,
+            "percentile95": 292.5,
+            "countAbove320": 3595,
+            "countAbove410": 0
+          },
+          "missing": {
+            "names": 0,
+            "seatNumbers": 0,
+            "totalScores": 0
+          },
+          "duplicateSeatNumbers": 0,
+          "branchInformation": false,
+          "likelyEducationSystems": [
+            "new",
+            "old"
+          ],
+          "likelyStatuses": []
+        }
+      ]
+    }
+  ]
+}

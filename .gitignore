@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+.env
+.env.local
+.env.*.local
+*.log
+
+# The source workbooks and locally materialized result data are private.
+sheets/
+data/private/
+reports/private/
+
+# Generated import artifacts.
+*.dump
+*.sql.gz
+

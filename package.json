@@ -1,0 +1,47 @@
+{
+  "name": "masarak",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "inspect:sheets": "node --max-old-space-size=4096 --import tsx scripts/inspect-sheets.ts",
+    "validate:results": "node --max-old-space-size=4096 --import tsx scripts/validate-results.ts",
+    "index:results:local": "node --max-old-space-size=4096 --import tsx scripts/build-local-results-index.ts",
+    "import:results": "node --max-old-space-size=4096 --import tsx scripts/import-results.ts",
+    "calculate:distributions": "node --max-old-space-size=4096 --import tsx scripts/calculate-distributions.ts"
+  },
+  "dependencies": {
+    "@fontsource/cairo": "^5.2.6",
+    "@neondatabase/serverless": "^1.0.1",
+    "drizzle-orm": "^0.44.5",
+    "lucide-react": "^0.468.0",
+    "next": "^15.5.2",
+    "pg": "^8.16.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "xlsx": "^0.18.5",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@types/node": "^24.3.0",
+    "@types/pg": "^8.15.5",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "drizzle-kit": "^0.31.4",
+    "eslint": "^9.35.0",
+    "eslint-config-next": "^15.5.2",
+    "tailwindcss": "^4.1.12",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "packageManager": "pnpm@10.15.0"
+}
