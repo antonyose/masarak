@@ -1018,26 +1018,30 @@ function PredictionResults({
       </div>
 
       <button
-        className="secondary-disclosure"
+        className={`secondary-disclosure${!isUnlocked ? " locked-disclosure" : ""}`}
         type="button"
-        aria-expanded={showFullList}
-        onClick={() => setShowFullList((current) => !current)}
+        aria-expanded={isUnlocked ? showFullList : false}
+        onClick={isUnlocked ? () => setShowFullList((current) => !current) : handleUnlock}
       >
         <span>
-          {showFullList ? "إخفاء باقي الخيارات" : "عرض باقي الخيارات"}
+          {showFullList && isUnlocked ? "إخفاء باقي الخيارات" : "عرض باقي الخيارات"}
           <small>
             {Math.max(0, viablePredictions.length - highlights.length)} اختيارًا
             إضافيًا، و{distantCount} بعيدًا عن مجموعك
           </small>
         </span>
-        {showFullList ? (
+        {!isUnlocked ? (
+          <span className="disclosure-lock-hint">
+            <LockKeyhole size={15} aria-hidden="true" />
+          </span>
+        ) : showFullList ? (
           <ChevronUp size={18} aria-hidden="true" />
         ) : (
           <ChevronDown size={18} aria-hidden="true" />
         )}
       </button>
 
-      {showFullList ? (
+      {showFullList && isUnlocked ? (
         <>
           <div className="field result-filter">
             <label htmlFor="category-filter">اعرض حسب فرصة القبول</label>

@@ -1195,6 +1195,22 @@ a {
   font-weight: 500;
 }
 
+.locked-disclosure {
+  border-color: rgba(225, 48, 108, 0.3);
+  background: linear-gradient(135deg, rgba(225, 48, 108, 0.04), rgba(131, 58, 180, 0.03));
+}
+
+.locked-disclosure:hover {
+  border-color: rgba(225, 48, 108, 0.5);
+  background: linear-gradient(135deg, rgba(225, 48, 108, 0.1), rgba(131, 58, 180, 0.06));
+}
+
+.disclosure-lock-hint {
+  color: #c13584;
+  display: flex;
+  align-items: center;
+}
+
 .result-filter {
   margin-top: 1rem;
 }
