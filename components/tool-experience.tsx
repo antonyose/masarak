@@ -854,24 +854,6 @@ function PredictionResults({
   setProximityScope: (value: ProximityScope) => void;
 }) {
   const [showFullList, setShowFullList] = useState(false);
-  const [isUnlocked, setIsUnlocked] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("masarak_unlocked") === "true";
-    }
-    return false;
-  });
-
-  const handleUnlock = () => {
-    setIsUnlocked(true);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("masarak_unlocked", "true");
-    }
-    window.open(
-      "https://www.instagram.com/antonioss.tech",
-      "_blank",
-      "noopener,noreferrer",
-    );
-  };
 
   const scopedPredictions = prediction.predictions.filter(
     (faculty) =>
@@ -886,7 +868,6 @@ function PredictionResults({
       faculty.category === "reach",
   );
   const highlights = selectRecommendedFaculties(scopedPredictions);
-  const displayedHighlights = isUnlocked ? highlights : highlights.slice(0, 1);
   const distantCount = scopedPredictions.filter(
     (faculty) => faculty.category === "unlikely",
   ).length;
@@ -971,9 +952,8 @@ function PredictionResults({
             </p>
           </div>
         </div>
-        {/* Option ① — always visible */}
-        {displayedHighlights.length ? (
-          displayedHighlights.map((faculty, idx) => (
+        {highlights.length ? (
+          highlights.map((faculty, idx) => (
             <FacultyResult
               key={faculty.id}
               faculty={faculty}
@@ -995,53 +975,29 @@ function PredictionResults({
             ) : null}
           </div>
         )}
-
-        {/* Compact lock strip + locked options ②③④⑤ */}
-        {!isUnlocked && highlights.length > 1 ? (
-          <>
-            <InstagramLockStrip
-              onUnlock={handleUnlock}
-              remainingCount={highlights.length - 1}
-            />
-            {highlights.slice(1).map((faculty, idx) => (
-              <FacultyResult
-                key={`locked-${faculty.id}`}
-                faculty={faculty}
-                showProximity={Boolean(prediction.governorate)}
-                numberIndex={idx + 2}
-                isLocked
-                onUnlock={handleUnlock}
-              />
-            ))}
-          </>
-        ) : null}
       </div>
 
       <button
-        className={`secondary-disclosure${!isUnlocked ? " locked-disclosure" : ""}`}
+        className="secondary-disclosure"
         type="button"
-        aria-expanded={isUnlocked ? showFullList : false}
-        onClick={isUnlocked ? () => setShowFullList((current) => !current) : handleUnlock}
+        aria-expanded={showFullList}
+        onClick={() => setShowFullList((current) => !current)}
       >
         <span>
-          {showFullList && isUnlocked ? "إخفاء باقي الخيارات" : "عرض باقي الخيارات"}
+          {showFullList ? "إخفاء باقي الخيارات" : "عرض باقي الخيارات"}
           <small>
             {Math.max(0, viablePredictions.length - highlights.length)} اختيارًا
             إضافيًا، و{distantCount} بعيدًا عن مجموعك
           </small>
         </span>
-        {!isUnlocked ? (
-          <span className="disclosure-lock-hint">
-            <LockKeyhole size={15} aria-hidden="true" />
-          </span>
-        ) : showFullList ? (
+        {showFullList ? (
           <ChevronUp size={18} aria-hidden="true" />
         ) : (
           <ChevronDown size={18} aria-hidden="true" />
         )}
       </button>
 
-      {showFullList && isUnlocked ? (
+      {showFullList ? (
         <>
           <div className="field result-filter">
             <label htmlFor="category-filter">اعرض حسب فرصة القبول</label>
@@ -1107,14 +1063,10 @@ function FacultyResult({
   faculty,
   showProximity = false,
   numberIndex,
-  isLocked = false,
-  onUnlock,
 }: {
   faculty: FacultyPrediction;
   showProximity?: boolean;
   numberIndex?: number;
-  isLocked?: boolean;
-  onUnlock?: () => void;
 }) {
   const expectedMidpoint =
     (faculty.expectedRange[0] + faculty.expectedRange[1]) / 2;
@@ -1135,117 +1087,49 @@ function FacultyResult({
             : "نحتاج بيانات أكثر قبل تقدير فرصتك.";
 
   return (
-    <article
-      className={`faculty-result${isLocked ? " locked" : ""}`}
-      onClick={isLocked && onUnlock ? onUnlock : undefined}
-      role={isLocked ? "button" : undefined}
-      tabIndex={isLocked ? 0 : undefined}
-    >
+    <article className="faculty-result">
       <div>
         <h4>
           {numberIndex !== undefined ? (
             <span className="faculty-number-badge">{numberIndex}</span>
           ) : null}
-          {isLocked ? (
-            <span className="locked-text">████████ — ██████████</span>
-          ) : (
-            <>
-              {faculty.facultyName} — {faculty.universityName}
-            </>
-          )}
+          {faculty.facultyName} — {faculty.universityName}
         </h4>
         <div className="faculty-meta">
           <span className="faculty-location">
             <MapPin size={13} aria-hidden="true" />
-            {isLocked ? (
-              <span className="locked-text">████</span>
-            ) : (
-              faculty.governorate
-            )}
+            {faculty.governorate}
           </span>
-          {showProximity && !isLocked ? (
+          {showProximity ? (
             <span className={`proximity-badge proximity-${faculty.proximityTier}`}>
               {faculty.proximityLabel}
             </span>
           ) : null}
-          <span>
-            {isLocked ? <span className="locked-text">██████</span> : faculty.sector}
-          </span>
+          <span>{faculty.sector}</span>
         </div>
         <div className="faculty-cutoffs">
           <span>
             المتوقع 2026:{" "}
-            {isLocked ? (
-              <b className="locked-text">██.██%–██.██%</b>
-            ) : (
-              <b className="ltr-number">
-                {faculty.expectedRange[0]}%–{faculty.expectedRange[1]}%
-              </b>
-            )}
+            <b className="ltr-number">
+              {faculty.expectedRange[0]}%–{faculty.expectedRange[1]}%
+            </b>
           </span>
           <span>
             حد 2025:{" "}
-            {isLocked ? (
-              <b className="locked-text">███ / 320</b>
-            ) : (
-              <b className="ltr-number">
-                {faculty.official2025Score} / 320
-              </b>
-            )}
+            <b className="ltr-number">
+              {faculty.official2025Score} / 320
+            </b>
           </span>
         </div>
-        <p className="faculty-chance-copy">
-          {isLocked ? (
-            <span className="locked-text">████████████████████████</span>
-          ) : (
-            categorySummary
-          )}
-        </p>
+        <p className="faculty-chance-copy">{categorySummary}</p>
       </div>
-      {isLocked ? (
-        <span className="category-badge locked-badge">
-          <LockKeyhole size={14} aria-hidden="true" />
-          مقفول
-        </span>
-      ) : (
-        <span
-          className={`category-badge ${categoryClass[faculty.category]}`}
-          title={`مستوى الثقة: ${faculty.confidence}`}
-        >
-          {categoryLabels[faculty.category]}
-        </span>
-      )}
-    </article>
-  );
-}
-
-function InstagramLockStrip({
-  onUnlock,
-  remainingCount,
-}: {
-  onUnlock: () => void;
-  remainingCount: number;
-}) {
-  return (
-    <div className="instagram-lock-strip" onClick={onUnlock} role="button" tabIndex={0}>
-      <div className="lock-strip-info">
-        <LockKeyhole size={16} aria-hidden="true" />
-        <span>
-          <strong>+{remainingCount}</strong> كليات إضافية مقفولة
-        </span>
-      </div>
-      <button
-        type="button"
-        className="instagram-unlock-btn"
-        onClick={(e) => {
-          e.stopPropagation();
-          onUnlock();
-        }}
+      <span
+        className={`category-badge ${categoryClass[faculty.category]}`}
+        title={`مستوى الثقة: ${faculty.confidence}`}
       >
-        <Instagram size={16} aria-hidden="true" />
-        تابعنا لفك القفل
-      </button>
-    </div>
+        {categoryLabels[faculty.category]}
+      </span>
+    </article>
   );
 }
 
