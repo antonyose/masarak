@@ -41,37 +41,41 @@ export async function POST(request: Request) {
     };
 
     if (process.env.DATABASE_URL) {
-      const db = getDatabase();
-      const distribution = await db.execute(sql`
-        SELECT
-          students_above_score AS "studentsAboveScore",
-          total_successful_students AS "totalStudents",
-          branch
-        FROM score_distributions
-        WHERE year = ${body.data.year}
-          AND education_system = ${body.data.educationSystem}
-          AND branch IN (${body.data.branch}, 'unknown')
-          AND score <= ${body.data.score}
-        ORDER BY
-          CASE WHEN branch = ${body.data.branch} THEN 0 ELSE 1 END,
-          score DESC
-        LIMIT 1
-      `);
-      const row = distribution.rows[0] as
-        | {
-            studentsAboveScore: number;
-            totalStudents: number;
-            branch: string;
-          }
-        | undefined;
-      if (row) {
-        rank = {
-          estimatedRank: Number(row.studentsAboveScore) + 1,
-          studentsAboveScore: Number(row.studentsAboveScore),
-          totalStudents: Number(row.totalStudents),
-          confidence: row.branch === "unknown" ? "منخفضة" : "متوسطة",
-          branchFallback: row.branch === "unknown",
-        };
+      try {
+        const db = getDatabase();
+        const distribution = await db.execute(sql`
+          SELECT
+            students_above_score AS "studentsAboveScore",
+            total_successful_students AS "totalStudents",
+            branch
+          FROM score_distributions
+          WHERE year = ${body.data.year}
+            AND education_system = ${body.data.educationSystem}
+            AND branch IN (${body.data.branch}, 'unknown')
+            AND score <= ${body.data.score}
+          ORDER BY
+            CASE WHEN branch = ${body.data.branch} THEN 0 ELSE 1 END,
+            score DESC
+          LIMIT 1
+        `);
+        const row = distribution.rows[0] as
+          | {
+              studentsAboveScore: number;
+              totalStudents: number;
+              branch: string;
+            }
+          | undefined;
+        if (row) {
+          rank = {
+            estimatedRank: Number(row.studentsAboveScore) + 1,
+            studentsAboveScore: Number(row.studentsAboveScore),
+            totalStudents: Number(row.totalStudents),
+            confidence: row.branch === "unknown" ? "منخفضة" : "متوسطة",
+            branchFallback: row.branch === "unknown",
+          };
+        }
+      } catch (dbError) {
+        console.error("Database distribution lookup failed, using fallback calculation:", dbError);
       }
     }
 
@@ -88,7 +92,8 @@ export async function POST(request: Request) {
       },
       { headers: { "Cache-Control": "no-store" } },
     );
-  } catch {
+  } catch (error) {
+    console.error("Unhandled error in predict API route:", error);
     return NextResponse.json(
       { error: "تعذر حساب التوقع الآن. حاول مرة أخرى بعد قليل." },
       { status: 500 },

@@ -228,20 +228,19 @@ async function searchDatabase({
 }
 
 export async function POST(request: Request) {
-  await trackEvent("search");
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const requestKey = forwarded || "local";
-  if (await isRateLimited(requestKey)) {
-    return NextResponse.json(
-      { error: "تم إجراء محاولات كثيرة. انتظر دقيقة ثم حاول مرة أخرى." },
-      {
-        status: 429,
-        headers: { "Cache-Control": "private, no-store", "Retry-After": "60" },
-      },
-    );
-  }
-
   try {
+    await trackEvent("search");
+    const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+    const requestKey = forwarded || "local";
+    if (process.env.DATABASE_URL && (await isRateLimited(requestKey).catch(() => false))) {
+      return NextResponse.json(
+        { error: "تم إجراء محاولات كثيرة. انتظر دقيقة ثم حاول مرة أخرى." },
+        {
+          status: 429,
+          headers: { "Cache-Control": "private, no-store", "Retry-After": "60" },
+        },
+      );
+    }
     const parsed = resultSearchSchema.safeParse(await request.json());
     if (!parsed.success) {
       return NextResponse.json(

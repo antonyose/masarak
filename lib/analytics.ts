@@ -40,55 +40,74 @@ async function ready() {
 }
 
 export async function trackEvent(type: "view" | "predict" | "search") {
-  await ready();
-  const db = getDatabase();
-  const today = new Date().toISOString().split("T")[0];
+  try {
+    if (!process.env.DATABASE_URL) return;
+    await ready();
+    const db = getDatabase();
+    const today = new Date().toISOString().split("T")[0];
 
-  await db.execute(sql`
-    INSERT INTO analytics_events (event_type, event_date, count)
-    VALUES (${type}, ${today}, 1)
-    ON CONFLICT (event_type, event_date) DO UPDATE
-    SET count = analytics_events.count + 1
-  `);
+    await db.execute(sql`
+      INSERT INTO analytics_events (event_type, event_date, count)
+      VALUES (${type}, ${today}, 1)
+      ON CONFLICT (event_type, event_date) DO UPDATE
+      SET count = analytics_events.count + 1
+    `);
+  } catch (error) {
+    console.error("Failed to track analytics event:", error);
+  }
 }
 
 export async function getAnalytics(): Promise<AnalyticsData> {
-  await ready();
-  const db = getDatabase();
   const today = new Date().toISOString().split("T")[0];
-
-  const rows = await db.execute(sql`
-    SELECT event_type, event_date, count
-    FROM analytics_events
-  `);
-
-  let totalViews = 0;
-  let todayViews = 0;
-  let predictCount = 0;
-  let searchCount = 0;
-  let lastVisit = "";
-
-  for (const row of rows.rows) {
-    const eventType = row.event_type as string;
-    const eventDate = row.event_date as string;
-    const count = Number(row.count);
-
-    if (eventType === "view") {
-      totalViews += count;
-      if (eventDate === today) todayViews = count;
-      if (eventDate > lastVisit) lastVisit = eventDate;
-    } else if (eventType === "predict") {
-      predictCount += count;
-    } else if (eventType === "search") {
-      searchCount += count;
-    }
-  }
-
-  return {
-    totalViews,
-    todayViews,
-    predictCount,
-    searchCount,
-    lastVisit: lastVisit || today,
+  const defaultAnalytics: AnalyticsData = {
+    totalViews: 0,
+    todayViews: 0,
+    predictCount: 0,
+    searchCount: 0,
+    lastVisit: today,
   };
+
+  try {
+    if (!process.env.DATABASE_URL) return defaultAnalytics;
+    await ready();
+    const db = getDatabase();
+
+    const rows = await db.execute(sql`
+      SELECT event_type, event_date, count
+      FROM analytics_events
+    `);
+
+    let totalViews = 0;
+    let todayViews = 0;
+    let predictCount = 0;
+    let searchCount = 0;
+    let lastVisit = "";
+
+    for (const row of rows.rows) {
+      const eventType = row.event_type as string;
+      const eventDate = row.event_date as string;
+      const count = Number(row.count);
+
+      if (eventType === "view") {
+        totalViews += count;
+        if (eventDate === today) todayViews = count;
+        if (eventDate > lastVisit) lastVisit = eventDate;
+      } else if (eventType === "predict") {
+        predictCount += count;
+      } else if (eventType === "search") {
+        searchCount += count;
+      }
+    }
+
+    return {
+      totalViews,
+      todayViews,
+      predictCount,
+      searchCount,
+      lastVisit: lastVisit || today,
+    };
+  } catch (error) {
+    console.error("Failed to fetch analytics:", error);
+    return defaultAnalytics;
+  }
 }
