@@ -1,73 +1,94 @@
-import fs from "fs";
-import path from "path";
+import "server-only";
+import { sql } from "drizzle-orm";
+import { getDatabase } from "@/db/client";
 
 export type AnalyticsData = {
   totalViews: number;
-  todayViews: Record<string, number>;
+  todayViews: number;
   predictCount: number;
   searchCount: number;
   lastVisit: string;
 };
 
-const getFilePath = () => {
-  const isVercel = process.env.VERCEL === "1";
-  if (isVercel) {
-    return path.join("/tmp", "masarak-analytics.json");
-  }
-  const dir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  return path.join(dir, "analytics.json");
-};
-
-const defaultData: AnalyticsData = {
-  totalViews: 0,
-  todayViews: {},
-  predictCount: 0,
-  searchCount: 0,
-  lastVisit: new Date().toISOString(),
-};
-
-export function getAnalytics(): AnalyticsData {
-  try {
-    const filePath = getFilePath();
-    if (fs.existsSync(filePath)) {
-      const raw = fs.readFileSync(filePath, "utf-8");
-      return { ...defaultData, ...JSON.parse(raw) };
-    }
-  } catch (error) {
-    console.error("Failed to read analytics file:", error);
-  }
-  return defaultData;
+/**
+ * Ensures the analytics_events table exists (runs once per cold start).
+ * Uses IF NOT EXISTS so it's safe to call repeatedly.
+ */
+async function ensureTable() {
+  const db = getDatabase();
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS analytics_events (
+      id SERIAL PRIMARY KEY,
+      event_type TEXT NOT NULL,
+      event_date TEXT NOT NULL,
+      count INTEGER NOT NULL DEFAULT 0
+    )
+  `);
+  await db.execute(sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS analytics_events_type_date_idx
+    ON analytics_events (event_type, event_date)
+  `);
 }
 
-export function saveAnalytics(data: AnalyticsData) {
-  try {
-    const filePath = getFilePath();
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
-  } catch (error) {
-    console.error("Failed to write analytics file:", error);
+let tableReady = false;
+
+async function ready() {
+  if (!tableReady) {
+    await ensureTable();
+    tableReady = true;
   }
 }
 
-export function trackEvent(type: "view" | "predict" | "search") {
-  const data = getAnalytics();
+export async function trackEvent(type: "view" | "predict" | "search") {
+  await ready();
+  const db = getDatabase();
   const today = new Date().toISOString().split("T")[0];
 
-  if (!data.todayViews) data.todayViews = {};
-  if (!data.todayViews[today]) data.todayViews[today] = 0;
+  await db.execute(sql`
+    INSERT INTO analytics_events (event_type, event_date, count)
+    VALUES (${type}, ${today}, 1)
+    ON CONFLICT (event_type, event_date) DO UPDATE
+    SET count = analytics_events.count + 1
+  `);
+}
 
-  if (type === "view") {
-    data.totalViews += 1;
-    data.todayViews[today] += 1;
-    data.lastVisit = new Date().toISOString();
-  } else if (type === "predict") {
-    data.predictCount += 1;
-  } else if (type === "search") {
-    data.searchCount += 1;
+export async function getAnalytics(): Promise<AnalyticsData> {
+  await ready();
+  const db = getDatabase();
+  const today = new Date().toISOString().split("T")[0];
+
+  const rows = await db.execute(sql`
+    SELECT event_type, event_date, count
+    FROM analytics_events
+  `);
+
+  let totalViews = 0;
+  let todayViews = 0;
+  let predictCount = 0;
+  let searchCount = 0;
+  let lastVisit = "";
+
+  for (const row of rows.rows) {
+    const eventType = row.event_type as string;
+    const eventDate = row.event_date as string;
+    const count = Number(row.count);
+
+    if (eventType === "view") {
+      totalViews += count;
+      if (eventDate === today) todayViews = count;
+      if (eventDate > lastVisit) lastVisit = eventDate;
+    } else if (eventType === "predict") {
+      predictCount += count;
+    } else if (eventType === "search") {
+      searchCount += count;
+    }
   }
 
-  saveAnalytics(data);
-  return data;
+  return {
+    totalViews,
+    todayViews,
+    predictCount,
+    searchCount,
+    lastVisit: lastVisit || today,
+  };
 }

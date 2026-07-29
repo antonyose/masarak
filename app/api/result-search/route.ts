@@ -228,7 +228,7 @@ async function searchDatabase({
 }
 
 export async function POST(request: Request) {
-  trackEvent("search");
+  await trackEvent("search");
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   const requestKey = forwarded || "local";
   if (await isRateLimited(requestKey)) {

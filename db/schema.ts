@@ -189,3 +189,11 @@ export const historicalCutoffs = pgTable(
     ),
   ],
 );
+
+export const analyticsEvents = pgTable("analytics_events", {
+  id: serial("id").primaryKey(),
+  eventType: text("event_type").notNull(),
+  eventDate: text("event_date").notNull(),
+  count: integer("count").notNull().default(0),
+});
+

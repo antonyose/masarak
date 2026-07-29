@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    trackEvent("predict");
+    await trackEvent("predict");
     const body = predictionSchema.safeParse(await request.json());
     if (!body.success) {
       return NextResponse.json(

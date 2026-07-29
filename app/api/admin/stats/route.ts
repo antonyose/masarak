@@ -12,13 +12,11 @@ export async function GET() {
     return NextResponse.json({ error: "غير مصرح بالوصول" }, { status: 401 });
   }
 
-  const data = getAnalytics();
-  const today = new Date().toISOString().split("T")[0];
-  const todayCount = data.todayViews?.[today] || 0;
+  const data = await getAnalytics();
 
   return NextResponse.json({
     totalViews: data.totalViews,
-    todayViews: todayCount,
+    todayViews: data.todayViews,
     predictCount: data.predictCount,
     searchCount: data.searchCount,
     lastVisit: data.lastVisit,

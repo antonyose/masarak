@@ -5,8 +5,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
     const type = body.type === "predict" || body.type === "search" ? body.type : "view";
-    const updated = trackEvent(type);
-    return NextResponse.json({ success: true, data: updated });
+    await trackEvent(type);
+    return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to record analytics" },
