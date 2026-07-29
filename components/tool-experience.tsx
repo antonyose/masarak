@@ -11,7 +11,9 @@ import {
   Database,
   GraduationCap,
   Globe2,
+  HeartHandshake,
   Info,
+  Instagram,
   LockKeyhole,
   MapPin,
   Search,
@@ -852,6 +854,25 @@ function PredictionResults({
   setProximityScope: (value: ProximityScope) => void;
 }) {
   const [showFullList, setShowFullList] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("masarak_unlocked") === "true";
+    }
+    return false;
+  });
+
+  const handleUnlock = () => {
+    setIsUnlocked(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("masarak_unlocked", "true");
+    }
+    window.open(
+      "https://www.instagram.com/antonioss.tech",
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
   const scopedPredictions = prediction.predictions.filter(
     (faculty) =>
       proximityScope === "all" ||
@@ -865,6 +886,7 @@ function PredictionResults({
       faculty.category === "reach",
   );
   const highlights = selectRecommendedFaculties(scopedPredictions);
+  const displayedHighlights = isUnlocked ? highlights : highlights.slice(0, 1);
   const distantCount = scopedPredictions.filter(
     (faculty) => faculty.category === "unlikely",
   ).length;
@@ -901,6 +923,11 @@ function PredictionResults({
           <strong>{prediction.confidence}</strong>
         </div>
       </div>
+
+      <VodafoneCashSupport
+        score={prediction.score}
+        percentage={prediction.percentage}
+      />
 
       {prediction.governorate ? (
         <div className="proximity-toolbar" aria-label="نطاق المحافظات">
@@ -944,8 +971,8 @@ function PredictionResults({
             </p>
           </div>
         </div>
-        {highlights.length ? (
-          highlights.map((faculty) => (
+        {displayedHighlights.length ? (
+          displayedHighlights.map((faculty) => (
             <FacultyResult
               key={faculty.id}
               faculty={faculty}
@@ -966,6 +993,10 @@ function PredictionResults({
             ) : null}
           </div>
         )}
+
+        {!isUnlocked && highlights.length > 1 ? (
+          <InstagramLockCard onUnlock={handleUnlock} />
+        ) : null}
       </div>
 
       <button
@@ -1116,5 +1147,81 @@ function FacultyResult({
         {categoryLabels[faculty.category]}
       </span>
     </article>
+  );
+}
+
+function InstagramLockCard({ onUnlock }: { onUnlock: () => void }) {
+  return (
+    <div className="instagram-lock-card">
+      <div className="instagram-lock-header">
+        <div className="lock-icon-badge">
+          <LockKeyhole size={24} aria-hidden="true" />
+        </div>
+        <div>
+          <h3>تابعنا على إنستغرام لفتح باقي الكليات المتوقعة 🎓</h3>
+          <p>
+            دعمًا للمطور ولمساعدتنا في الاستمرار وتطوير ميزات وأدوات جديدة لطلاب الثانوية العامة.
+          </p>
+        </div>
+      </div>
+      <button type="button" className="instagram-unlock-btn" onClick={onUnlock}>
+        <Instagram size={20} aria-hidden="true" />
+        تابعنا على Instagram لفك القفل وإظهار باقي الكليات
+      </button>
+    </div>
+  );
+}
+
+function VodafoneCashSupport({
+  score,
+  percentage,
+}: {
+  score: number;
+  percentage: number;
+}) {
+  const [copied, setCopied] = useState(false);
+  const vfCashNumber = "01001014231";
+  const vfCashUrl = "http://vf.eg/vfcash?id=mt&qrId=hpSxBH";
+
+  if (score <= 290 && percentage <= 90.6) return null;
+
+  function copyNumber() {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(vfCashNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    }
+  }
+
+  return (
+    <div className="vfcash-support-card">
+      <div className="vfcash-header">
+        <span className="vfcash-badge">
+          <HeartHandshake size={15} aria-hidden="true" />
+          مبروك هذا المجموع المتميز! 🎉
+        </span>
+        <h3>ادعم تطوير واستمرار خدمة مسارك</h3>
+        <p>
+          سعداء بخدمتك! إذا فادك التقرير وحابب تدعم استمرار الخدمة وتغطية تكاليف الخوادم، يمكنك المساهمة عبر فودافون كاش:
+        </p>
+      </div>
+      <div className="vfcash-details">
+        <div className="vfcash-number-row">
+          <span className="vfcash-label">رقم فودافون كاش:</span>
+          <strong className="ltr-number vfcash-number">{vfCashNumber}</strong>
+          <button type="button" className="vfcash-copy-btn" onClick={copyNumber}>
+            {copied ? "تم النسخ! ✓" : "نسخ الرقم"}
+          </button>
+        </div>
+        <a
+          className="vfcash-link-btn"
+          href={vfCashUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          تحويل مباشر عبر تطبيق فودافون كاش
+        </a>
+      </div>
+    </div>
   );
 }

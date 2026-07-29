@@ -897,6 +897,172 @@ a {
   font-weight: 600;
 }
 
+/* Instagram Lock Card & Vodafone Cash Support */
+.instagram-lock-card {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, oklch(0.97 0.03 330), oklch(0.98 0.02 260));
+  border: 1.5px dashed oklch(0.7 0.18 330);
+  border-radius: var(--radius-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.instagram-lock-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lock-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: oklch(0.9 0.12 330);
+  color: oklch(0.4 0.22 330);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.instagram-lock-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: oklch(0.25 0.1 330);
+}
+
+.instagram-lock-card p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  max-width: 440px;
+}
+
+.instagram-unlock-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1.4rem;
+  background: linear-gradient(135deg, #e1306c, #c13584, #833ab4);
+  color: white;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(225, 48, 108, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.instagram-unlock-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(225, 48, 108, 0.45);
+}
+
+.vfcash-support-card {
+  margin: 1.2rem 0;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, oklch(0.97 0.05 142), oklch(0.96 0.04 180));
+  border: 1px solid oklch(0.82 0.1 142);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.vfcash-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  background: oklch(0.88 0.14 142);
+  color: oklch(0.3 0.18 142);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.vfcash-header h3 {
+  margin: 0.4rem 0 0;
+  font-size: 1.05rem;
+  color: oklch(0.2 0.1 142);
+}
+
+.vfcash-header p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.vfcash-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed oklch(0.82 0.1 142);
+}
+
+.vfcash-number-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vfcash-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.vfcash-number {
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+  color: #e60000;
+  font-weight: 900;
+}
+
+.vfcash-copy-btn {
+  padding: 0.35rem 0.7rem;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background 0.15s ease;
+}
+
+.vfcash-copy-btn:hover {
+  background: var(--surface-soft);
+}
+
+.vfcash-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1rem;
+  background: #e60000;
+  color: white !important;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 3px 10px rgba(230, 0, 0, 0.25);
+  transition: transform 0.15s ease;
+}
+
+.vfcash-link-btn:hover {
+  transform: translateY(-1px);
+}
+
 .faculty-location {
   display: inline-flex;
   align-items: center;
