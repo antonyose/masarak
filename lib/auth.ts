@@ -49,10 +49,17 @@ export const auth = betterAuth({
     max: 20,
     customStorage: authRateLimitStorage,
   },
+  trustedOrigins: [
+    "https://masarak.live",
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+    "https://*.vercel.app",
+  ],
   secret: productionRequired(
     process.env.BETTER_AUTH_SECRET,
     "BETTER_AUTH_SECRET",
     "local-development-secret-only-32chars",
   ),
-  baseURL: process.env.BETTER_AUTH_URL || "https://masarak.live",
+  baseURL: process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : (process.env.BETTER_AUTH_URL || "https://masarak.live"),
 });
