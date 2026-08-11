@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
+import { AuthButton } from "@/components/auth-button";
 
 export function SiteHeader() {
   return (
@@ -23,10 +24,13 @@ export function SiteHeader() {
           <Link href="/methodology">كيف نحسب التوقعات؟</Link>
         </nav>
 
-        <Link className="header-cta" href="/result-search">
-          <Search size={17} aria-hidden="true" />
-          <span>ابحث عن نتيجتك</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <AuthButton />
+          <Link className="header-cta" href="/result-search">
+            <Search size={17} aria-hidden="true" />
+            <span>ابحث عن نتيجتك</span>
+          </Link>
+        </div>
       </div>
     </header>
   );

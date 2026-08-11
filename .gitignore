@@ -17,4 +17,7 @@ reports/private/
 # Generated import artifacts.
 *.dump
 *.sql.gz
+.vercel/
+codebase_context.zip
+
 
