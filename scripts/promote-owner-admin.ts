@@ -8,18 +8,18 @@ async function main() {
   const requestedEmail = emailArgument?.slice("--email=".length).trim().toLowerCase();
   const sql = neon(databaseUrl);
 
-  const candidates = await sql<{
-    id: string;
-    email: string;
-    role: "user" | "admin";
-    created_at: string;
-  }>`
+  const candidates = (await sql`
     SELECT DISTINCT u.id, lower(u.email) AS email, u.role, u.created_at
     FROM "user" u
     JOIN account a ON a.user_id = u.id
     WHERE a.provider_id = 'google'
     ORDER BY u.created_at ASC
-  `;
+  `) as Array<{
+    id: string;
+    email: string;
+    role: "user" | "admin";
+    created_at: string;
+  }>;
   const selected = requestedEmail
     ? candidates.find((row) => row.email === requestedEmail)
     : candidates.length === 1

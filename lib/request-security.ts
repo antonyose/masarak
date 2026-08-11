@@ -44,6 +44,7 @@ export async function enforceRateLimit({
         ELSE rate_limits.expires_at
       END
     RETURNING "count", expires_at
+  `);
   const row = ((result as any).rows ? (result as any).rows[0] : (result as any)[0]) as { count?: number } | undefined;
   if (Number(row?.count ?? 1) > limit) throw new Error("RATE_LIMITED");
 }
