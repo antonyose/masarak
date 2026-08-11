@@ -15,6 +15,27 @@
       "when": 1785322535738,
       "tag": "0001_happy_jetstream",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786471674540,
+      "tag": "0002_stage2_launch",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786473895864,
+      "tag": "0003_stage2_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786474070990,
+      "tag": "0004_schema_alignment",
+      "breakpoints": true
     }
   ]
 }

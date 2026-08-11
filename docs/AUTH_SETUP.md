@@ -30,10 +30,14 @@ Configured in Vercel Production & Preview environments:
 
 ```env
 DATABASE_URL=postgresql://...
-BETTER_AUTH_SECRET=ea4f4d5fa3841dcdc7502064d6b44f94dcf2e735f6f4c0edbb6b697910c36812
+BETTER_AUTH_SECRET=<32-or-more-byte-random-secret>
 BETTER_AUTH_URL=https://masarak.live
 GOOGLE_CLIENT_ID=<Your-Google-Client-ID>
 GOOGLE_CLIENT_SECRET=<Your-Google-Client-Secret>
+TURSO_DATABASE_URL=libsql://...
+TURSO_AUTH_TOKEN=<read-only-token>
+BLOB_READ_WRITE_TOKEN=<private-store-token>
+RATE_LIMIT_SECRET=<random-secret>
 ```
 
 > **IMPORTANT**: `GOOGLE_CLIENT_SECRET` must **NEVER** use `NEXT_PUBLIC_` prefix.
@@ -97,26 +101,18 @@ if (session) {
 
 ---
 
-## 7. Extending Auth in Future Codex Work
+## 7. Implemented Account and Role Extensions
 
-### How to Add Email/Password Auth
-1. In `lib/auth.ts`, add `emailAndPassword: { enabled: true }`.
-2. In UI, call `signIn.email({ email, password })` or `signUp.email({ email, password, name })`.
+Email/password registration and automatic login are enabled in `lib/auth.ts`. The catch-all auth route validates name, email, normalized Egyptian phone, and an eight-character minimum password for email registration. Google login is unchanged; Google users may leave phone empty until payment.
 
-### How to Add User/Admin Roles
-1. In `db/schema.ts`, add `role: text("role").default("user")` to the `user` table.
-2. In `lib/auth.ts`, configure:
-   ```ts
-   user: {
-     additionalFields: {
-       role: {
-         type: "string",
-         defaultValue: "user",
-       },
-     },
-   }
-   ```
-3. Read `session.user.role` in API routes or Server Actions to enforce authorization checks.
+The existing `user` table receives nullable `phone` and a `user_role` defaulting to `user`. Server routes read the database role through `lib/authz.ts`; client state is never an admin authorization source. Promote the existing Google owner only after the migration:
+
+```powershell
+corepack pnpm admin:promote-owner
+corepack pnpm admin:promote-owner -- --apply
+```
+
+The dry run auto-resolves only when Neon contains one existing Google account. If multiple Google accounts exist, rerun with `--email=<exact-owner-email>`.
 
 ---
 
@@ -124,5 +120,5 @@ if (session) {
 
 - **Neon Auth Tables**: Created & verified (`user`, `session`, `account`, `verification`)
 - **Better Auth Endpoint**: Exposed at `/api/auth/[...all]`
-- **Local Typecheck & Build**: Passed clean (`pnpm run build`)
-- **Deployment**: Pushed to `main` branch on GitHub / Vercel
+- **Stage‑2 migration**: generated at `drizzle/0002_stage2_launch.sql`; apply only through the authorized staged handoff.
+- **Runtime verification**: follow `docs/END_TO_END_TESTING.md` after migration, seed, owner promotion, and staged deployment.

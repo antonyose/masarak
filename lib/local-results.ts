@@ -131,7 +131,11 @@ export function searchLocalResults({
   }
 
   const normalized = normalizeArabicName(query).toLowerCase();
-  const ftsQuery = `"${normalized.replaceAll('"', '""')}"`;
+  const ftsQuery = normalized
+    .split(/\s+/u)
+    .filter(Boolean)
+    .map((token) => `"${token.replaceAll('"', '""')}"*`)
+    .join(" AND ");
   const prefixPattern = `${normalized}%`;
   const wordPattern = `% ${normalized}%`;
 

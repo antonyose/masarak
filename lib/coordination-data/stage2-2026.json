@@ -1,0 +1,5584 @@
+{
+  "metadata": {
+    "year": 2026,
+    "currentStage": 2,
+    "frozenAt": "2026-08-11T00:00:00+03:00",
+    "registrationOpensAt": "2026-08-12T00:00:00+03:00",
+    "registrationClosesAt": "2026-08-16T23:59:59+03:00",
+    "sourceSha256": "bd007adb2e3d4aabd845f26419a8e67f6266049248063392a43879191d2aac40"
+  },
+  "stageRules": [
+    {
+      "stage": 2,
+      "educationSystem": "new",
+      "branch": "science",
+      "minimumScore": 220,
+      "maximumScore": 320,
+      "minimumPercentage": 68.75,
+      "studentCount": 234866
+    },
+    {
+      "stage": 2,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "minimumScore": 220,
+      "maximumScore": 320,
+      "minimumPercentage": 68.75,
+      "studentCount": 234866
+    },
+    {
+      "stage": 2,
+      "educationSystem": "new",
+      "branch": "literary",
+      "minimumScore": 205,
+      "maximumScore": 320,
+      "minimumPercentage": 64.06,
+      "studentCount": 31610
+    },
+    {
+      "stage": 2,
+      "educationSystem": "old",
+      "branch": "science",
+      "minimumScore": 280,
+      "maximumScore": 410,
+      "minimumPercentage": 68.29,
+      "studentCount": 379
+    },
+    {
+      "stage": 2,
+      "educationSystem": "old",
+      "branch": "mathematics",
+      "minimumScore": 280,
+      "maximumScore": 410,
+      "minimumPercentage": 68.29,
+      "studentCount": 379
+    },
+    {
+      "stage": 2,
+      "educationSystem": "old",
+      "branch": "literary",
+      "minimumScore": 240,
+      "maximumScore": 410,
+      "minimumPercentage": 58.53,
+      "studentCount": 76
+    }
+  ],
+  "sources": [
+    {
+      "key": "research-context",
+      "tier": "A",
+      "publisher": "Masarak frozen research context",
+      "url": "local:TANSIK_2026_STAGE2_RESEARCH_CONTEXT.md"
+    },
+    {
+      "key": "stage1-scientific",
+      "tier": "A",
+      "publisher": "Tansik",
+      "url": "https://tansik.digital.gov.eg/Application/Certificates/Thanwy/Limits/LimitE2026.htm"
+    },
+    {
+      "key": "stage1-literary",
+      "tier": "A",
+      "publisher": "Tansik",
+      "url": "https://tansik.digital.gov.eg/Application/Certificates/Thanwy/Limits/LimitA2026.htm"
+    },
+    {
+      "key": "stage2-scientific-vacancies",
+      "tier": "B",
+      "publisher": "Youm7 frozen mirror",
+      "url": "https://www.youm7.com/story/2026/8/11/تنسيق-المرحلة-الثانية-القائمة-الكامل-للكليات-والمعاهد-الشاغرة-أمام-الطلاب/7510195"
+    },
+    {
+      "key": "stage2-literary-vacancies",
+      "tier": "B",
+      "publisher": "Youm7 frozen mirror",
+      "url": "https://www.youm7.com/story/2026/8/10/الأماكن-الشاغرة-بتنسيق-المرحلة-الثانية-للثانوية-العامة-بالشعبة-الأدبية/7509321"
+    }
+  ],
+  "officialCutoffs": [
+    {
+      "facultyKey": "طب-المنصورة",
+      "officialNameArabic": "طب المنصورة",
+      "score": 309,
+      "maximumScore": 320,
+      "percentage": 96.56,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-الاسكندرية",
+      "officialNameArabic": "طب الإسكندرية",
+      "score": 308.5,
+      "maximumScore": 320,
+      "percentage": 96.41,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-القاهرة",
+      "officialNameArabic": "طب القاهرة",
+      "score": 308,
+      "maximumScore": 320,
+      "percentage": 96.25,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-الزقازيق",
+      "officialNameArabic": "طب الزقازيق",
+      "score": 308,
+      "maximumScore": 320,
+      "percentage": 96.25,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-دمياط",
+      "officialNameArabic": "طب دمياط",
+      "score": 307.5,
+      "maximumScore": 320,
+      "percentage": 96.09,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-طنطا",
+      "officialNameArabic": "طب طنطا",
+      "score": 307,
+      "maximumScore": 320,
+      "percentage": 95.94,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-كفر-الشيخ",
+      "officialNameArabic": "طب كفر الشيخ",
+      "score": 306.5,
+      "maximumScore": 320,
+      "percentage": 95.78,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-بنها",
+      "officialNameArabic": "طب بنها",
+      "score": 306,
+      "maximumScore": 320,
+      "percentage": 95.62,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-عين-شمس",
+      "officialNameArabic": "طب عين شمس",
+      "score": 305.5,
+      "maximumScore": 320,
+      "percentage": 95.47,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-بور-سعيد",
+      "officialNameArabic": "طب بور سعيد",
+      "score": 305,
+      "maximumScore": 320,
+      "percentage": 95.31,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "طب المنوفية بشبين الكوم",
+      "score": 305,
+      "maximumScore": 320,
+      "percentage": 95.31,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-العاصمة-بحلوان",
+      "officialNameArabic": "طب العاصمة بحلوان",
+      "score": 304.5,
+      "maximumScore": 320,
+      "percentage": 95.16,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "طب قناة السويس بالإسماعيلية",
+      "score": 304.5,
+      "maximumScore": 320,
+      "percentage": 95.16,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-السادات",
+      "officialNameArabic": "طب السادات",
+      "score": 304.5,
+      "maximumScore": 320,
+      "percentage": 95.16,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-السويس",
+      "officialNameArabic": "طب السويس",
+      "score": 304,
+      "maximumScore": 320,
+      "percentage": 95,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-الفيوم",
+      "officialNameArabic": "طب الفيوم",
+      "score": 304,
+      "maximumScore": 320,
+      "percentage": 95,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-بني-سويف",
+      "officialNameArabic": "طب بني سويف",
+      "score": 303.5,
+      "maximumScore": 320,
+      "percentage": 94.84,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-المنيا",
+      "officialNameArabic": "طب المنيا",
+      "score": 303,
+      "maximumScore": 320,
+      "percentage": 94.69,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-سوهاج",
+      "officialNameArabic": "طب سوهاج",
+      "score": 303,
+      "maximumScore": 320,
+      "percentage": 94.69,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-العريش",
+      "officialNameArabic": "طب العريش",
+      "score": 303,
+      "maximumScore": 320,
+      "percentage": 94.69,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسيوط",
+      "officialNameArabic": "طب أسيوط",
+      "score": 302.5,
+      "maximumScore": 320,
+      "percentage": 94.53,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-قنا",
+      "officialNameArabic": "طب قنا",
+      "score": 302,
+      "maximumScore": 320,
+      "percentage": 94.38,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-بترول-و-تعدين-السويس",
+      "officialNameArabic": "هندسة بترول و تعدين السويس",
+      "score": 302,
+      "maximumScore": 320,
+      "percentage": 94.38,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-الاقصر",
+      "officialNameArabic": "طب الاقصر",
+      "score": 301.5,
+      "maximumScore": 320,
+      "percentage": 94.22,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-الوادي-الجديد",
+      "officialNameArabic": "طب الوادي الجديد",
+      "score": 301.5,
+      "maximumScore": 320,
+      "percentage": 94.22,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسوان",
+      "officialNameArabic": "طب أسوان",
+      "score": 301,
+      "maximumScore": 320,
+      "percentage": 94.06,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-المنصورة",
+      "officialNameArabic": "طب أسنان المنصورة",
+      "score": 300.5,
+      "maximumScore": 320,
+      "percentage": 93.91,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-كفر-الشيخ",
+      "officialNameArabic": "طب أسنان كفر الشيخ",
+      "score": 300,
+      "maximumScore": 320,
+      "percentage": 93.75,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-الزقازيق",
+      "officialNameArabic": "طب أسنان الزقازيق",
+      "score": 300,
+      "maximumScore": 320,
+      "percentage": 93.75,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-طنطا",
+      "officialNameArabic": "طب أسنان طنطا",
+      "score": 300,
+      "maximumScore": 320,
+      "percentage": 93.75,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-الاسكندرية",
+      "officialNameArabic": "طب أسنان الإسكندرية",
+      "score": 300,
+      "maximumScore": 320,
+      "percentage": 93.75,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-القاهرة",
+      "officialNameArabic": "طب أسنان القاهرة",
+      "score": 300,
+      "maximumScore": 320,
+      "percentage": 93.75,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-عين-شمس",
+      "officialNameArabic": "طب أسنان عين شمس",
+      "score": 299.5,
+      "maximumScore": 320,
+      "percentage": 93.59,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "طب أسنان قناة السويس بالإسماعيلية",
+      "score": 299.5,
+      "maximumScore": 320,
+      "percentage": 93.59,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-وجراحة-الفم-والاسنان-سوهاج",
+      "officialNameArabic": "طب وجراحة الفم والأسنان سوهاج",
+      "score": 299.5,
+      "maximumScore": 320,
+      "percentage": 93.59,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-المنوفية",
+      "officialNameArabic": "طب أسنان المنوفية",
+      "score": 299.5,
+      "maximumScore": 320,
+      "percentage": 93.59,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-السويس",
+      "officialNameArabic": "طب أسنان السويس",
+      "score": 299,
+      "maximumScore": 320,
+      "percentage": 93.44,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-الفيوم",
+      "officialNameArabic": "طب أسنان الفيوم",
+      "score": 299,
+      "maximumScore": 320,
+      "percentage": 93.44,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-قنا",
+      "officialNameArabic": "طب أسنان قنا",
+      "score": 299,
+      "maximumScore": 320,
+      "percentage": 93.44,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-بني-سويف",
+      "officialNameArabic": "طب أسنان بني سويف",
+      "score": 298.7,
+      "maximumScore": 320,
+      "percentage": 93.34,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-اسيوط",
+      "officialNameArabic": "طب أسنان أسيوط",
+      "score": 298.5,
+      "maximumScore": 320,
+      "percentage": 93.28,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "طب-اسنان-المنيا",
+      "officialNameArabic": "طب أسنان المنيا",
+      "score": 298.5,
+      "maximumScore": 320,
+      "percentage": 93.28,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-المنصورة",
+      "officialNameArabic": "صيدلة المنصورة",
+      "score": 298,
+      "maximumScore": 320,
+      "percentage": 93.12,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-سوهاج",
+      "officialNameArabic": "صيدلة سوهاج",
+      "score": 297.5,
+      "maximumScore": 320,
+      "percentage": 92.97,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "علاج-طبيعي-كفر-الشيخ",
+      "officialNameArabic": "علاج طبيعي كفر الشيخ",
+      "score": 297.5,
+      "maximumScore": 320,
+      "percentage": 92.97,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "علاج-طبيعي-بورسعيد",
+      "officialNameArabic": "علاج طبيعي بورسعيد",
+      "score": 297,
+      "maximumScore": 320,
+      "percentage": 92.81,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "علاج-طبيعي-بنها",
+      "officialNameArabic": "علاج طبيعي بنها",
+      "score": 297,
+      "maximumScore": 320,
+      "percentage": 92.81,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-طنطا",
+      "officialNameArabic": "صيدلة طنطا",
+      "score": 297,
+      "maximumScore": 320,
+      "percentage": 92.81,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-الزقازيق",
+      "officialNameArabic": "صيدلة الزقازيق",
+      "score": 297,
+      "maximumScore": 320,
+      "percentage": 92.81,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "صيدلة قناة السويس بالإسماعيلية",
+      "score": 297,
+      "maximumScore": 320,
+      "percentage": 92.81,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-قنا",
+      "officialNameArabic": "صيدلة قنا",
+      "score": 296.5,
+      "maximumScore": 320,
+      "percentage": 92.66,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-المنوفية",
+      "officialNameArabic": "صيدلة المنوفية",
+      "score": 296.5,
+      "maximumScore": 320,
+      "percentage": 92.66,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-القاهرة",
+      "officialNameArabic": "صيدلة القاهرة",
+      "score": 296.5,
+      "maximumScore": 320,
+      "percentage": 92.66,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-دمنهور",
+      "officialNameArabic": "صيدلة دمنهور",
+      "score": 296.5,
+      "maximumScore": 320,
+      "percentage": 92.66,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "علاج-طبيعي-القاهرة",
+      "officialNameArabic": "علاج طبيعي القاهرة",
+      "score": 296.5,
+      "maximumScore": 320,
+      "percentage": 92.66,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-و-تصنيع-دوائي-كفر-الشيخ",
+      "officialNameArabic": "صيدلة و تصنيع دوائي كفر الشيخ",
+      "score": 296.5,
+      "maximumScore": 320,
+      "percentage": 92.66,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "علاج-طبيعي-قناة-السويس",
+      "officialNameArabic": "علاج طبيعي قناة السويس",
+      "score": 296.5,
+      "maximumScore": 320,
+      "percentage": 92.66,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "علاج-طبيعي-قنا",
+      "officialNameArabic": "علاج طبيعي قنا",
+      "score": 296,
+      "maximumScore": 320,
+      "percentage": 92.5,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-الاسكندرية",
+      "officialNameArabic": "صيدلة الإسكندرية",
+      "score": 296,
+      "maximumScore": 320,
+      "percentage": 92.5,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-بور-سعيد",
+      "officialNameArabic": "صيدلة بور سعيد",
+      "score": 296,
+      "maximumScore": 320,
+      "percentage": 92.5,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-عين-شمس",
+      "officialNameArabic": "صيدلة عين شمس",
+      "score": 296,
+      "maximumScore": 320,
+      "percentage": 92.5,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-اسيوط",
+      "officialNameArabic": "صيدلة أسيوط",
+      "score": 296,
+      "maximumScore": 320,
+      "percentage": 92.5,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "علاج-طبيعي-السويس",
+      "officialNameArabic": "علاج طبيعي السويس",
+      "score": 296,
+      "maximumScore": 320,
+      "percentage": 92.5,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-مدينة-السادات",
+      "officialNameArabic": "صيدلة مدينة السادات",
+      "score": 295.5,
+      "maximumScore": 320,
+      "percentage": 92.34,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-العاصمة-بحلوان",
+      "officialNameArabic": "صيدلة العاصمة بحلوان",
+      "score": 295.5,
+      "maximumScore": 320,
+      "percentage": 92.34,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-بني-سويف",
+      "officialNameArabic": "صيدلة بني سويف",
+      "score": 295.5,
+      "maximumScore": 320,
+      "percentage": 92.34,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "علاج-طبيعي-بني-سويف",
+      "officialNameArabic": "علاج طبيعي بني سويف",
+      "score": 295.5,
+      "maximumScore": 320,
+      "percentage": 92.34,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-المنيا",
+      "officialNameArabic": "صيدلة المنيا",
+      "score": 295,
+      "maximumScore": 320,
+      "percentage": 92.19,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-الفيوم",
+      "officialNameArabic": "صيدلة الفيوم",
+      "score": 295,
+      "maximumScore": 320,
+      "percentage": 92.19,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "صيدلة-ج-الوادي-الجديد",
+      "officialNameArabic": "صيدلة ج الوادي الجديد",
+      "score": 294.5,
+      "maximumScore": 320,
+      "percentage": 92.03,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-سوهاج",
+      "officialNameArabic": "حاسبات ومعلومات سوهاج علوم",
+      "score": 292.5,
+      "maximumScore": 320,
+      "percentage": 91.41,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-الكترونية-المنوفية-بمنوف",
+      "officialNameArabic": "هندسة إلكترونية المنوفية بمنوف",
+      "score": 291,
+      "maximumScore": 320,
+      "percentage": 90.94,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-المنصورة",
+      "officialNameArabic": "هندسة المنصورة",
+      "score": 290.5,
+      "maximumScore": 320,
+      "percentage": 90.78,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "هندسة قناة السويس بالإسماعيلية",
+      "score": 290,
+      "maximumScore": 320,
+      "percentage": 90.62,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-القاهرة",
+      "officialNameArabic": "هندسة القاهرة",
+      "score": 289.5,
+      "maximumScore": 320,
+      "percentage": 90.47,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-عين-شمس",
+      "officialNameArabic": "هندسة عين شمس",
+      "score": 288.5,
+      "maximumScore": 320,
+      "percentage": 90.16,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-دمياط",
+      "officialNameArabic": "هندسة دمياط",
+      "score": 287.5,
+      "maximumScore": 320,
+      "percentage": 89.84,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-الزقازيق",
+      "officialNameArabic": "هندسة الزقازيق",
+      "score": 286.5,
+      "maximumScore": 320,
+      "percentage": 89.53,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-بور-سعيد",
+      "officialNameArabic": "هندسة بور سعيد",
+      "score": 285,
+      "maximumScore": 320,
+      "percentage": 89.06,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-طنطا",
+      "officialNameArabic": "هندسة طنطا",
+      "score": 285,
+      "maximumScore": 320,
+      "percentage": 89.06,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-الاسكندرية",
+      "officialNameArabic": "هندسة الإسكندرية",
+      "score": 284.5,
+      "maximumScore": 320,
+      "percentage": 88.91,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-كفر-الشيخ",
+      "officialNameArabic": "هندسة كفر الشيخ",
+      "score": 284,
+      "maximumScore": 320,
+      "percentage": 88.75,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-بنها-بشبرا",
+      "officialNameArabic": "هندسة بنها بشبرا",
+      "score": 284,
+      "maximumScore": 320,
+      "percentage": 88.75,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "كلية-الهندسة-جامعة-دمنهور",
+      "officialNameArabic": "كلية الهندسة جامعة دمنهور",
+      "score": 283.5,
+      "maximumScore": 320,
+      "percentage": 88.59,
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-بنها",
+      "officialNameArabic": "هندسة بنها",
+      "score": 283,
+      "maximumScore": 320,
+      "percentage": 88.44,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "هندسة المنوفية بشبين الكوم",
+      "score": 282.5,
+      "maximumScore": 320,
+      "percentage": 88.28,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-العاصمة-بحلوان",
+      "officialNameArabic": "هندسة العاصمة بحلوان",
+      "score": 282.5,
+      "maximumScore": 320,
+      "percentage": 88.28,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-السويس",
+      "officialNameArabic": "هندسة السويس",
+      "score": 282.2,
+      "maximumScore": 320,
+      "percentage": 88.19,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-العاصمة-بالمطرية",
+      "officialNameArabic": "هندسة العاصمة بالمطرية",
+      "score": 281.5,
+      "maximumScore": 320,
+      "percentage": 87.97,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-الفيوم",
+      "officialNameArabic": "هندسة الفيوم",
+      "score": 280.5,
+      "maximumScore": 320,
+      "percentage": 87.66,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-بني-سويف",
+      "officialNameArabic": "هندسة بني سويف",
+      "score": 279.5,
+      "maximumScore": 320,
+      "percentage": 87.34,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-المنيا",
+      "officialNameArabic": "هندسة المنيا",
+      "score": 278.5,
+      "maximumScore": 320,
+      "percentage": 87.03,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-اسوان",
+      "officialNameArabic": "هندسة أسوان",
+      "score": 278,
+      "maximumScore": 320,
+      "percentage": 86.88,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-قنا",
+      "officialNameArabic": "هندسة قنا",
+      "score": 278,
+      "maximumScore": 320,
+      "percentage": 86.88,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-سوهاج",
+      "officialNameArabic": "هندسة سوهاج",
+      "score": 277.5,
+      "maximumScore": 320,
+      "percentage": 86.72,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-اسيوط",
+      "officialNameArabic": "هندسة أسيوط",
+      "score": 277.5,
+      "maximumScore": 320,
+      "percentage": 86.72,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-الوادي-الجديد",
+      "officialNameArabic": "هندسة الوادي الجديد",
+      "score": 277,
+      "maximumScore": 320,
+      "percentage": 86.56,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "هندسة-الطاقة-اسوان",
+      "officialNameArabic": "هندسة الطاقة أسوان",
+      "score": 276.5,
+      "maximumScore": 320,
+      "percentage": 86.41,
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اقتصاد-وعلوم-سياسية-القاهرة",
+      "officialNameArabic": "اقتصاد وعلوم سياسية القاهرة",
+      "score": 299,
+      "maximumScore": 320,
+      "percentage": 93.44,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "السن-كفر-الشيخ",
+      "officialNameArabic": "ألسن كفر الشيخ",
+      "score": 299,
+      "maximumScore": 320,
+      "percentage": 93.44,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "الدراسات-الاقتصادية-والعلوم-السياسة-الاسكندرية",
+      "officialNameArabic": "الدراسات الاقتصادية والعلوم السياسة الإسكندرية",
+      "score": 294,
+      "maximumScore": 320,
+      "percentage": 91.88,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "السن-عين-شمس",
+      "officialNameArabic": "ألسن عين شمس",
+      "score": 292,
+      "maximumScore": 320,
+      "percentage": 91.25,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اعلام-القاهرة",
+      "officialNameArabic": "إعلام القاهرة",
+      "score": 289,
+      "maximumScore": 320,
+      "percentage": 90.31,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "السن-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "ألسن قناة السويس بالإسماعيلية",
+      "score": 288.5,
+      "maximumScore": 320,
+      "percentage": 90.16,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "سياسة-واقتصاد-السويس",
+      "officialNameArabic": "سياسة واقتصاد السويس",
+      "score": 288.5,
+      "maximumScore": 320,
+      "percentage": 90.16,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "السن-الفيوم",
+      "officialNameArabic": "ألسن الفيوم",
+      "score": 288,
+      "maximumScore": 320,
+      "percentage": 90,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اعلام-عين-شمس",
+      "officialNameArabic": "إعلام عين شمس",
+      "score": 286,
+      "maximumScore": 320,
+      "percentage": 89.38,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "سياسة-واقتصاد-بني-سويف",
+      "officialNameArabic": "سياسة واقتصاد بني سويف",
+      "score": 286,
+      "maximumScore": 320,
+      "percentage": 89.38,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "السن-الغردقة",
+      "officialNameArabic": "ألسن الغردقة",
+      "score": 285,
+      "maximumScore": 320,
+      "percentage": 89.06,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "السن-بني-سويف",
+      "officialNameArabic": "ألسن بني سويف",
+      "score": 284,
+      "maximumScore": 320,
+      "percentage": 88.75,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اعلام-المنوفية",
+      "officialNameArabic": "إعلام المنوفية",
+      "score": 282,
+      "maximumScore": 320,
+      "percentage": 88.12,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "السن-المنيا",
+      "officialNameArabic": "ألسن المنيا",
+      "score": 282,
+      "maximumScore": 320,
+      "percentage": 88.12,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "السن-سوهاج",
+      "officialNameArabic": "ألسن سوهاج",
+      "score": 280.5,
+      "maximumScore": 320,
+      "percentage": 87.66,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "الاعاقة-والتاهيل-الزقازيق",
+      "officialNameArabic": "الاعاقة والتأهيل الزقازيق",
+      "score": 279,
+      "maximumScore": 320,
+      "percentage": 87.19,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "السن-الاقصر",
+      "officialNameArabic": "ألسن الأقصر",
+      "score": 279,
+      "maximumScore": 320,
+      "percentage": 87.19,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "السن-اسوان",
+      "officialNameArabic": "ألسن أسوان",
+      "score": 278.5,
+      "maximumScore": 320,
+      "percentage": 87.03,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اعلام-وتكنولوجيا-اتصال-السويس",
+      "officialNameArabic": "إعلام وتكنولوجيا اتصال السويس",
+      "score": 278,
+      "maximumScore": 320,
+      "percentage": 86.88,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اعلام-بني-سويف",
+      "officialNameArabic": "إعلام بني سويف",
+      "score": 277.5,
+      "maximumScore": 320,
+      "percentage": 86.72,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اعلام-قنا",
+      "officialNameArabic": "إعلام قنا",
+      "score": 275.5,
+      "maximumScore": 320,
+      "percentage": 86.09,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تكنولوجيا-الادارة-ونظم-المعلومات-بور-سعيد",
+      "officialNameArabic": "تكنولوجيا الادارة ونظم المعلومات بور سعيد",
+      "score": 273.5,
+      "maximumScore": 320,
+      "percentage": 85.47,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اثار-القاهرة",
+      "officialNameArabic": "آثار القاهرة",
+      "score": 273,
+      "maximumScore": 320,
+      "percentage": 85.31,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "الاعاقة-والتاهيل-بني-سويف",
+      "officialNameArabic": "الاعاقة والتأهيل بني سويف",
+      "score": 272.5,
+      "maximumScore": 320,
+      "percentage": 85.16,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اثار-عين-شمس",
+      "officialNameArabic": "آثار عين شمس",
+      "score": 272,
+      "maximumScore": 320,
+      "percentage": 85,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اثار-الزقازيق-بصان-الحجر",
+      "officialNameArabic": "آثار الزقازيق بصان الحجر",
+      "score": 271.5,
+      "maximumScore": 320,
+      "percentage": 84.84,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-بور-سعيد",
+      "officialNameArabic": "حقوق بور سعيد",
+      "score": 271.5,
+      "maximumScore": 320,
+      "percentage": 84.84,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اثار-دمياط",
+      "officialNameArabic": "آثار دمياط",
+      "score": 270.5,
+      "maximumScore": 320,
+      "percentage": 84.53,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اثار-الفيوم",
+      "officialNameArabic": "آثار الفيوم",
+      "score": 268.5,
+      "maximumScore": 320,
+      "percentage": 83.91,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اثار-و-لغات-مطروح",
+      "officialNameArabic": "آثار و لغات مطروح",
+      "score": 264.5,
+      "maximumScore": 320,
+      "percentage": 82.66,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اثار-اسوان",
+      "officialNameArabic": "آثار أسوان",
+      "score": 264.5,
+      "maximumScore": 320,
+      "percentage": 82.66,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اثار-الاقصر",
+      "officialNameArabic": "آثار الأقصر",
+      "score": 262.5,
+      "maximumScore": 320,
+      "percentage": 82.03,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-قنا",
+      "officialNameArabic": "حقوق قنا",
+      "score": 260.5,
+      "maximumScore": 320,
+      "percentage": 81.41,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-القاهرة",
+      "officialNameArabic": "آداب القاهرة",
+      "score": 259.5,
+      "maximumScore": 320,
+      "percentage": 81.09,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-سوهاج",
+      "officialNameArabic": "حقوق سوهاج",
+      "score": 259,
+      "maximumScore": 320,
+      "percentage": 80.94,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اثار-سوهاج",
+      "officialNameArabic": "آثار سوهاج",
+      "score": 259,
+      "maximumScore": 320,
+      "percentage": 80.94,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-الزقازيق",
+      "officialNameArabic": "تربية الزقازيق",
+      "score": 258.5,
+      "maximumScore": 320,
+      "percentage": 80.78,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-القاهرة",
+      "officialNameArabic": "آداب انتساب موجه القاهرة",
+      "score": 258,
+      "maximumScore": 320,
+      "percentage": 80.62,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "فنون-جميلة-فنون-الاسكندرية",
+      "officialNameArabic": "فنون جميلة (فنون) الإسكندرية",
+      "score": 257,
+      "maximumScore": 320,
+      "percentage": 80.31,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اثار-قنا",
+      "officialNameArabic": "آثار قنا",
+      "score": 257,
+      "maximumScore": 320,
+      "percentage": 80.31,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-قنا",
+      "officialNameArabic": "حقوق انتساب موجه قنا",
+      "score": 256,
+      "maximumScore": 320,
+      "percentage": 80,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-الاسكندرية",
+      "officialNameArabic": "تربية الإسكندرية",
+      "score": 256,
+      "maximumScore": 320,
+      "percentage": 80,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-سوهاج",
+      "officialNameArabic": "حقوق انتساب موجه سوهاج",
+      "score": 256,
+      "maximumScore": 320,
+      "percentage": 80,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-عين-شمس",
+      "officialNameArabic": "تربية عين شمس",
+      "score": 254.5,
+      "maximumScore": 320,
+      "percentage": 79.53,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-القاهرة",
+      "officialNameArabic": "تجارة القاهرة",
+      "score": 253,
+      "maximumScore": 320,
+      "percentage": 79.06,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "كلية-تكنولوجيا-العلوم-الصحية-برج-العرب-التكنولوجية",
+      "officialNameArabic": "كلية تكنولوجيا العلوم الصحية برج العرب التكنولوجية",
+      "score": 252.5,
+      "maximumScore": 320,
+      "percentage": 78.91,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-عين-شمس",
+      "officialNameArabic": "آداب عين شمس",
+      "score": 252,
+      "maximumScore": 320,
+      "percentage": 78.75,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-بور-سعيد",
+      "officialNameArabic": "تربية بور سعيد",
+      "score": 252,
+      "maximumScore": 320,
+      "percentage": 78.75,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "فنون-جميلة-فنون-المنصورة",
+      "officialNameArabic": "فنون جميلة (فنون) المنصورة",
+      "score": 251,
+      "maximumScore": 320,
+      "percentage": 78.44,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-المنصورة",
+      "officialNameArabic": "تربية المنصورة",
+      "score": 251,
+      "maximumScore": 320,
+      "percentage": 78.44,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-الاسكندرية",
+      "officialNameArabic": "تجارة الإسكندرية",
+      "score": 251,
+      "maximumScore": 320,
+      "percentage": 78.44,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-القاهرة",
+      "officialNameArabic": "تجارة انتساب موجه القاهرة",
+      "score": 251,
+      "maximumScore": 320,
+      "percentage": 78.44,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "فنون-جميلة-فنون-العاصمة-بحلوان",
+      "officialNameArabic": "فنون جميلة (فنون) العاصمة بحلوان",
+      "score": 250.5,
+      "maximumScore": 320,
+      "percentage": 78.28,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-عين-شمس",
+      "officialNameArabic": "تجارة عين شمس",
+      "score": 250.5,
+      "maximumScore": 320,
+      "percentage": 78.28,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-عين-شمس",
+      "officialNameArabic": "آداب انتساب موجه عين شمس",
+      "score": 250,
+      "maximumScore": 320,
+      "percentage": 78.12,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-الاسكندرية",
+      "officialNameArabic": "تجارة انتساب موجه الإسكندرية",
+      "score": 249,
+      "maximumScore": 320,
+      "percentage": 77.81,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-عين-شمس",
+      "officialNameArabic": "تجارة انتساب موجه عين شمس",
+      "score": 248.5,
+      "maximumScore": 320,
+      "percentage": 77.66,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-بنها",
+      "officialNameArabic": "تربية بنها",
+      "score": 248.5,
+      "maximumScore": 320,
+      "percentage": 77.66,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-الاسكندرية",
+      "officialNameArabic": "آداب الإسكندرية",
+      "score": 248.5,
+      "maximumScore": 320,
+      "percentage": 77.66,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-دمنهور",
+      "officialNameArabic": "تربية دمنهور",
+      "score": 248,
+      "maximumScore": 320,
+      "percentage": 77.5,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-دمياط",
+      "officialNameArabic": "تجارة دمياط",
+      "score": 248,
+      "maximumScore": 320,
+      "percentage": 77.5,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-طنطا",
+      "officialNameArabic": "تربية طنطا",
+      "score": 247.5,
+      "maximumScore": 320,
+      "percentage": 77.34,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-و-ادارة-اعمال-العاصمة-بحلوان",
+      "officialNameArabic": "تجارة و إدارة أعمال العاصمة بحلوان",
+      "score": 247.5,
+      "maximumScore": 320,
+      "percentage": 77.34,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-الاسكندرية",
+      "officialNameArabic": "آداب انتساب موجه الإسكندرية",
+      "score": 247,
+      "maximumScore": 320,
+      "percentage": 77.19,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-و-ادارة-اعمال-انتساب-موجه-العاصمة-بحلوان",
+      "officialNameArabic": "تجارة و إدارة أعمال انتساب موجه العاصمة بحلوان",
+      "score": 246.5,
+      "maximumScore": 320,
+      "percentage": 77.03,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-العاصمة-بحلوان",
+      "officialNameArabic": "آداب العاصمة بحلوان",
+      "score": 246,
+      "maximumScore": 320,
+      "percentage": 76.88,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-العاصمة-بحلوان",
+      "officialNameArabic": "آداب انتساب موجه العاصمة بحلوان",
+      "score": 245,
+      "maximumScore": 320,
+      "percentage": 76.56,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-قنا",
+      "officialNameArabic": "تجارة قنا",
+      "score": 244.5,
+      "maximumScore": 320,
+      "percentage": 76.41,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-كفرالشيخ",
+      "officialNameArabic": "حقوق كفرالشيخ",
+      "score": 243.5,
+      "maximumScore": 320,
+      "percentage": 76.09,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-دمياط",
+      "officialNameArabic": "تجارة انتساب موجه دمياط",
+      "score": 243,
+      "maximumScore": 320,
+      "percentage": 75.94,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-اسوان",
+      "officialNameArabic": "حقوق أسوان",
+      "score": 243,
+      "maximumScore": 320,
+      "percentage": 75.94,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "تربية المنوفية بشبين الكوم",
+      "score": 242.5,
+      "maximumScore": 320,
+      "percentage": 75.78,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "تربية قناة السويس بالإسماعيلية",
+      "score": 242,
+      "maximumScore": 320,
+      "percentage": 75.62,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-كفر-الشيخ",
+      "officialNameArabic": "تربية كفر الشيخ",
+      "score": 242,
+      "maximumScore": 320,
+      "percentage": 75.62,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-المنيا",
+      "officialNameArabic": "حقوق المنيا",
+      "score": 242,
+      "maximumScore": 320,
+      "percentage": 75.62,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-و-علوم-انسانية-السويس",
+      "officialNameArabic": "آداب و علوم إنسانية السويس",
+      "score": 241.5,
+      "maximumScore": 320,
+      "percentage": 75.47,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-الزقازيق",
+      "officialNameArabic": "تجارة الزقازيق",
+      "score": 241.5,
+      "maximumScore": 320,
+      "percentage": 75.47,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-بنها",
+      "officialNameArabic": "تجارة بنها",
+      "score": 241.5,
+      "maximumScore": 320,
+      "percentage": 75.47,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-كفر-الشيخ",
+      "officialNameArabic": "حقوق انتساب موجه كفر الشيخ",
+      "score": 241.5,
+      "maximumScore": 320,
+      "percentage": 75.47,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-المنيا",
+      "officialNameArabic": "تربية المنيا",
+      "score": 241.5,
+      "maximumScore": 320,
+      "percentage": 75.47,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-بنها",
+      "officialNameArabic": "آداب بنها",
+      "score": 241,
+      "maximumScore": 320,
+      "percentage": 75.31,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-العاصمة-بحلوان",
+      "officialNameArabic": "تربية العاصمة بحلوان",
+      "score": 241,
+      "maximumScore": 320,
+      "percentage": 75.31,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "دار-العلوم-القاهرة",
+      "officialNameArabic": "دار العلوم القاهرة",
+      "score": 241,
+      "maximumScore": 320,
+      "percentage": 75.31,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-دمنهور",
+      "officialNameArabic": "تجارة دمنهور",
+      "score": 241,
+      "maximumScore": 320,
+      "percentage": 75.31,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "دار-العلوم-انتساب-موجه-القاهرة",
+      "officialNameArabic": "دار العلوم انتساب موجه القاهرة",
+      "score": 240.5,
+      "maximumScore": 320,
+      "percentage": 75.16,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-قنا",
+      "officialNameArabic": "تجارة انتساب موجه قنا",
+      "score": 240.5,
+      "maximumScore": 320,
+      "percentage": 75.16,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-بنها",
+      "officialNameArabic": "تجارة انتساب موجه بنها",
+      "score": 240,
+      "maximumScore": 320,
+      "percentage": 75,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-بنها",
+      "officialNameArabic": "آداب انتساب موجه بنها",
+      "score": 240,
+      "maximumScore": 320,
+      "percentage": 75,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-دمياط",
+      "officialNameArabic": "حقوق دمياط",
+      "score": 239.5,
+      "maximumScore": 320,
+      "percentage": 74.84,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-دمنهور",
+      "officialNameArabic": "تجارة انتساب موجه دمنهور",
+      "score": 239.5,
+      "maximumScore": 320,
+      "percentage": 74.84,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-الفيوم",
+      "officialNameArabic": "حقوق الفيوم",
+      "score": 238.5,
+      "maximumScore": 320,
+      "percentage": 74.53,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-الزقازيق",
+      "officialNameArabic": "تجارة انتساب موجه الزقازيق",
+      "score": 238,
+      "maximumScore": 320,
+      "percentage": 74.38,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-عين-شمس",
+      "officialNameArabic": "تربية (تعليم ابتدائي) عين شمس",
+      "score": 238,
+      "maximumScore": 320,
+      "percentage": 74.38,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-المنصورة",
+      "officialNameArabic": "تجارة المنصورة",
+      "score": 237.5,
+      "maximumScore": 320,
+      "percentage": 74.22,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "تجارة المنوفية بشبين الكوم",
+      "score": 237,
+      "maximumScore": 320,
+      "percentage": 74.06,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "فنون-جميلة-فنون-المنيا",
+      "officialNameArabic": "فنون جميلة (فنون) المنيا",
+      "score": 237,
+      "maximumScore": 320,
+      "percentage": 74.06,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-بنات-عين-شمس",
+      "officialNameArabic": "آداب بنات عين شمس",
+      "score": 236.5,
+      "maximumScore": 320,
+      "percentage": 73.91,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-بنات-عين-شمس",
+      "officialNameArabic": "آداب انتساب موجه بنات عين شمس",
+      "score": 236,
+      "maximumScore": 320,
+      "percentage": 73.75,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-الزقازيق",
+      "officialNameArabic": "تربية (تعليم ابتدائي) الزقازيق",
+      "score": 236,
+      "maximumScore": 320,
+      "percentage": 73.75,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "تجارة انتساب موجه المنوفية بشبين الكوم",
+      "score": 236,
+      "maximumScore": 320,
+      "percentage": 73.75,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-مطروح",
+      "officialNameArabic": "تربية مطروح",
+      "score": 235.5,
+      "maximumScore": 320,
+      "percentage": 73.59,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-اسوان",
+      "officialNameArabic": "تجارة أسوان",
+      "score": 235.5,
+      "maximumScore": 320,
+      "percentage": 73.59,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-اسوان",
+      "officialNameArabic": "حقوق انتساب موجه أسوان",
+      "score": 235.5,
+      "maximumScore": 320,
+      "percentage": 73.59,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-بنات-عين-شمس",
+      "officialNameArabic": "تربية بنات عين شمس",
+      "score": 235,
+      "maximumScore": 320,
+      "percentage": 73.44,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-الاسكندرية",
+      "officialNameArabic": "تربية (تعليم ابتدائي) الإسكندرية",
+      "score": 234.5,
+      "maximumScore": 320,
+      "percentage": 73.28,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-السويس",
+      "officialNameArabic": "تربية السويس",
+      "score": 234.5,
+      "maximumScore": 320,
+      "percentage": 73.28,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-المنصورة",
+      "officialNameArabic": "تجارة انتساب موجه المنصورة",
+      "score": 234,
+      "maximumScore": 320,
+      "percentage": 73.12,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-و-علوم-انسانية-انتساب-موجه-السويس",
+      "officialNameArabic": "آداب و علوم إنسانية انتساب موجه السويس",
+      "score": 234,
+      "maximumScore": 320,
+      "percentage": 73.12,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-مدينة-السادات",
+      "officialNameArabic": "تربية مدينة السادات",
+      "score": 234,
+      "maximumScore": 320,
+      "percentage": 73.12,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-طنطا",
+      "officialNameArabic": "تجارة طنطا",
+      "score": 233.5,
+      "maximumScore": 320,
+      "percentage": 72.97,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-الفيوم",
+      "officialNameArabic": "تربية الفيوم",
+      "score": 233.5,
+      "maximumScore": 320,
+      "percentage": 72.97,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-بني-سويف",
+      "officialNameArabic": "تجارة بني سويف",
+      "score": 233.5,
+      "maximumScore": 320,
+      "percentage": 72.97,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-الزقازيق",
+      "officialNameArabic": "تربية طفولة مبكرة الزقازيق",
+      "score": 233,
+      "maximumScore": 320,
+      "percentage": 72.81,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "فنون-جميلة-فنون-اسيوط",
+      "officialNameArabic": "فنون جميلة (فنون) أسيوط",
+      "score": 233,
+      "maximumScore": 320,
+      "percentage": 72.81,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-دمياط",
+      "officialNameArabic": "تربية دمياط",
+      "score": 232.5,
+      "maximumScore": 320,
+      "percentage": 72.66,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-اسوان",
+      "officialNameArabic": "تجارة انتساب موجه أسوان",
+      "score": 232.5,
+      "maximumScore": 320,
+      "percentage": 72.66,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-طنطا",
+      "officialNameArabic": "تجارة انتساب موجه طنطا",
+      "score": 232,
+      "maximumScore": 320,
+      "percentage": 72.5,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-الغردقة",
+      "officialNameArabic": "تربية الغردقة",
+      "score": 231.5,
+      "maximumScore": 320,
+      "percentage": 72.34,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-العاصمة-بحلوان",
+      "officialNameArabic": "تربية (تعليم ابتدائي) العاصمة بحلوان",
+      "score": 231.5,
+      "maximumScore": 320,
+      "percentage": 72.34,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "تجارة قناة السويس بالإسماعيلية",
+      "score": 231,
+      "maximumScore": 320,
+      "percentage": 72.19,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-كفر-الشيخ",
+      "officialNameArabic": "تجارة كفر الشيخ",
+      "score": 231,
+      "maximumScore": 320,
+      "percentage": 72.19,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-دمنهور",
+      "officialNameArabic": "آداب دمنهور",
+      "score": 230.5,
+      "maximumScore": 320,
+      "percentage": 72.03,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-اسيوط",
+      "officialNameArabic": "تجارة أسيوط",
+      "score": 230,
+      "maximumScore": 320,
+      "percentage": 71.88,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-كفر-الشيخ",
+      "officialNameArabic": "تجارة انتساب موجه كفر الشيخ",
+      "score": 230,
+      "maximumScore": 320,
+      "percentage": 71.88,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "آداب المنوفية بشبين الكوم",
+      "score": 230,
+      "maximumScore": 320,
+      "percentage": 71.88,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-بني-سويف",
+      "officialNameArabic": "تجارة انتساب موجه بني سويف",
+      "score": 230,
+      "maximumScore": 320,
+      "percentage": 71.88,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تجارة-السويس",
+      "officialNameArabic": "تجارة السويس",
+      "score": 229.5,
+      "maximumScore": 320,
+      "percentage": 71.72,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-بنات-عين-شمس",
+      "officialNameArabic": "تربية (تعليم ابتدائي) بنات عين شمس",
+      "score": 229,
+      "maximumScore": 320,
+      "percentage": 71.56,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-الفيوم",
+      "officialNameArabic": "آداب الفيوم",
+      "score": 229,
+      "maximumScore": 320,
+      "percentage": 71.56,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "تربية-بني-سويف",
+      "officialNameArabic": "تربية بني سويف",
+      "score": 229,
+      "maximumScore": 320,
+      "percentage": 71.56,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-دمنهور",
+      "officialNameArabic": "آداب انتساب موجه دمنهور",
+      "score": 229,
+      "maximumScore": 320,
+      "percentage": 71.56,
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 1
+    }
+  ],
+  "stageVacancies": [
+    {
+      "facultyKey": "طب-بيطري-الوادي-الجديد",
+      "officialNameArabic": "طب بيطري الوادي الجديد",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-العريش",
+      "officialNameArabic": "طب بيطري العريش",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-بنها",
+      "officialNameArabic": "طب بيطري بنها",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-مدينة-السادات",
+      "officialNameArabic": "طب بيطري مدينة السادات",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-الزقازيق",
+      "officialNameArabic": "طب بيطري الزقازيق",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-المنصورة",
+      "officialNameArabic": "طب بيطري المنصورة",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "طب بيطري قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-المنيا",
+      "officialNameArabic": "طب بيطري المنيا",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-سوهاج",
+      "officialNameArabic": "طب بيطري سوهاج",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-اسيوط",
+      "officialNameArabic": "طب بيطري أسيوط",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-المنوفية",
+      "officialNameArabic": "طب بيطري المنوفية",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-الاسكندرية",
+      "officialNameArabic": "طب بيطري الإسكندرية",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-دمنهور",
+      "officialNameArabic": "طب بيطري دمنهور",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-القاهرة",
+      "officialNameArabic": "طب بيطري القاهرة",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-بني-سويف",
+      "officialNameArabic": "طب بيطري بني سويف",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-كفر-الشيخ",
+      "officialNameArabic": "طب بيطري كفر الشيخ",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-قنا",
+      "officialNameArabic": "طب بيطري قنا",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-مطروح",
+      "officialNameArabic": "طب بيطري مطروح",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-عين-شمس",
+      "officialNameArabic": "طب بيطري عين شمس",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "طب-بيطري-اسوان",
+      "officialNameArabic": "طب بيطري أسوان",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-السادات",
+      "officialNameArabic": "تمريض السادات",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-بني-سويف",
+      "officialNameArabic": "تمريض بني سويف",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-بور-سعيد",
+      "officialNameArabic": "تمريض بور سعيد",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-سوهاج",
+      "officialNameArabic": "تمريض سوهاج",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-عين-شمس",
+      "officialNameArabic": "تمريض عين شمس",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-الاسكندرية",
+      "officialNameArabic": "تمريض الإسكندرية",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-الزقازيق",
+      "officialNameArabic": "تمريض الزقازيق",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-القاهرة",
+      "officialNameArabic": "تمريض القاهرة",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-المنيا",
+      "officialNameArabic": "تمريض المنيا",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "تمريض قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-الوادي-الجديد",
+      "officialNameArabic": "تمريض الوادي الجديد",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-دمنهور",
+      "officialNameArabic": "تمريض دمنهور",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-كفر-الشيخ",
+      "officialNameArabic": "تمريض كفر الشيخ",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-قنا",
+      "officialNameArabic": "تمريض قنا",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-بنها",
+      "officialNameArabic": "تمريض بنها",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-اسوان",
+      "officialNameArabic": "تمريض أسوان",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-الفيوم",
+      "officialNameArabic": "تمريض الفيوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-المنصورة",
+      "officialNameArabic": "تمريض المنصورة",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-طنطا",
+      "officialNameArabic": "تمريض طنطا",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-اسيوط",
+      "officialNameArabic": "تمريض أسيوط",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "تمريض المنوفية بشبين الكوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-دمياط",
+      "officialNameArabic": "تمريض دمياط",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-العاصمة-بحلوان",
+      "officialNameArabic": "تمريض العاصمة بحلوان",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تمريض-مطروح",
+      "officialNameArabic": "تمريض مطروح",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-بنها",
+      "officialNameArabic": "علوم بنها",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الوادي-الجديد",
+      "officialNameArabic": "علوم الوادي الجديد",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-اسوان",
+      "officialNameArabic": "علوم أسوان",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-العريش",
+      "officialNameArabic": "علوم العريش",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-السويس",
+      "officialNameArabic": "علوم السويس",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "علوم المنوفية بشبين الكوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-العاصمة-بحلوان",
+      "officialNameArabic": "علوم العاصمة بحلوان",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-كفر-الشيخ",
+      "officialNameArabic": "علوم كفر الشيخ",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-المنصورة",
+      "officialNameArabic": "علوم المنصورة",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "علوم قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الزقازيق",
+      "officialNameArabic": "علوم الزقازيق",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-اسيوط",
+      "officialNameArabic": "علوم أسيوط",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-عين-شمس",
+      "officialNameArabic": "علوم عين شمس",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الاسكندرية",
+      "officialNameArabic": "علوم الإسكندرية",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-دمنهور",
+      "officialNameArabic": "علوم دمنهور",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-سوهاج",
+      "officialNameArabic": "علوم سوهاج",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-القاهرة",
+      "officialNameArabic": "علوم القاهرة",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-قنا",
+      "officialNameArabic": "علوم قنا",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-بني-سويف",
+      "officialNameArabic": "علوم بني سويف",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الفيوم",
+      "officialNameArabic": "علوم الفيوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-المنيا",
+      "officialNameArabic": "علوم المنيا",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-دمياط",
+      "officialNameArabic": "علوم دمياط",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-بور-سعيد",
+      "officialNameArabic": "علوم بور سعيد",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-طنطا",
+      "officialNameArabic": "علوم طنطا",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الاقصر",
+      "officialNameArabic": "علوم الاقصر",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-السادات",
+      "officialNameArabic": "علوم السادات",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الغردقة",
+      "officialNameArabic": "علوم الغردقة",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-بنات-عين-شمس",
+      "officialNameArabic": "علوم بنات عين شمس",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-البترول-والتعدين-مطروح",
+      "officialNameArabic": "علوم البترول والتعدين مطروح - علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-ذكاء-اصطناعي-بنها",
+      "officialNameArabic": "حاسبات و ذكاء إصطناعي بنها علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-عين-شمس",
+      "officialNameArabic": "حاسبات ومعلومات عين شمس علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-كفر-الشيخ",
+      "officialNameArabic": "حاسبات ومعلومات كفر الشيخ علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-المنصورة",
+      "officialNameArabic": "حاسبات ومعلومات المنصورة علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-اسيوط",
+      "officialNameArabic": "حاسبات ومعلومات أسيوط علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "حاسبات ومعلومات المنوفية بشبين الكوم علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-ذكاء-اصطناعي-القاهرة",
+      "officialNameArabic": "حاسبات و ذكاء إصطناعي القاهرة علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-ذكاء-اصطناعي-العاصمة-بحلوان",
+      "officialNameArabic": "حاسبات و ذكاء إصطناعي العاصمة بحلوان علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-الاقصر",
+      "officialNameArabic": "حاسبات ومعلومات الأقصر علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-السويس",
+      "officialNameArabic": "حاسبات ومعلومات السويس علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "حاسبات ومعلومات قناة السويس بالإسماعيلية علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-الزقازيق",
+      "officialNameArabic": "حاسبات ومعلومات الزقازيق علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-المنيا",
+      "officialNameArabic": "حاسبات ومعلومات المنيا علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-الفيوم",
+      "officialNameArabic": "حاسبات ومعلومات الفيوم علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-معلومات-العريش",
+      "officialNameArabic": "حاسبات و معلومات العريش علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-قنا",
+      "officialNameArabic": "حاسبات ومعلومات قنا علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-وذكاء-اصطناعي-مطروح",
+      "officialNameArabic": "حاسبات وذكاء اصطناعي مطروح علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-وذكاء-اصطناعي-السادات",
+      "officialNameArabic": "حاسبات وذكاء اصطناعي السادات علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-دمنهور-بالنوبارية",
+      "officialNameArabic": "حاسبات ومعلومات دمنهور بالنوبارية علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "الذكاء-الاصطناعى-كفر-الشيخ",
+      "officialNameArabic": "الذكاء الاصطناعى كفر الشيخ علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-طنطا",
+      "officialNameArabic": "حاسبات ومعلومات طنطا علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-علوم-البيانات-الاسكندرية",
+      "officialNameArabic": "حاسبات و علوم البيانات الإسكندرية علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-دمياط",
+      "officialNameArabic": "حاسبات ومعلومات دمياط علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-بني-سويف",
+      "officialNameArabic": "حاسبات ومعلومات بني سويف علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-ذكاء-اصطناعي-الغردقة",
+      "officialNameArabic": "حاسبات و ذكاء إصطناعي الغردقة علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "ذكاء-اصطناعي-المنوفية-شبين-الكوم",
+      "officialNameArabic": "ذكاء إصطناعي المنوفية شبين الكوم علوم",
+      "educationSystem": "new",
+      "branch": "science",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-وذكاء-اصطناعي-مطروح",
+      "officialNameArabic": "حاسبات وذكاء اصطناعي مطروح رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-السويس",
+      "officialNameArabic": "حاسبات ومعلومات السويس رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-ذكاء-اصطناعي-العاصمة-بحلوان",
+      "officialNameArabic": "حاسبات و ذكاء إصطناعي العاصمة بحلوان رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-ذكاء-اصطناعي-الغردقة",
+      "officialNameArabic": "حاسبات و ذكاء إصطناعي الغردقة رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-ذكاء-اصطناعي-القاهرة",
+      "officialNameArabic": "حاسبات و ذكاء إصطناعي القاهرة رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-الاقصر",
+      "officialNameArabic": "حاسبات ومعلومات الأقصر رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "حاسبات ومعلومات قناة السويس بالإسماعيلية رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-الزقازيق",
+      "officialNameArabic": "حاسبات ومعلومات الزقازيق رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-الفيوم",
+      "officialNameArabic": "حاسبات ومعلومات الفيوم رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-اسيوط",
+      "officialNameArabic": "حاسبات ومعلومات أسيوط رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "حاسبات ومعلومات المنوفية بشبين الكوم رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-عين-شمس",
+      "officialNameArabic": "حاسبات ومعلومات عين شمس رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-المنصورة",
+      "officialNameArabic": "حاسبات ومعلومات المنصورة رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-كفر-الشيخ",
+      "officialNameArabic": "حاسبات ومعلومات كفر الشيخ رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-ذكاء-اصطناعي-بنها",
+      "officialNameArabic": "حاسبات و ذكاء إصطناعي بنها رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-قنا",
+      "officialNameArabic": "حاسبات ومعلومات قنا رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-المنيا",
+      "officialNameArabic": "حاسبات ومعلومات المنيا رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-علوم-البيانات-الاسكندرية",
+      "officialNameArabic": "حاسبات و علوم البيانات الإسكندرية رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-دمياط",
+      "officialNameArabic": "حاسبات ومعلومات دمياط رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-طنطا",
+      "officialNameArabic": "حاسبات ومعلومات طنطا رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-وذكاء-اصطناعي-السادات",
+      "officialNameArabic": "حاسبات وذكاء اصطناعي السادات رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "ذكاء-اصطناعي-المنوفية-شبين-الكوم",
+      "officialNameArabic": "ذكاء إصطناعي المنوفية شبين الكوم رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-سوهاج",
+      "officialNameArabic": "حاسبات ومعلومات سوهاج رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-دمنهور-بالنوبارية",
+      "officialNameArabic": "حاسبات ومعلومات دمنهور بالنوبارية رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "الذكاء-الاصطناعى-كفر-الشيخ",
+      "officialNameArabic": "الذكاء الاصطناعى كفر الشيخ رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-و-معلومات-العريش",
+      "officialNameArabic": "حاسبات و معلومات العريش رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حاسبات-ومعلومات-بني-سويف",
+      "officialNameArabic": "حاسبات ومعلومات بني سويف رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-القاهرة",
+      "officialNameArabic": "علوم القاهرة رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-المنصورة",
+      "officialNameArabic": "علوم المنصورة رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-عين-شمس",
+      "officialNameArabic": "علوم عين شمس رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الاسكندرية",
+      "officialNameArabic": "علوم الإسكندرية رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-سوهاج",
+      "officialNameArabic": "علوم سوهاج رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-قنا",
+      "officialNameArabic": "علوم قنا رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الزقازيق",
+      "officialNameArabic": "علوم الزقازيق رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "علوم قناة السويس بالإسماعيلية رياضه",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-العاصمة-بحلوان",
+      "officialNameArabic": "علوم العاصمة بحلوان رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "علوم المنوفية بشبين الكوم رياضه",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-بنها",
+      "officialNameArabic": "علوم بنها رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الفيوم",
+      "officialNameArabic": "علوم الفيوم رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-بني-سويف",
+      "officialNameArabic": "علوم بني سويف رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-المنيا",
+      "officialNameArabic": "علوم المنيا رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-اسوان",
+      "officialNameArabic": "علوم أسوان رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-اسيوط",
+      "officialNameArabic": "علوم أسيوط رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-طنطا",
+      "officialNameArabic": "علوم طنطا رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-دمياط",
+      "officialNameArabic": "علوم دمياط رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-بنات-عين-شمس",
+      "officialNameArabic": "علوم بنات عين شمس رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-دمنهور",
+      "officialNameArabic": "علوم دمنهور رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-بور-سعيد",
+      "officialNameArabic": "علوم بور سعيد رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الوادي-الجديد",
+      "officialNameArabic": "علوم الوادي الجديد رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الغردقة",
+      "officialNameArabic": "علوم الغردقة رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الاقصر",
+      "officialNameArabic": "علوم الاقصر رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-السادات",
+      "officialNameArabic": "علوم السادات رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-العريش",
+      "officialNameArabic": "علوم العريش رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "علوم-الارض-بني-سويف",
+      "officialNameArabic": "علوم الارض بني سويف رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اعلام-القاهرة",
+      "officialNameArabic": "إعلام القاهرة رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اعلام-عين-شمس",
+      "officialNameArabic": "إعلام عين شمس رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اعلام-المنوفية",
+      "officialNameArabic": "إعلام المنوفية رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اعلام-قنا",
+      "officialNameArabic": "إعلام قنا رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اعلام-بني-سويف",
+      "officialNameArabic": "إعلام بني سويف رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اعلام-وتكنولوجيا-اتصال-السويس",
+      "officialNameArabic": "إعلام وتكنولوجيا اتصال السويس رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اقتصاد-و-علوم-سياسية-القاهرة",
+      "officialNameArabic": "اقتصاد و علوم سياسية القاهرة رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "الدراسات-الاقتصادية-و-العلوم-السياسة-الاسكندرية",
+      "officialNameArabic": "الدراسات الاقتصادية و العلوم السياسة الإسكندرية رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "سياسة-واقتصاد-السويس",
+      "officialNameArabic": "سياسة واقتصاد السويس رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "سياسة-واقتصاد-بني-سويف",
+      "officialNameArabic": "سياسة واقتصاد بني سويف رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "السن-كفر-الشيخ",
+      "officialNameArabic": "ألسن كفر الشيخ رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "السن-عين-شمس",
+      "officialNameArabic": "ألسن عين شمس رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "السن-قناة-السويس-رياضة-بالاسماعيلية",
+      "officialNameArabic": "ألسن قناة السويس رياضة بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "السن-الغردقة",
+      "officialNameArabic": "ألسن الغردقة رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "السن-سوهاج",
+      "officialNameArabic": "ألسن سوهاج رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "السن-المنيا",
+      "officialNameArabic": "ألسن المنيا رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "السن-اسوان",
+      "officialNameArabic": "ألسن أسوان رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "السن-الاقصر",
+      "officialNameArabic": "ألسن الأقصر رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "السن-بني-سويف",
+      "officialNameArabic": "ألسن بني سويف رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "السن-الفيوم",
+      "officialNameArabic": "ألسن الفيوم رياضة",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "فنون-تطبيقية-بني-سويف",
+      "officialNameArabic": "فنون تطبيقية بني سويف",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "فنون-تطبيقية-بنها",
+      "officialNameArabic": "فنون تطبيقية بنها",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "فنون-تطبيقية-طنطا",
+      "officialNameArabic": "فنون تطبيقية طنطا",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "فنون-تطبيقية-دمياط",
+      "officialNameArabic": "فنون تطبيقية دمياط",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "فنون-تطبيقية-العاصمة-بحلوان",
+      "officialNameArabic": "فنون تطبيقية العاصمة بحلوان",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "فنون-تطبيقية-النوبارية-دمنهور",
+      "officialNameArabic": "فنون تطبيقية النوبارية دمنهور",
+      "educationSystem": "new",
+      "branch": "mathematics",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-العريش",
+      "officialNameArabic": "تربية (تعليم ابتدائي) العريش",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-السويس",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات السويس",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-السويس",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين السويس",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-الوادي-الجديد",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين الوادي الجديد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-قنا",
+      "officialNameArabic": "آداب انتساب موجه قنا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "دار-العلوم-اسوان",
+      "officialNameArabic": "دار العلوم أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-وعلوم-انسانية-انتساب-موجه-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "آداب وعلوم انسانية انتساب موجه قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-بني-سويف",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-العريش",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين العريش",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-بنها",
+      "officialNameArabic": "حقوق انتساب موجه بنها",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-اسوان",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-نوعية-سوهاج",
+      "officialNameArabic": "تربية نوعية سوهاج",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-الزقازيق",
+      "officialNameArabic": "حقوق انتساب موجه الزقازيق",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "خدمة-اجتماعية-الفيوم",
+      "officialNameArabic": "خدمة اجتماعية الفيوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-اسوان",
+      "officialNameArabic": "آداب انتساب موجه أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-اسيوط",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-العريش",
+      "officialNameArabic": "تجارة انتساب موجه العريش",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "سياحة-وفنادق-مطروح",
+      "officialNameArabic": "سياحة وفنادق مطروح",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-اسوان",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-شعبة-تربية-فنية-السويس",
+      "officialNameArabic": "تربية شعبة تربية فنية السويس",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات المنوفية بشبين الكوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "خدمة-اجتماعية-اسيوط",
+      "officialNameArabic": "خدمة اجتماعية أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-اسيوط",
+      "officialNameArabic": "حقوق انتساب موجه أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "دار-العلوم-المنيا",
+      "officialNameArabic": "دار العلوم المنيا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اقتصاد-منزلى-العريش",
+      "officialNameArabic": "أقتصاد منزلى العريش",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-اسوان",
+      "officialNameArabic": "تربية نوعية أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-بور-سعيد",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات بور سعيد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-المنيا",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين المنيا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-طفولة-الغردقة",
+      "officialNameArabic": "تربية (طفولة) الغردقة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-الاقصر",
+      "officialNameArabic": "تربية (تعليم ابتدائي) الاقصر",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-مطروح",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين مطروح",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-طفولة-العريش",
+      "officialNameArabic": "تربية (طفولة) العريش",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-بني-سويف",
+      "officialNameArabic": "حقوق انتساب موجه بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "سياحة-وفنادق-المنيا",
+      "officialNameArabic": "سياحة وفنادق المنيا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "سياحة-وفنادق-مدينة-السادات",
+      "officialNameArabic": "سياحة وفنادق مدينة السادات",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-المنيا",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات المنيا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-الاسكندرية",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات الإسكندرية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-نوعية-المنصورة-بمنية-النصر",
+      "officialNameArabic": "تربية نوعية المنصورة بمنية النصر",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-عين-شمس",
+      "officialNameArabic": "حقوق انتساب موجه عين شمس",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-بنها",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات بنها",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-نوعية-المنصورة-بميت-غمر",
+      "officialNameArabic": "تربية نوعية المنصورة بميت غمر",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-دمنهور-بالنوبارية",
+      "officialNameArabic": "تربية نوعية دمنهور بالنوبارية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-الاسكندرية",
+      "officialNameArabic": "حقوق انتساب موجه الإسكندرية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-سوهاج",
+      "officialNameArabic": "تجارة انتساب موجه سوهاج",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-بور-سعيد",
+      "officialNameArabic": "آداب انتساب موجه بور سعيد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-مطروح",
+      "officialNameArabic": "تربية طفولة مبكرة مطروح",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-دمياط",
+      "officialNameArabic": "تربية (تعليم ابتدائي) دمياط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-السويس",
+      "officialNameArabic": "تربية (طفولة) السويس",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "سياحة-وفنادق-الفيوم",
+      "officialNameArabic": "سياحة وفنادق الفيوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-مدينة-السادات",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين مدينة السادات",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-نوعية-قنا",
+      "officialNameArabic": "تربية نوعية قنا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-اسوان",
+      "officialNameArabic": "تربية (طفولة) أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-اسيوط",
+      "officialNameArabic": "تربية نوعية أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-الزقازيق",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين الزقازيق",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "سياحة-وفنادق-المنصورة",
+      "officialNameArabic": "سياحة وفنادق المنصورة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "سياحه-وفنادق-الاقصر",
+      "officialNameArabic": "سياحه وفنادق الاقصر",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-طنطا",
+      "officialNameArabic": "حقوق انتساب موجه طنطا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-اسيوط",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "سياحة-وفنادق-بني-سويف",
+      "officialNameArabic": "سياحة وفنادق بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-العاصمة-بحلوان-بالجزيرة",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات العاصمة بحلوان بالجزيرة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-كفر-الشيخ",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين كفر الشيخ",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-كفر-الشيخ",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات كفر الشيخ",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-الفيوم",
+      "officialNameArabic": "آداب انتساب موجه الفيوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-موسيقية-العاصمة-بحلوان",
+      "officialNameArabic": "تربية موسيقية العاصمة بحلوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-بور-سعيد",
+      "officialNameArabic": "تربية (تعليم ابتدائي) بور سعيد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-دمياط",
+      "officialNameArabic": "آداب انتساب موجه دمياط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-اسيوط",
+      "officialNameArabic": "تربية (تعليم ابتدائي) أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-الغردقة",
+      "officialNameArabic": "تربية (تعليم ابتدائي) الغردقة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-الفيوم",
+      "officialNameArabic": "تربية طفولة مبكرة الفيوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-دمياط",
+      "officialNameArabic": "تربية نوعية دمياط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-الفيوم",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين الفيوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-السويس",
+      "officialNameArabic": "تربية (تعليم ابتدائي) السويس",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-القاهرة",
+      "officialNameArabic": "حقوق انتساب موجه القاهرة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-المنصورة",
+      "officialNameArabic": "حقوق انتساب موجه المنصورة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-الزقازيق",
+      "officialNameArabic": "آداب انتساب موجه الزقازيق",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-كفر-الشيخ",
+      "officialNameArabic": "تربية نوعية كفر الشيخ",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-مدينة-السادات",
+      "officialNameArabic": "تجارة انتساب موجه مدينة السادات",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-قنا",
+      "officialNameArabic": "تربية (طفولة) قنا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "تربية (طفولة) قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-مطروح",
+      "officialNameArabic": "تربية (تعليم ابتدائي) مطروح",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-قنا",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين قنا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-نوعية-بور-سعيد",
+      "officialNameArabic": "تربية نوعية بور سعيد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-اسيوط",
+      "officialNameArabic": "تربية طفولة مبكرة أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-الوادي-الجديد",
+      "officialNameArabic": "آداب الوادي الجديد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-دمنهور",
+      "officialNameArabic": "تربية طفولة مبكرة دمنهور",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-دمياط",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين دمياط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-نوعية-الاسكندرية",
+      "officialNameArabic": "تربية نوعية الإسكندرية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-العاصمة-بحلوان",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين العاصمة بحلوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-فنية-العاصمة-بالزمالك",
+      "officialNameArabic": "تربية فنية العاصمة بالزمالك",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-بور-سعيد",
+      "officialNameArabic": "تربية طفولة مبكرة بور سعيد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-طنطا",
+      "officialNameArabic": "تربية نوعية طنطا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-اسيوط",
+      "officialNameArabic": "آداب أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-دمياط-رياض-اطفال",
+      "officialNameArabic": "تربية (طفولة) دمياط رياض أطفال",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-المنوفية",
+      "officialNameArabic": "تربية طفولة مبكرة المنوفية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-طنطا",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات طنطا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-نوعية-المنصورة",
+      "officialNameArabic": "تربية نوعية المنصورة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-الفيوم",
+      "officialNameArabic": "تربية نوعية الفيوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-مدينة-السادات",
+      "officialNameArabic": "تربية طفولة مبكرة مدينة السادات",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اقتصاد-منزلى-العاصمة-بحلوان",
+      "officialNameArabic": "أقتصاد منزلى العاصمة بحلوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-بني-سويف",
+      "officialNameArabic": "تربية (تعليم ابتدائي) بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-طنطا",
+      "officialNameArabic": "آداب انتساب موجه طنطا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-بور-سعيد",
+      "officialNameArabic": "آداب بور سعيد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-مطروح",
+      "officialNameArabic": "تربية نوعية مطروح",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-العريش",
+      "officialNameArabic": "آداب العريش",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-المنصورة",
+      "officialNameArabic": "حقوق المنصورة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-الفيوم",
+      "officialNameArabic": "تربية (تعليم ابتدائي) الفيوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "دار-العلوم-الفيوم",
+      "officialNameArabic": "دار العلوم الفيوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-كفر-الشيخ",
+      "officialNameArabic": "آداب كفر الشيخ",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "سياحة-وفنادق-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "سياحة وفنادق قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-المنصورة",
+      "officialNameArabic": "آداب المنصورة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-المنصورة",
+      "officialNameArabic": "تربية (تعليم ابتدائي) المنصورة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-الوادي-الجديد",
+      "officialNameArabic": "تربية (طفولة) الوادي الجديد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-عين-شمس",
+      "officialNameArabic": "تربية (طفولة) عين شمس",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-مدينة-السادات",
+      "officialNameArabic": "تربية (تعليم ابتدائي) مدينة السادات",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تجارة-مدينة-السادات",
+      "officialNameArabic": "تجارة مدينة السادات",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-مدينة-السادات",
+      "officialNameArabic": "حقوق مدينة السادات",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-سوهاج",
+      "officialNameArabic": "تربية (طفولة) سوهاج",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-العاصمة-بحلوان-رياض-اطفال",
+      "officialNameArabic": "تربية (طفولة) العاصمة بحلوان رياض أطفال",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-بنها",
+      "officialNameArabic": "تربية (تعليم ابتدائي) بنها",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-بنها",
+      "officialNameArabic": "حقوق بنها",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-بنها",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين بنها",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-المنوفية",
+      "officialNameArabic": "تربية (تعليم ابتدائي) المنوفية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "حقوق المنوفية بشبين الكوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تجارة-العريش",
+      "officialNameArabic": "تجارة العريش",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-المنوفية-باشمون",
+      "officialNameArabic": "تربية نوعية المنوفية بأشمون",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-و-علوم-انسانية-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "آداب و علوم إنسانية قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-بنها",
+      "officialNameArabic": "تربية نوعية بنها",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "تربية (تعليم ابتدائي) قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "سياحة-وفنادق-العاصمة-بالمنيل",
+      "officialNameArabic": "سياحة وفنادق العاصمة بالمنيل",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-الزقازيق",
+      "officialNameArabic": "حقوق الزقازيق",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-الزقازيق",
+      "officialNameArabic": "تربية نوعية الزقازيق",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-الزقازيق",
+      "officialNameArabic": "آداب الزقازيق",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-اسيوط",
+      "officialNameArabic": "حقوق أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-اسيوط",
+      "officialNameArabic": "تربية أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اقتصاد-منزلى-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "أقتصاد منزلى المنوفية بشبين الكوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-اسوان",
+      "officialNameArabic": "تربية أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-طنطا",
+      "officialNameArabic": "آداب طنطا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-طنطا",
+      "officialNameArabic": "تربية (طفولة) طنطا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-طنطا",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين طنطا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-طنطا",
+      "officialNameArabic": "تربية (تعليم ابتدائي) طنطا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-طنطا",
+      "officialNameArabic": "حقوق طنطا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-اسوان",
+      "officialNameArabic": "آداب أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تكنولوجيا-وتنمية-الزقازيق-علوم-مالية-و-ادارية",
+      "officialNameArabic": "تكنولوجيا وتنمية الزقازيق علوم مالية و إدارية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-دمياط",
+      "officialNameArabic": "آداب دمياط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تجارة-بور-سعيد",
+      "officialNameArabic": "تجارة بور سعيد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-بور-سعيد",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين بور سعيد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-المنيا",
+      "officialNameArabic": "تربية طفولة مبكرة المنيا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-عين-شمس",
+      "officialNameArabic": "حقوق عين شمس",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-عين-شمس",
+      "officialNameArabic": "تربية نوعية عين شمس",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-المنصورة",
+      "officialNameArabic": "تربية طفولة مبكرة المنصورة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-اسوان",
+      "officialNameArabic": "تربية (تعليم ابتدائي) أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-الاسكندرية",
+      "officialNameArabic": "حقوق الإسكندرية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-العريش",
+      "officialNameArabic": "تربية العريش",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "خدمة-اجتماعية-العاصمة-بحلوان",
+      "officialNameArabic": "خدمة اجتماعية العاصمة بحلوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-المنصورة",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات المنصورة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-الوادي-الجديد",
+      "officialNameArabic": "تربية الوادي الجديد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-العاصمة-بحلوان",
+      "officialNameArabic": "حقوق العاصمة بحلوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-العاصمة-بحلوان",
+      "officialNameArabic": "حقوق انتساب موجه العاصمة بحلوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-الاسكندرية",
+      "officialNameArabic": "تربية (طفولة) الإسكندرية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-قنا",
+      "officialNameArabic": "تربية (تعليم ابتدائي) قنا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-القاهرة",
+      "officialNameArabic": "حقوق القاهرة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-القاهرة",
+      "officialNameArabic": "تربية نوعية القاهرة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-قنا",
+      "officialNameArabic": "تربية قنا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-قنا",
+      "officialNameArabic": "آداب قنا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-بني-سويف",
+      "officialNameArabic": "تربية طفولة مبكرة بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-الاسكندرية",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين الإسكندرية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "سياحة-وفنادق-الاسكندرية",
+      "officialNameArabic": "سياحة وفنادق الإسكندرية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-المنصورة",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين المنصورة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين المنوفية بشبين الكوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-دمنهور",
+      "officialNameArabic": "تربية (تعليم ابتدائي) دمنهور",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-سوهاج",
+      "officialNameArabic": "تربية (تعليم ابتدائي) سوهاج",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تجارة-سوهاج",
+      "officialNameArabic": "تجارة سوهاج",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-سوهاج",
+      "officialNameArabic": "تربية سوهاج",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-سوهاج",
+      "officialNameArabic": "آداب سوهاج",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-دمياط",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات دمياط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "آداب انتساب موجه المنوفية بشبين الكوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-الاقصر",
+      "officialNameArabic": "تربية الاقصر",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "سياحة-وفنادق-الغردقة",
+      "officialNameArabic": "سياحة وفنادق الغردقة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنين-سوهاج",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنين سوهاج",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-المنصورة",
+      "officialNameArabic": "آداب انتساب موجه المنصورة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-اسيوط",
+      "officialNameArabic": "تجارة انتساب موجه أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-السويس",
+      "officialNameArabic": "تجارة انتساب موجه السويس",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-المنيا",
+      "officialNameArabic": "تربية (تعليم ابتدائي) المنيا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-نوعية-المنيا",
+      "officialNameArabic": "تربية نوعية المنيا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "فنون-جميلة-فنون-الاقصر",
+      "officialNameArabic": "فنون جميلة (فنون) الأقصر",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "اداب-المنيا",
+      "officialNameArabic": "آداب المنيا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-بني-سويف",
+      "officialNameArabic": "حقوق بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-بني-سويف",
+      "officialNameArabic": "آداب بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-القاهرة",
+      "officialNameArabic": "تربية طفولة مبكرة القاهرة",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-مبكرة-الاسكندرية",
+      "officialNameArabic": "تربية طفولة مبكرة الإسكندرية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-بور-سعيد",
+      "officialNameArabic": "تجارة انتساب موجه بور سعيد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تجارة-انتساب-موجه-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "تجارة انتساب موجه قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-تعليم-ابتدائي-كفر-الشيخ",
+      "officialNameArabic": "تربية (تعليم ابتدائي) كفر الشيخ",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-طفولة-كفر-الشيخ",
+      "officialNameArabic": "تربية (طفولة) كفر الشيخ",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-شعبة-تربية-فنية-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "تربية شعبة تربية فنية قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-موسيقية-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "تربية موسيقية قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-بني-سويف",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-بني-سويف",
+      "officialNameArabic": "آداب انتساب موجه بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-سوهاج",
+      "officialNameArabic": "آداب انتساب موجه سوهاج",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-المنيا",
+      "officialNameArabic": "آداب انتساب موجه المنيا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-المنوفية-بشبين-الكوم",
+      "officialNameArabic": "حقوق انتساب موجه المنوفية بشبين الكوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-سوهاج",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات سوهاج",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-فنية-المنيا",
+      "officialNameArabic": "تربية فنية المنيا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-العريش",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات العريش",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "اداب-انتساب-موجه-الوادي-الجديد",
+      "officialNameArabic": "آداب انتساب موجه الوادي الجديد",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "خدمة-اجتماعية-اسوان",
+      "officialNameArabic": "خدمة اجتماعية أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "خدمة-اجتماعية-انتساب-موجه-اسوان",
+      "officialNameArabic": "خدمة اجتماعية انتساب موجه أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "خدمة-اجتماعية-انتساب-موجه-اسيوط",
+      "officialNameArabic": "خدمة اجتماعية انتساب موجه أسيوط",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-قنا",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات قنا",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-قناة-السويس-بالاسماعيلية",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات قناة السويس بالإسماعيلية",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    },
+    {
+      "facultyKey": "خدمة-اجتماعية-تنموية-بني-سويف",
+      "officialNameArabic": "خدمة اجتماعية تنموية بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "دار-العلوم-انتساب-موجه-اسوان",
+      "officialNameArabic": "دار العلوم انتساب موجه أسوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "حقوق-انتساب-موجه-مدينة-السادات",
+      "officialNameArabic": "حقوق انتساب موجه مدينة السادات",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "خدمة-اجتماعية-تنموية-انتساب-موجه-بني-سويف",
+      "officialNameArabic": "خدمة اجتماعية تنموية انتساب موجه بني سويف",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "خدمة-اجتماعية-انتساب-موجه-الفيوم",
+      "officialNameArabic": "خدمة اجتماعية انتساب موجه الفيوم",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "خدمة-اجتماعية-انتساب-موجه-العاصمة-بحلوان",
+      "officialNameArabic": "خدمة اجتماعية انتساب موجه العاصمة بحلوان",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": false
+    },
+    {
+      "facultyKey": "تربية-رياضية-علوم-الرياضة-بنات-مدينة-السادات",
+      "officialNameArabic": "تربية رياضية (علوم الرياضة)بنات مدينة السادات",
+      "educationSystem": "new",
+      "branch": "literary",
+      "stage": 2,
+      "requiresAptitudeTest": true
+    }
+  ],
+  "model": {
+    "version": "stage2-2026-v1",
+    "mode": "normalized_percentage",
+    "historicalWeights": {
+      "2023": 0.2,
+      "2024": 0.3,
+      "2025": 0.5
+    },
+    "minimumUncertainty": 0.65,
+    "confidencePenaltyWithoutBranchDistribution": 1,
+    "classificationBoundaries": {
+      "safeUncertaintyMultiple": 1,
+      "targetLowerMultiple": -0.35,
+      "reachLowerMultiple": -1
+    }
+  }
+}

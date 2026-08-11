@@ -14,11 +14,18 @@
     "validate:results": "node --max-old-space-size=4096 --import tsx scripts/validate-results.ts",
     "index:results:local": "node --max-old-space-size=4096 --import tsx scripts/build-local-results-index.ts",
     "import:results": "node --max-old-space-size=4096 --import tsx scripts/import-results.ts",
-    "calculate:distributions": "node --max-old-space-size=4096 --import tsx scripts/calculate-distributions.ts"
+    "calculate:distributions": "node --max-old-space-size=4096 --import tsx scripts/calculate-distributions.ts",
+    "build:stage2-seed": "node --import tsx scripts/build-stage2-seed.ts",
+    "build:historical-seed": "node --import tsx scripts/build-historical-seed.ts",
+    "backtest:stage2": "node --import tsx scripts/backtest-stage2.ts",
+    "seed:stage2": "node --import tsx scripts/seed-stage2.ts",
+    "admin:promote-owner": "node --import tsx scripts/promote-owner-admin.ts"
   },
   "dependencies": {
     "@fontsource/cairo": "^5.2.6",
+    "@libsql/client": "^0.17.4",
     "@neondatabase/serverless": "^1.0.1",
+    "@vercel/blob": "^2.8.0",
     "better-auth": "^1.2.9",
     "drizzle-orm": "^0.44.5",
     "lucide-react": "^0.468.0",

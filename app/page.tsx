@@ -1,8 +1,12 @@
 import Image from "next/image";
 import { MessageCircle, Code2 } from "lucide-react";
 import { ToolExperience } from "@/components/tool-experience";
+import { getPaymentSettings } from "@/lib/settings";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const settings = await getPaymentSettings();
   return (
     <>
       <section className="hero">
@@ -24,6 +28,9 @@ export default function HomePage() {
             <p className="hero-copy">
               ابحث عن نتيجتك أو أدخل مجموعك لتشوف أقرب الخيارات لمجموعك
               ومحافظتك.
+            </p>
+            <p className="mt-4 inline-flex border border-white/30 bg-slate-950/30 px-3 py-2 text-sm font-bold text-white">
+              {settings.homepageStageMessage}
             </p>
           </div>
         </div>
