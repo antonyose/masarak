@@ -1,12 +1,7 @@
 import Image from "next/image";
-import { MessageCircle, Code2 } from "lucide-react";
 import { ToolExperience } from "@/components/tool-experience";
-import { getPaymentSettings } from "@/lib/settings";
 
-export const dynamic = "force-dynamic";
-
-export default async function HomePage() {
-  const settings = await getPaymentSettings();
+export default function HomePage() {
   return (
     <>
       <section className="hero">
@@ -21,49 +16,23 @@ export default async function HomePage() {
         </div>
         <div className="shell hero-inner">
           <div className="hero-content">
+            <span className="hero-stage-note">
+              محدث بعد ظهور المرحلة الأولى · تنسيق 2026
+            </span>
             <h1>
               اعرف
-              <span> نتيجتك وكلياتك الأقرب</span>
+              <span> أقرب كلياتك</span>
             </h1>
             <p className="hero-copy">
-              ابحث عن نتيجتك أو أدخل مجموعك لتشوف أقرب الخيارات لمجموعك
-              ومحافظتك.
-            </p>
-            <p className="mt-4 inline-flex border border-white/30 bg-slate-950/30 px-3 py-2 text-sm font-bold text-white">
-              {settings.homepageStageMessage}
+              اكتب رقم جلوسك وشوف أقرب اختياراتك في المرحلة الثانية والثالثة.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="tool-stage" aria-label="أدوات النتيجة والتوقع">
+      <section className="tool-stage" aria-label="توقعات تنسيق 2026">
         <div className="shell">
           <ToolExperience />
-        </div>
-      </section>
-
-      <section className="dev-contact-strip">
-        <div className="shell">
-          <div className="dev-contact-card">
-            <div className="dev-contact-info">
-              <span className="dev-badge">
-                <Code2 size={15} aria-hidden="true" />
-                تطوير المواقع والتطبيقات والأنظمة
-              </span>
-              <p>
-                لتصميم وتطوير مواقع الإنترنت، تطبيقات الموبايل، والأنظمة الخاصة بعملك أو شركتك — تواصل مباشرة مع المطور:
-              </p>
-            </div>
-            <a
-              href="https://wa.me/201276101944"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="whatsapp-contact-btn"
-            >
-              <MessageCircle size={18} aria-hidden="true" />
-              تواصل عبر WhatsApp
-            </a>
-          </div>
         </div>
       </section>
     </>

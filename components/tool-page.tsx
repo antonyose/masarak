@@ -4,11 +4,9 @@ import { ToolExperience } from "@/components/tool-experience";
 export function ToolPage({
   title,
   description,
-  initialTool,
 }: {
   title: string;
   description: ReactNode;
-  initialTool: "predict" | "search";
 }) {
   return (
     <>
@@ -20,7 +18,7 @@ export function ToolPage({
       </section>
       <section className="tool-stage" style={{ paddingTop: "1.2rem" }}>
         <div className="shell">
-          <ToolExperience initialTool={initialTool} />
+          <ToolExperience />
         </div>
       </section>
     </>

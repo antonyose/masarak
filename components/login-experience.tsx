@@ -7,20 +7,26 @@ export function LoginExperience() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  function callbackUrl() {
+    const requested = new URLSearchParams(window.location.search).get("next");
+    return requested?.startsWith("/") && !requested.startsWith("//")
+      ? requested
+      : "/account";
+  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setLoading(true); setError("");
     const data = new FormData(event.currentTarget);
-    const values = { name: String(data.get("name") ?? ""), email: String(data.get("email") ?? ""), phone: String(data.get("phone") ?? ""), password: String(data.get("password") ?? ""), callbackURL: "/account" };
+    const values = { name: String(data.get("name") ?? ""), email: String(data.get("email") ?? ""), phone: String(data.get("phone") ?? ""), password: String(data.get("password") ?? ""), callbackURL: callbackUrl() };
     try {
       const result = mode === "signup" ? await signUp.email(values) : await signIn.email({ email: values.email, password: values.password, callbackURL: values.callbackURL });
       if (result.error) throw new Error(result.error.message || "تعذر إكمال الدخول.");
-      window.location.assign("/account");
+      window.location.assign(values.callbackURL);
     } catch (caught) { setError(caught instanceof Error ? caught.message : "تعذر إكمال الدخول."); }
     finally { setLoading(false); }
   }
   async function google() {
     setLoading(true); setError("");
-    try { await signIn.social({ provider: "google", callbackURL: "/account" }); }
+    try { await signIn.social({ provider: "google", callbackURL: callbackUrl() }); }
     catch { setError("تعذر بدء تسجيل الدخول عبر Google."); setLoading(false); }
   }
   return <div className="mx-auto max-w-lg border border-slate-200 bg-white p-6 shadow-[0_16px_50px_rgba(15,42,61,.1)] md:p-8">

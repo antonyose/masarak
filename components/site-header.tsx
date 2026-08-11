@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { AuthButton } from "@/components/auth-button";
 
@@ -13,22 +13,21 @@ export function SiteHeader() {
           </span>
           <span className="brand-copy">
             <span>مسارك</span>
-            <small>من نتيجتك لاختيار أقرب</small>
+            <small>توقعات تنسيق 2026</small>
           </span>
         </Link>
 
         <nav className="nav-links" aria-label="التنقل الرئيسي">
           <Link href="/predict">توقع الكليات</Link>
-          <Link href="/result-search">البحث عن النتيجة</Link>
           <Link href="/faculties">دليل الكليات</Link>
-          <Link href="/methodology">كيف نحسب التوقعات؟</Link>
+          <Link href="/methodology">طريقة الحساب</Link>
         </nav>
 
         <div className="flex items-center gap-3">
           <AuthButton />
-          <Link className="header-cta" href="/result-search">
-            <Search size={17} aria-hidden="true" />
-            <span>ابحث عن نتيجتك</span>
+          <Link className="header-cta" href="/predict">
+            <Sparkles size={17} aria-hidden="true" />
+            <span>ابدأ برقم جلوسك</span>
           </Link>
         </div>
       </div>
