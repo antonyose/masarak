@@ -11,7 +11,7 @@ export const authRateLimitStorage = {
       WHERE scope = 'auth' AND "key" = ${key} AND expires_at > now()
       LIMIT 1
     `);
-    const row = result.rows[0] as { count?: number; lastRequest?: Date | string } | undefined;
+    const row = ((result as any).rows ? (result as any).rows[0] : (result as any)[0]) as { count?: number; lastRequest?: Date | string } | undefined;
     if (!row) return null;
     return { key, count: Number(row.count ?? 0), lastRequest: new Date(row.lastRequest!).getTime() };
   },

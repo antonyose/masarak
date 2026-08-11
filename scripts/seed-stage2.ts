@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
-import pg from "pg";
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
+neonConfig.webSocketConstructor = ws;
 import stage2 from "../lib/coordination-data/stage2-2026.json";
 import historical from "../lib/coordination-data/historical-cutoffs-2023-2025.json";
 import { normalizeArabicName } from "../lib/normalize-arabic";
@@ -25,7 +27,7 @@ async function main() {
     throw new Error("New-system Stage-2 backtest gate did not pass.");
   }
 
-  const pool = new pg.Pool({ connectionString: databaseUrl, max: 1 });
+  const pool = new Pool({ connectionString: databaseUrl });
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
