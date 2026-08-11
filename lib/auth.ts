@@ -51,8 +51,8 @@ export const auth = betterAuth({
   },
   trustedOrigins: [
     "https://masarak.live",
+    "https://masarak-58p2ie82j-antonyoses-projects.vercel.app",
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
-    "https://*.vercel.app",
   ],
   secret: productionRequired(
     process.env.BETTER_AUTH_SECRET,
