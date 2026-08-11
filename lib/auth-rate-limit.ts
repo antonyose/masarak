@@ -16,10 +16,10 @@ export const authRateLimitStorage = {
     return { key, count: Number(row.count ?? 0), lastRequest: new Date(row.lastRequest!).getTime() };
   },
   async set(key: string, value: { count: number; lastRequest: number }) {
-    const lastRequest = new Date(value.lastRequest);
+    const isoString = new Date(value.lastRequest).toISOString();
     await getDatabase().execute(sql`
       INSERT INTO rate_limits (scope, "key", window_start, "count", expires_at)
-      VALUES ('auth', ${key}, ${lastRequest}, ${value.count}, ${lastRequest} + interval '1 day')
+      VALUES ('auth', ${key}, ${isoString}::timestamptz, ${value.count}, ${isoString}::timestamptz + interval '1 day')
       ON CONFLICT (scope, "key") DO UPDATE SET
         window_start = EXCLUDED.window_start,
         "count" = EXCLUDED."count",
