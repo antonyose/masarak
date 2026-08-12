@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { GraduationCap } from "lucide-react";
+import { PredictionV2ReportView } from "@/components/prediction-v2-report-view";
+import type { PredictionV2Report } from "@/lib/prediction-v2/types";
 
 type Recommendation = {
   id: string;
@@ -11,6 +13,7 @@ type Recommendation = {
   proximityLabel: string;
 };
 type Report = {
+  schemaVersion?: string;
   coordinationStage: number;
   recommendations: Recommendation[];
   disclaimer: string;
@@ -60,6 +63,10 @@ export function PremiumReport({ predictionId }: { predictionId: string }) {
   }
 
   if (!report) return <div className="bg-white p-8">بنجهّز تقريرك…</div>;
+
+  if (report.schemaVersion === "prediction-v2-report@1") {
+    return <PredictionV2ReportView report={report as unknown as PredictionV2Report} />;
+  }
 
   return (
     <div className="grid gap-5">

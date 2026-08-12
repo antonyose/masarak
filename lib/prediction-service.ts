@@ -9,6 +9,18 @@ import { getPaymentSettings } from "@/lib/settings";
 import { calculateStage2Report, toFreeStage2Report } from "@/lib/stage2-prediction";
 import { loadStage2CoordinationContext } from "@/lib/coordination-repository";
 import { findTursoResultBySeat } from "@/lib/turso";
+import { recordPredictionV2Shadow } from "@/lib/prediction-v2/shadow-service";
+
+async function safelyRecordV2Shadow(
+  input: Parameters<typeof recordPredictionV2Shadow>[0],
+) {
+  try {
+    await recordPredictionV2Shadow(input);
+  } catch (error) {
+    // Shadow instrumentation must never change or fail the V1 student flow.
+    console.error("Prediction V2 shadow write failed:", error);
+  }
+}
 
 export function deterministicInputHash(input: Record<string, unknown>) {
   return createHash("sha256")
@@ -93,7 +105,18 @@ export async function createImmutablePrediction({
     })
     .onConflictDoNothing()
     .returning();
-  if (created) return { run: created, report };
+  if (created) {
+    await safelyRecordV2Shadow({
+      productionPredictionRunId: created.id,
+      score: report.score,
+      maxScore: report.maxScore,
+      percentage: report.percentage,
+      educationSystem: report.educationSystem,
+      branch: report.branch,
+      governorate,
+    });
+    return { run: created, report };
+  }
   const [existing] = await getDatabase()
     .select()
     .from(predictionRuns)
@@ -106,6 +129,15 @@ export async function createImmutablePrediction({
       ),
     )
     .limit(1);
+  await safelyRecordV2Shadow({
+    productionPredictionRunId: existing.id,
+    score: existing.score,
+    maxScore: report.maxScore,
+    percentage: existing.percentage,
+    educationSystem: report.educationSystem,
+    branch: report.branch,
+    governorate,
+  });
   return { run: existing, report: existing.resultSnapshotJson as unknown as typeof report };
 }
 
@@ -168,7 +200,18 @@ export async function createPublicImmutablePrediction({
     })
     .onConflictDoNothing()
     .returning();
-  if (created) return { run: created, report, result };
+  if (created) {
+    await safelyRecordV2Shadow({
+      productionPredictionRunId: created.id,
+      score: report.score,
+      maxScore: report.maxScore,
+      percentage: report.percentage,
+      educationSystem: report.educationSystem,
+      branch: report.branch,
+      governorate,
+    });
+    return { run: created, report, result };
+  }
 
   const [existing] = await getDatabase()
     .select()
@@ -185,6 +228,15 @@ export async function createPublicImmutablePrediction({
     )
     .limit(1);
   if (!existing) throw new Error("PREDICTION_CREATE_FAILED");
+  await safelyRecordV2Shadow({
+    productionPredictionRunId: existing.id,
+    score: existing.score,
+    maxScore: report.maxScore,
+    percentage: existing.percentage,
+    educationSystem: report.educationSystem,
+    branch: report.branch,
+    governorate,
+  });
   return {
     run: existing,
     report: existing.resultSnapshotJson as unknown as typeof report,

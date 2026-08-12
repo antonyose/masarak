@@ -17,8 +17,11 @@
     "calculate:distributions": "node --max-old-space-size=4096 --import tsx scripts/calculate-distributions.ts",
     "build:stage2-seed": "node --import tsx scripts/build-stage2-seed.ts",
     "build:historical-seed": "node --import tsx scripts/build-historical-seed.ts",
+    "build:prediction-v2-data": "node --import tsx scripts/build-prediction-v2-data.ts",
     "backtest:stage2": "node --import tsx scripts/backtest-stage2.ts",
+    "backtest:prediction-v2": "node --import tsx scripts/backtest-prediction-v2.ts",
     "seed:stage2": "node --import tsx scripts/seed-stage2.ts",
+    "seed:prediction-v2-shadow": "node --import tsx scripts/seed-prediction-v2-shadow.ts",
     "admin:promote-owner": "node --import tsx scripts/promote-owner-admin.ts"
   },
   "dependencies": {

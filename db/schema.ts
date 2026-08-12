@@ -60,6 +60,25 @@ export const ledgerEventTypeEnum = pgEnum("ledger_event_type", [
   "refund",
   "admin_adjustment",
 ]);
+export const coordinationInstitutionClassEnum = pgEnum(
+  "coordination_institution_class",
+  [
+    "public_university",
+    "public_technological_university",
+    "public_institute",
+    "private_or_higher_institute",
+    "unknown",
+  ],
+);
+export const aliasResolutionStatusEnum = pgEnum("alias_resolution_status", [
+  "resolved",
+  "ambiguous",
+  "rejected",
+]);
+export const coordinationAvailabilityStateEnum = pgEnum(
+  "coordination_availability_state",
+  ["listed_stage_2", "forecast_stage_3", "officially_closed", "unknown"],
+);
 
 export const importSources = pgTable(
   "import_sources",
@@ -499,6 +518,243 @@ export const stageVacancies = pgTable(
   ],
 );
 
+// Prediction V2 is additive and shadow-only. These tables do not replace the
+// V1 universities/faculties/cutoffs/vacancies or immutable prediction runs.
+export const coordinationImportBatchesV2 = pgTable(
+  "coordination_import_batches_v2",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    year: integer("year").notNull(),
+    stage: integer("stage"),
+    modelVersion: text("model_version").notNull(),
+    sourceKey: text("source_key").notNull(),
+    sourceTier: sourceTierEnum("source_tier").notNull(),
+    sourceUrl: text("source_url").notNull(),
+    contentHash: text("content_hash").notNull(),
+    officialArtifact: boolean("official_artifact").notNull().default(false),
+    rowCount: integer("row_count").notNull(),
+    diagnosticsJson: jsonb("diagnostics_json")
+      .$type<Record<string, unknown>>()
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("coordination_import_batches_v2_hash_idx").on(
+      table.contentHash,
+      table.sourceKey,
+    ),
+    index("coordination_import_batches_v2_year_stage_idx").on(
+      table.year,
+      table.stage,
+    ),
+  ],
+);
+
+export const coordinationInstitutionsV2 = pgTable(
+  "coordination_institutions_v2",
+  {
+    id: text("id").primaryKey(),
+    officialNameArabic: text("official_name_arabic").notNull(),
+    normalizedName: text("normalized_name").notNull(),
+    institutionClass: coordinationInstitutionClassEnum("institution_class").notNull(),
+    governorate: text("governorate"),
+    validFromYear: integer("valid_from_year").notNull().default(2021),
+    validToYear: integer("valid_to_year"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("coordination_institutions_v2_class_idx").on(table.institutionClass),
+    index("coordination_institutions_v2_name_idx").on(table.normalizedName),
+  ],
+);
+
+export const coordinationPhysicalFacultiesV2 = pgTable(
+  "coordination_physical_faculties_v2",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => coordinationInstitutionsV2.id),
+    canonicalNameArabic: text("canonical_name_arabic").notNull(),
+    normalizedName: text("normalized_name").notNull(),
+    sector: text("sector").notNull(),
+    campus: text("campus"),
+    governorate: text("governorate"),
+    institutionClass: coordinationInstitutionClassEnum("institution_class").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("coordination_physical_faculties_v2_institution_idx").on(table.institutionId),
+    index("coordination_physical_faculties_v2_sector_idx").on(table.sector),
+  ],
+);
+
+export const coordinationAdmissionOptionsV2 = pgTable(
+  "coordination_admission_options_v2",
+  {
+    id: text("id").primaryKey(),
+    physicalFacultyId: text("physical_faculty_id")
+      .notNull()
+      .references(() => coordinationPhysicalFacultiesV2.id),
+    canonicalNameArabic: text("canonical_name_arabic").notNull(),
+    normalizedName: text("normalized_name").notNull(),
+    branch: branchEnum("branch").notNull(),
+    affiliation: text("affiliation").notNull().default("regular"),
+    requiresAptitudeTest: boolean("requires_aptitude_test").notNull().default(false),
+    sector: text("sector").notNull(),
+    governorate: text("governorate"),
+    institutionClass: coordinationInstitutionClassEnum("institution_class").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("coordination_admission_options_v2_faculty_idx").on(table.physicalFacultyId),
+    index("coordination_admission_options_v2_branch_sector_idx").on(
+      table.branch,
+      table.sector,
+    ),
+  ],
+);
+
+export const coordinationAliasesV2 = pgTable(
+  "coordination_aliases_v2",
+  {
+    id: text("id").primaryKey(),
+    admissionOptionId: text("admission_option_id").references(
+      () => coordinationAdmissionOptionsV2.id,
+      { onDelete: "set null" },
+    ),
+    officialLabel: text("official_label").notNull(),
+    normalizedLabel: text("normalized_label").notNull(),
+    canonicalLabel: text("canonical_label").notNull(),
+    branch: branchEnum("branch").notNull(),
+    validFromYear: integer("valid_from_year").notNull(),
+    validToYear: integer("valid_to_year").notNull(),
+    status: aliasResolutionStatusEnum("status").notNull(),
+    rule: text("rule").notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("coordination_aliases_v2_context_idx").on(
+      table.normalizedLabel,
+      table.branch,
+      table.validFromYear,
+      table.validToYear,
+    ),
+    index("coordination_aliases_v2_status_idx").on(table.status),
+  ],
+);
+
+export const coordinationHistoricalObservationsV2 = pgTable(
+  "coordination_historical_observations_v2",
+  {
+    id: text("id").primaryKey(),
+    year: integer("year").notNull(),
+    educationSystem: educationSystemEnum("education_system").notNull(),
+    branch: branchEnum("branch").notNull(),
+    admissionOptionId: text("admission_option_id").references(
+      () => coordinationAdmissionOptionsV2.id,
+      { onDelete: "set null" },
+    ),
+    officialNameArabic: text("official_name_arabic").notNull(),
+    normalizedOfficialName: text("normalized_official_name").notNull(),
+    minimumScore: doublePrecision("minimum_score").notNull(),
+    maximumScore: doublePrecision("maximum_score").notNull(),
+    minimumPercentage: doublePrecision("minimum_percentage").notNull(),
+    sourceKey: text("source_key").notNull(),
+    sourceUrl: text("source_url").notNull(),
+    sourceHash: text("source_hash").notNull(),
+    institutionClass: coordinationInstitutionClassEnum("institution_class").notNull(),
+    resolutionStatus: aliasResolutionStatusEnum("resolution_status").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("coordination_historical_observations_v2_option_year_idx").on(
+      table.admissionOptionId,
+      table.year,
+    ),
+    index("coordination_historical_observations_v2_branch_year_idx").on(
+      table.branch,
+      table.year,
+    ),
+    index("coordination_historical_observations_v2_resolution_idx").on(table.resolutionStatus),
+  ],
+);
+
+export const coordinationAvailabilityV2 = pgTable(
+  "coordination_availability_v2",
+  {
+    id: text("id").primaryKey(),
+    year: integer("year").notNull(),
+    stage: integer("stage").notNull(),
+    educationSystem: educationSystemEnum("education_system").notNull(),
+    branch: branchEnum("branch").notNull(),
+    admissionOptionId: text("admission_option_id").references(
+      () => coordinationAdmissionOptionsV2.id,
+      { onDelete: "set null" },
+    ),
+    officialNameArabic: text("official_name_arabic").notNull(),
+    normalizedOfficialName: text("normalized_official_name").notNull(),
+    institutionClass: coordinationInstitutionClassEnum("institution_class").notNull(),
+    availabilityState: coordinationAvailabilityStateEnum("availability_state").notNull(),
+    requiresAptitudeTest: boolean("requires_aptitude_test").notNull().default(false),
+    sourceKey: text("source_key").notNull(),
+    sourceTier: sourceTierEnum("source_tier").notNull(),
+    resolutionStatus: aliasResolutionStatusEnum("resolution_status").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("coordination_availability_v2_context_idx").on(
+      table.year,
+      table.stage,
+      table.educationSystem,
+      table.branch,
+      table.normalizedOfficialName,
+    ),
+    index("coordination_availability_v2_lookup_idx").on(
+      table.year,
+      table.stage,
+      table.educationSystem,
+      table.branch,
+      table.availabilityState,
+    ),
+  ],
+);
+
+export const modelEvaluationRunsV2 = pgTable(
+  "model_evaluation_runs_v2",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    modelVersion: text("model_version").notNull(),
+    dataHash: text("data_hash").notNull(),
+    metricsJson: jsonb("metrics_json").$type<Record<string, unknown>>().notNull(),
+    gatesJson: jsonb("gates_json").$type<Record<string, unknown>>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("model_evaluation_runs_v2_model_hash_idx").on(
+      table.modelVersion,
+      table.dataHash,
+    ),
+  ],
+);
+
 export const savedStudents = pgTable(
   "saved_students",
   {
@@ -597,6 +853,42 @@ export const predictionRuns = pgTable(
       table.year,
       table.coordinationStage,
       table.modelVersionId,
+    ),
+  ],
+);
+
+export const predictionShadowRuns = pgTable(
+  "prediction_shadow_runs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    productionPredictionRunId: uuid("production_prediction_run_id").references(
+      () => predictionRuns.id,
+      { onDelete: "set null" },
+    ),
+    modelVersionId: uuid("model_version_id").references(() => modelVersions.id, {
+      onDelete: "set null",
+    }),
+    modelVersion: text("model_version").notNull(),
+    inputHash: text("input_hash").notNull(),
+    resultSnapshotJson: jsonb("result_snapshot_json")
+      .$type<Record<string, unknown>>()
+      .notNull(),
+    diagnosticsJson: jsonb("diagnostics_json")
+      .$type<Record<string, unknown>>()
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("prediction_shadow_runs_dedup_idx").on(
+      table.productionPredictionRunId,
+      table.modelVersion,
+      table.inputHash,
+    ),
+    index("prediction_shadow_runs_model_created_idx").on(
+      table.modelVersion,
+      table.createdAt,
     ),
   ],
 );

@@ -31,6 +31,29 @@ type Stats = {
   };
   users: { totalUsers: number; todayUsers: number; totalEntitlements: number };
 };
+type V2Diagnostics = {
+  modelVersion: string;
+  shadow: true;
+  activated: false;
+  data: {
+    publicSourceRows: number;
+    publicTechnologicalRows: number;
+    publicInstituteRows: number;
+    resolvedPublicVacancies: number;
+    unresolvedPublicVacancies: number;
+    ambiguousAliases: number;
+    historicalRawRows: number;
+    activationBlockers: string[];
+  };
+  evaluation: {
+    holdout2024: { mae: number | null; p90: number | null; intervalCoverage: number | null };
+    holdout2025: { mae: number | null; p90: number | null; intervalCoverage: number | null };
+    validation2026: { mae: number | null; p90: number | null; intervalCoverage: number | null };
+    scoreBands: { allRedReportRate: number | null; zeroRealisticOptionRate: number | null };
+    gates: { dataQualityReady: boolean; modelQualityReady: boolean; productQualityReady: boolean; activationReady: boolean; blockers: string[] };
+  };
+  regressionCase: { diagnostics: { realisticOptions: number; fitCounts: { green: number; yellow: number; orange: number; red: number } }; groups: { higherThanScore: { items: unknown[]; hiddenCount: number } } };
+};
 
 type Tab = "overview" | "payments" | "audit" | "settings";
 
@@ -40,6 +63,7 @@ export default function AdminPage() {
   const [payments, setPayments] = useState<AdminPayment[]>([]);
   const [coordination, setCoordination] = useState<Coordination | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [v2, setV2] = useState<V2Diagnostics | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -47,10 +71,11 @@ export default function AdminPage() {
     setLoading(true);
     setError("");
     try {
-      const [queue, data, statsRes] = await Promise.all([
+      const [queue, data, statsRes, v2Res] = await Promise.all([
         fetch("/api/admin/payments?status=all&limit=500"),
         fetch("/api/admin/coordination"),
         fetch("/api/admin/stats?days=14"),
+        fetch("/api/admin/coordination/v2-shadow"),
       ]);
       if (!queue.ok || !data.ok) {
         setError(queue.status === 403 || data.status === 403 ? "هذا الحساب لا يملك صلاحية الأدمن." : "تعذر تحميل لوحة الإدارة.");
@@ -58,6 +83,7 @@ export default function AdminPage() {
         setPayments((await queue.json()).payments);
         setCoordination(await data.json());
         if (statsRes.ok) setStats(await statsRes.json());
+        if (v2Res.ok) setV2(await v2Res.json());
       }
     } catch {
       setError("تعذر الاتصال بالخادم.");
@@ -179,6 +205,39 @@ export default function AdminPage() {
               <CoordCard label="شواغر المرحلة الثانية" value={coordination.counts.stageVacancies2026} />
               <CoordCard label="النماذج النشطة" value={coordination.models.filter((m) => m.activatedAt).length} />
             </div>
+          ) : null}
+
+          {v2 ? (
+            <section className="admin-panel">
+              <div className="admin-panel-header">
+                <div>
+                  <div className="admin-section-kicker">Prediction V2 · Shadow</div>
+                  <h3 className="admin-panel-title">{v2.modelVersion}</h3>
+                  <p className="admin-panel-sub">غير مفعّل ولا يغيّر تقارير V1 أو الدفع والاستحقاقات.</p>
+                </div>
+                <span className={`admin-status-badge ${v2.evaluation.gates.activationReady ? "admin-status-approved" : "admin-status-pending"}`}>
+                  {v2.evaluation.gates.activationReady ? "جاهز للتفعيل" : "محجوب عن التفعيل"}
+                </span>
+              </div>
+              <div className="admin-coord-grid">
+                <CoordCard label="صفوف عامة/تكنولوجية" value={v2.data.publicSourceRows} />
+                <CoordCard label="شواغر محلولة حسب الشعبة" value={v2.data.resolvedPublicVacancies} />
+                <CoordCard label="Aliases غير محلولة" value={v2.data.unresolvedPublicVacancies + v2.data.ambiguousAliases} />
+                <CoordCard label="سجلات تاريخية خام" value={v2.data.historicalRawRows} />
+                <CoordCard label="خيارات واقعية لحالة 223.5" value={v2.regressionCase.diagnostics.realisticOptions} />
+                <CoordCard label="بطاقات حمراء ظاهرة" value={v2.regressionCase.groups.higherThanScore.items.length} />
+              </div>
+              <div className="mt-4 grid gap-2 text-sm md:grid-cols-3">
+                <div><strong>2024 MAE:</strong> {v2.evaluation.holdout2024.mae ?? "—"}</div>
+                <div><strong>2025 MAE:</strong> {v2.evaluation.holdout2025.mae ?? "—"}</div>
+                <div><strong>2026 MAE:</strong> {v2.evaluation.validation2026.mae ?? "—"}</div>
+              </div>
+              {v2.evaluation.gates.blockers.length ? (
+                <ul className="mt-4 list-inside list-disc text-sm text-amber-900">
+                  {v2.evaluation.gates.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}
+                </ul>
+              ) : null}
+            </section>
           ) : null}
         </div>
       )}
