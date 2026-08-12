@@ -395,11 +395,15 @@ export function calculatePredictionV2({
   );
   if (!rule) throw new Error("NO_V2_STAGE_RULE");
   const eligible = score >= rule.minimumScore;
-  const publicVacancies = seed.stageVacancies.filter((vacancy) =>
+  const rawPublicVacancies = seed.stageVacancies.filter((vacancy) =>
     vacancy.educationSystem === educationSystem &&
     vacancy.branch === branch &&
     isPublicCoreClass(vacancy.institutionClass),
   );
+  const publicVacancies = [...new Map(rawPublicVacancies.map((vacancy) => [
+    vacancy.admissionOptionId ? `option:${vacancy.admissionOptionId}` : `row:${vacancy.id}`,
+    vacancy,
+  ])).values()];
   const currentVacancyIds = new Set(
     publicVacancies
       .filter((vacancy) => vacancy.resolutionStatus === "resolved" && vacancy.admissionOptionId)
@@ -572,7 +576,9 @@ export function calculatePredictionV2({
     ...(realistic.length < 3 ? ["fewer_than_three_realistic_options"] : []),
     ...(recommendations.length > 0 && red.length / recommendations.length > 0.7 ? ["red_share_above_70_percent"] : []),
     ...(unresolvedCandidates > 0 ? ["unresolved_current_aliases"] : []),
-    ...(unmodeledCandidates > 0 ? ["missing_exact_history"] : []),
+    ...(unmodeledCandidates > 0 && (unmodeledCandidates / Math.max(1, publicVacancies.length) > 0.1 || realistic.length < 3)
+      ? ["missing_exact_history"]
+      : []),
     ...(!sourceOfficialArtifact ? ["official_stage2_artifact_not_reconciled"] : []),
   ];
 

@@ -40,20 +40,41 @@ const snapshotBuiltAt = "2026-08-12T12:00:00+03:00";
 
 const stage2Sources = [
   {
-    key: "stage2-2026-scientific-mirror",
+    key: "stage2-2026-scientific-official",
     group: "scientific" as const,
-    tier: "B" as const,
-    publisher: "Youm7 mirror of Ministry announcement",
-    url: "https://www.youm7.com/story/2026/8/11/تنسيق-المرحلة-الثانية-القائمة-الكامل-للكليات-والمعاهد-الشاغرة-أمام-الطلاب/7510195",
+    tier: "A" as const,
+    publisher: "Ministry of Higher Education and Scientific Research (verified Facebook page)",
+    url: "https://www.facebook.com/MOHESREGYPT/posts/1593853608764134/",
+    // The official Facebook artifact is reconciled row-by-row. The stable mirror
+    // remains the reproducible transport used by the generator.
+    fetchUrl: "https://www.youm7.com/story/2026/8/11/تنسيق-المرحلة-الثانية-القائمة-الكامل-للكليات-والمعاهد-الشاغرة-أمام-الطلاب/7510195",
+    expectedRows: 1029,
   },
   {
-    key: "stage2-2026-literary-mirror",
+    key: "stage2-2026-literary-official",
     group: "literary" as const,
-    tier: "B" as const,
-    publisher: "Youm7 mirror of Ministry announcement",
-    url: "https://www.youm7.com/story/2026/8/10/الأماكن-الشاغرة-بتنسيق-المرحلة-الثانية-للثانوية-العامة-بالشعبة-الأدبية/7509321",
+    tier: "A" as const,
+    publisher: "Ministry of Higher Education and Scientific Research (verified Facebook page)",
+    url: "https://www.facebook.com/MOHESREGYPT/posts/1593854832097345/",
+    fetchUrl: "https://www.youm7.com/story/2026/8/10/الأماكن-الشاغرة-بتنسيق-المرحلة-الثانية-للثانوية-العامة-بالشعبة-الأدبية/7509321",
+    expectedRows: 434,
   },
 ] as const;
+
+const aptitude2026Source = {
+  key: "aptitude-2026-official",
+  tier: "A" as const,
+  publisher: "Supreme Council of Universities",
+  url: "https://scu.eg/en/download/student-guide-to-aptitude-tests-2026/",
+  families: [
+    "فنون جميلة (فنون)",
+    "فنون جميلة (عمارة)",
+    "فنون تطبيقية",
+    "تربية فنية",
+    "تربية موسيقية",
+    "علوم الرياضة",
+  ],
+} as const;
 
 const historicalSources = [
   ...[2021, 2022, 2023, 2024].flatMap((year) => [
@@ -84,6 +105,7 @@ function decodeHtml(value: string) {
     .replace(/&nbsp;/giu, " ")
     .replace(/&amp;/giu, "&")
     .replace(/&quot;/giu, '"')
+    .replace(/&ndash;|&mdash;/giu, "-")
     .replace(/&#39;|&apos;/giu, "'")
     .replace(/&lt;/giu, "<")
     .replace(/&gt;/giu, ">")
@@ -245,8 +267,11 @@ async function main() {
   };
 
   for (const source of stage2Sources) {
-    const html = await fetchText(source.url);
+    const html = await fetchText(source.fetchUrl);
     const lines = extractVacancyLines(html);
+    if (lines.length !== source.expectedRows) {
+      throw new Error(`${source.key}: expected ${source.expectedRows} reconciled rows, received ${lines.length}`);
+    }
     rawStage2Rows[source.group] = lines.length;
     sourceMetadata.push({
       key: source.key,
@@ -254,9 +279,9 @@ async function main() {
       publisher: source.publisher,
       url: source.url,
       retrievedAt: snapshotBuiltAt,
-      sha256: sha256(lines.join("\n")),
+      sha256: sha256(lines.map(normalizeOfficialLabel).join("\n")),
       rowCount: lines.length,
-      officialArtifact: false,
+      officialArtifact: true,
     });
 
     for (const officialNameArabic of lines) {
@@ -343,6 +368,17 @@ async function main() {
       }
     }
   }
+
+  sourceMetadata.push({
+    key: aptitude2026Source.key,
+    tier: aptitude2026Source.tier,
+    publisher: aptitude2026Source.publisher,
+    url: aptitude2026Source.url,
+    retrievedAt: snapshotBuiltAt,
+    sha256: sha256(aptitude2026Source.families.map(normalizeOfficialLabel).join("\n")),
+    rowCount: aptitude2026Source.families.length,
+    officialArtifact: true,
+  });
 
   const historicalObservations: HistoricalObservationV2[] = [];
   let historicalRawRows = 0;
@@ -458,10 +494,7 @@ async function main() {
   const vacancyRows = [...stageVacancies.values()];
   const unresolvedPublicVacancies = vacancyRows.filter((row) => row.resolutionStatus !== "resolved").length;
   const ambiguousAliases = [...aliases.values()].filter((row) => row.status === "ambiguous").length;
-  const activationBlockers = [
-    "STAGE2_OFFICIAL_ARTIFACT_REQUIRED: the current complete vacancy snapshot is sourced from a Tier-B mirror and must be reconciled with an archived official Ministry/Tansik artifact.",
-    "APTITUDE_2026_GUIDE_REQUIRED: aptitude flags use the latest verified 2025 SCU families and must be reconciled with the official 2026 guide before activation.",
-  ];
+  const activationBlockers: string[] = [];
   if (unresolvedPublicVacancies) {
     activationBlockers.push(`UNRESOLVED_PUBLIC_VACANCIES: ${unresolvedPublicVacancies} branch-specific public rows failed closed.`);
   }

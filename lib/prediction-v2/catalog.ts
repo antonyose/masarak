@@ -290,12 +290,16 @@ export function optionIdentity(label: string, branch: Branch, institutionId: str
     .replace(/\s+رياض(?:ة|ه)(?=\s|$)/gu, " رياضة")
     .replace(/\s+/gu, " ")
     .trim();
-  const optionId = stableId("option", `${institutionId}|${branch}|${normalizedBranch}`);
   const physicalName = normalizedBranch
     .replace(/\s+انتساب موجه(?=\s|$)/gu, "")
     .replace(/\s+(علوم|رياضة)(?=\s|$)/gu, "")
     .replace(/\s+/gu, " ")
     .trim();
+  const affiliation = affiliationForLabel(normalizedBranch);
+  // Official lists may publish the same option once with an explicit scientific
+  // suffix and once without it. Admission identity is the physical option,
+  // branch, and affiliation; the official spellings remain aliases/observations.
+  const optionId = stableId("option", `${institutionId}|${branch}|${affiliation}|${physicalName}`);
   return {
     optionId,
     physicalFacultyId: stableId("faculty", `${institutionId}|${physicalName}`),

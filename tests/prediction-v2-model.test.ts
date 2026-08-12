@@ -18,11 +18,19 @@ describe("Prediction V2 eligibility, model, ranking, and report composition", ()
     const report = calculatePredictionV2(regressionInput);
     expect(report.modelVersion).toBe("stage2-2026-v2-shadow");
     expect(report.eligibility).toMatchObject({ eligible: true, minimumScore: 220 });
-    expect(report.diagnostics.candidateVacancies).toBeGreaterThan(450);
+    expect(report.diagnostics.candidateVacancies).toBe(519);
+    expect(report.diagnostics.resolvedCandidates).toBe(519);
     expect(report.diagnostics.realisticOptions).toBeGreaterThan(20);
     expect(report.groups.closest.items.length).toBeGreaterThan(0);
     expect(report.groups.closest.items.every((row) => row.fit === "green" || row.fit === "yellow")).toBe(true);
     expect(report.groups.closest.items[0].fit).not.toBe("red");
+    expect(report.coverageWarning.active).toBe(false);
+  });
+
+  it("collapses official branch-label variants into one admission option", () => {
+    const scienceOptions = seed.admissionOptions.filter((option) => option.branch === "science");
+    const identityKeys = scienceOptions.map((option) => `${option.physicalFacultyId}:${option.affiliation}`);
+    expect(new Set(identityKeys).size).toBe(identityKeys.length);
   });
 
   it("ranks score relevance before geography inside realistic options", () => {
