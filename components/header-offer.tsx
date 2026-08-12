@@ -19,6 +19,7 @@ type HeaderOfferSettings = {
 export function HeaderOffer() {
   const [settings, setSettings] = useState<HeaderOfferSettings | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const trackFunnel = useTrackFunnel();
 
   useEffect(() => {
     void fetch("/api/payment-settings", { cache: "no-store" })
@@ -40,8 +41,6 @@ export function HeaderOffer() {
   const targetPrice = offer.targetProduct === "friends_3" ? settings.products.friends3.priceEgp : settings.products.single.priceEgp;
   const targetLabel = offer.targetProduct === "friends_3" ? "عرض الصحاب" : "عرض التقرير";
   const targetProduct = offer.targetProduct;
-
-  const trackFunnel = useTrackFunnel();
 
   function openOffer() {
     trackFunnel("header_offer_clicked");
