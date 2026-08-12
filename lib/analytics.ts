@@ -23,6 +23,7 @@ export type BehaviorAnalytics = {
   mode: AnalyticsMode;
   instrumentedAt: string | null;
   uniqueSessions: number;
+  minimumSessionSample: number;
   engagedSessions: number;
   totalInteractions: number;
   funnel: ReturnType<typeof buildBehaviorFunnel>;
@@ -299,11 +300,13 @@ async function getTrafficTrend(days: number) {
 }
 
 export async function getBehaviorAnalytics(days = 30): Promise<BehaviorAnalytics> {
+  const minimumSessionSample = 20;
   const empty: BehaviorAnalytics = {
     periodDays: days,
     mode: "aggregate",
     instrumentedAt: null,
     uniqueSessions: 0,
+    minimumSessionSample,
     engagedSessions: 0,
     totalInteractions: 0,
     funnel: buildBehaviorFunnel([], 0, "aggregate"),
@@ -389,12 +392,14 @@ export async function getBehaviorAnalytics(days = 30): Promise<BehaviorAnalytics
       ]);
       const sessionSummary = sessionRows.rows[0];
       uniqueSessions = Number(sessionSummary?.unique_sessions ?? 0);
-      if (uniqueSessions > 0) {
+      const detailedMetrics = eventRows.rows.map((row) => ({ event_name: String(row.event_name), total: Number(row.total) }));
+      const pageViewSessions = detailedMetrics.find((metric) => metric.event_name === "page_view")?.total ?? 0;
+      instrumentedAt = sessionSummary?.instrumented_at ? String(sessionSummary.instrumented_at) : null;
+      if (uniqueSessions >= minimumSessionSample && pageViewSessions >= minimumSessionSample) {
         mode = "sessions";
-        metrics = eventRows.rows.map((row) => ({ event_name: String(row.event_name), total: Number(row.total) }));
+        metrics = detailedMetrics;
         engagedSessions = Number(sessionSummary?.engaged_sessions ?? 0);
         totalInteractions = Number(sessionSummary?.interactions ?? 0);
-        instrumentedAt = sessionSummary?.instrumented_at ? String(sessionSummary.instrumented_at) : null;
         if (instrumentedAt) approvedPayments = await getApprovedPaymentsSince(instrumentedAt);
         busyHours = hourRows.rows.map((row) => ({ hour: Number(row.hour), total: Number(row.total) }));
         devices = deviceRows.rows.map((row) => ({ device: String(row.device), total: Number(row.total) }));
@@ -419,6 +424,7 @@ export async function getBehaviorAnalytics(days = 30): Promise<BehaviorAnalytics
       mode,
       instrumentedAt,
       uniqueSessions,
+      minimumSessionSample,
       engagedSessions,
       totalInteractions,
       funnel,

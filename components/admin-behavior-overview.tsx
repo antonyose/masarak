@@ -7,6 +7,7 @@ export type AdminBehaviorData = {
   mode: "sessions" | "aggregate";
   instrumentedAt: string | null;
   uniqueSessions: number;
+  minimumSessionSample: number;
   engagedSessions: number;
   totalInteractions: number;
   rates: Array<{
@@ -70,7 +71,11 @@ export function AdminBehaviorOverview({ data }: { data: AdminBehaviorData }) {
           <p className="admin-panel-sub">قراءة عملية لآخر {data.periodDays.toLocaleString("ar-EG")} يوم، من الزيارة حتى الدفع.</p>
         </div>
         <span className={`admin-data-mode ${data.mode === "sessions" ? "is-live" : "is-legacy"}`}>
-          {data.mode === "sessions" ? "جلسات مجهولة فريدة" : "تفاعلات مجمعة قديمة"}
+          {data.mode === "sessions"
+            ? "جلسات مجهولة فريدة"
+            : data.uniqueSessions > 0
+              ? `بناء عينة الجلسات ${data.uniqueSessions}/${data.minimumSessionSample}`
+              : "تفاعلات مجمعة قديمة"}
         </span>
       </div>
 
