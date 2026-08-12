@@ -5,6 +5,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const settings = await getPaymentSettings();
+  const offerEndAt = settings.offerEndAt ? new Date(settings.offerEndAt) : null;
+  const offerProductEnabled = settings.offerTargetProduct !== "friends_3" || settings.friends3Enabled;
+  const offerActive = settings.offerEnabled && offerProductEnabled && (!offerEndAt || offerEndAt.getTime() > Date.now());
   return NextResponse.json({
     priceEgp: settings.singleReportPriceEgp,
     currency: "EGP",
@@ -14,6 +17,16 @@ export async function GET() {
         label: "تقريرك",
         priceEgp: settings.singleReportPriceEgp,
         seatCount: 1,
+        offer: settings.offerTargetProduct === "single" && offerActive && settings.offerShowInPricingCard
+          ? {
+              badgeText: settings.offerBadgeText,
+              title: settings.offerTitle,
+              subtitle: settings.offerSubtitle,
+              ctaText: settings.offerCtaText,
+              endAt: offerEndAt?.toISOString() ?? null,
+              showCountdown: settings.offerShowCountdown,
+            }
+          : null,
       },
       friends3: {
         id: "friends_3",
@@ -23,7 +36,31 @@ export async function GET() {
         enabled: settings.friends3Enabled,
         regularTotalEgp: (Number(settings.singleReportPriceEgp) * 3).toFixed(2),
         savingsEgp: Math.max(0, Number(settings.singleReportPriceEgp) * 3 - Number(settings.friends3PriceEgp)).toFixed(2),
+        offer: settings.offerTargetProduct === "friends_3" && offerActive && settings.offerShowInPricingCard
+          ? {
+              badgeText: settings.offerBadgeText,
+              title: settings.offerTitle,
+              subtitle: settings.offerSubtitle,
+              ctaText: settings.offerCtaText,
+              endAt: offerEndAt?.toISOString() ?? null,
+              showCountdown: settings.offerShowCountdown,
+            }
+          : null,
       },
+    },
+    offer: {
+      enabled: settings.offerEnabled,
+      active: offerActive,
+      targetProduct: settings.offerTargetProduct,
+      badgeText: settings.offerBadgeText,
+      title: settings.offerTitle,
+      subtitle: settings.offerSubtitle,
+      ctaText: settings.offerCtaText,
+      endAt: offerEndAt?.toISOString() ?? null,
+      showCountdown: settings.offerShowCountdown,
+      showInHeader: settings.offerShowInHeader,
+      showInPricingCard: settings.offerShowInPricingCard,
+      showInLockedOffer: settings.offerShowInLockedOffer,
     },
     methods: [
       settings.vodafoneEnabled ? { id: "vodafone_cash", label: "فودافون كاش", recipient: settings.vodafoneCashNumber, deepLink: settings.vodafoneDeepLink, logoSrc: "/payment-logos/vodafone-cash.png" } : null,

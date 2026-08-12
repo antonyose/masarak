@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
+import { HeaderOffer } from "@/components/header-offer";
 
 export function SiteHeader() {
   return (
@@ -20,6 +21,8 @@ export function SiteHeader() {
           <Link href="/faculties">دليل الكليات</Link>
           <Link href="/methodology">طريقة الحساب</Link>
         </nav>
+
+        <HeaderOffer />
 
       </div>
     </header>

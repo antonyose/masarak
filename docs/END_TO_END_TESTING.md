@@ -24,6 +24,7 @@ Confirm the following before testing:
   - Vodafone Cash enabled: `01001014231` with `http://vf.eg/vfcash?id=mt&qrId=hpSxBH`.
   - Orange Cash enabled: `01276101944`.
   - InstaPay enabled: `01276101944`.
+- Public offer settings are enabled for the `single` product, initially end 24 hours after the seed migration, and show the offer in the header, pricing cards, and locked report offer. The offer badge, CTA, end time, countdown toggle, and placement toggles are editable from the admin settings page.
 - Use at least two normal test users and one admin. Do not use real student data in screenshots or defect reports unless redacted.
 
 # 3. Staged Deployment Verification
@@ -205,6 +206,9 @@ Test both browser presentation and raw network payloads:
 As admin verify:
 
 - Individual report price is 35 جنيه and the enabled friends offer is 69 جنيه; both prices are displayed from server settings. The friends card reports the regular 105 جنيه total and 36 جنيه savings.
+- The pricing section has no introductory copy block. Verify the selected card has a clear `محدد الآن` badge/ring, the active target product receives limited-time styling, and the unselected card remains visually secondary.
+- When the offer is enabled and its end time is in the future, verify the compact header CTA is visible, clickable, and shows the configured countdown when enabled. After the end time passes, verify the countdown and limited-time styling disappear while both products remain purchasable.
+- Toggle header, pricing-card, and locked-offer visibility independently in admin settings and verify each placement follows the server configuration without changing product prices or anonymous payment behavior.
 - Vodafone number/link, Orange number, InstaPay identifier, method flags, instructions, support contact, free count, and homepage message are editable.
 - Disable each payment method individually and confirm it disappears from new checkout options without affecting existing price snapshots.
 - Change either product price in a controlled staged test, create a payment, and confirm the server snapshots that product price. Restore 35/69 جنيه.

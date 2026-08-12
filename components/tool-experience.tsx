@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Check,
   ChevronLeft,
+  Clock3,
   Copy,
   GraduationCap,
   LockKeyhole,
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 import { egyptianGovernorates } from "@/lib/governorates";
 import { normalizeDigits } from "@/lib/normalize-arabic";
+import { formatOfferCountdown, isOfferActive, type PublicOffer } from "@/lib/offer-config";
 
 type Branch = "science" | "mathematics" | "literary";
 type System = "new" | "old";
@@ -57,8 +59,9 @@ type PredictionResponse = {
 };
 type PaymentSettings = {
   priceEgp: string;
+  offer: PublicOffer;
   products: {
-    single: { id: "single"; label: string; priceEgp: string; seatCount: 1 };
+    single: { id: "single"; label: string; priceEgp: string; seatCount: 1; offer: { badgeText: string; title: string; subtitle: string; ctaText: string; endAt: string | null; showCountdown: boolean } | null };
     friends3: {
       id: "friends_3";
       label: string;
@@ -67,6 +70,7 @@ type PaymentSettings = {
       enabled: boolean;
       regularTotalEgp: string;
       savingsEgp: string;
+      offer: { badgeText: string; title: string; subtitle: string; ctaText: string; endAt: string | null; showCountdown: boolean } | null;
     };
   };
   methods: Array<{
@@ -493,6 +497,7 @@ function GuestPaymentOffer({
   );
   const [error, setError] = useState("");
   const [polling, setPolling] = useState(paymentState?.status === "pending" && paymentState.hasReceipt);
+  const [now, setNow] = useState(() => Date.now());
   const pollingRef = useRef(false);
   const copyResetRef = useRef<number | null>(null);
 
@@ -512,6 +517,15 @@ function GuestPaymentOffer({
   const selectedProduct = productType === "friends_3"
     ? settings?.products.friends3
     : settings?.products.single;
+  const activeOffer = settings ? isOfferActive(settings.offer, now) && settings.offer.showInLockedOffer : false;
+  const selectedOffer = activeOffer && settings?.offer.targetProduct === productType ? settings.offer : null;
+  const offerCountdown = selectedOffer?.showCountdown ? formatOfferCountdown(selectedOffer.endAt, now) : null;
+
+  useEffect(() => {
+    if (!settings?.offer.endAt || !settings.offer.showCountdown || !activeOffer) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [activeOffer, settings?.offer.endAt, settings?.offer.showCountdown]);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -667,7 +681,7 @@ function GuestPaymentOffer({
   return (
     <form className="unlock-offer guest-payment-offer" onSubmit={submitPayment}>
       <div className="offer-main">
-        <span className="offer-label">تقريرك الكامل</span>
+        <span className="offer-label">{selectedOffer?.title ?? "تقريرك الكامل"}</span>
         <h4>افتح كل الترشيحات المناسبة ليك</h4>
         <p className="offer-rotator" key={lineIndex}>{offerLines[lineIndex]}</p>
         <ul>
@@ -678,18 +692,24 @@ function GuestPaymentOffer({
       </div>
       <div className="offer-action">
         <div className="offer-product-picker" role="radiogroup" aria-label="اختار العرض">
-          <button type="button" className={`offer-product-card${productType === "single" ? " is-selected" : ""}`} onClick={() => setProductType("single")}>
+          <button type="button" className={`offer-product-card${productType === "single" ? " is-selected" : ""}${selectedOffer?.targetProduct === "single" ? " has-offer" : ""}`} onClick={() => setProductType("single")} aria-pressed={productType === "single"}>
+            {productType === "single" ? <span className="offer-selected-badge"><Check size={12} aria-hidden="true" /> محدد الآن</span> : null}
+            {selectedOffer?.targetProduct === "single" ? <span className="offer-product-badge"><Sparkles size={11} aria-hidden="true" />{selectedOffer.badgeText}</span> : null}
             <span className="offer-product-kicker">تقريرك</span>
-            <strong><bdi>{settings.products.single.priceEgp}</bdi> جنيه</strong>
+            <strong><bdi>{settings.products.single.priceEgp}</bdi> <small>جنيه فقط</small></strong>
             <small>تقرير كامل لرقم جلوس واحد</small>
+            {selectedOffer?.targetProduct === "single" ? <small className="offer-product-saving">{selectedOffer.subtitle}</small> : null}
+            {selectedOffer?.targetProduct === "single" && offerCountdown ? <small className="offer-countdown"><Clock3 size={12} aria-hidden="true" /> ينتهي خلال <bdi>{offerCountdown}</bdi></small> : null}
           </button>
           {settings.products.friends3.enabled ? (
-            <button type="button" className={`offer-product-card offer-product-card-featured${productType === "friends_3" ? " is-selected" : ""}`} onClick={() => setProductType("friends_3")}>
+            <button type="button" className={`offer-product-card offer-product-card-featured${productType === "friends_3" ? " is-selected" : ""}${selectedOffer?.targetProduct === "friends_3" ? " has-offer" : ""}`} onClick={() => setProductType("friends_3")} aria-pressed={productType === "friends_3"}>
+              {productType === "friends_3" ? <span className="offer-selected-badge"><Check size={12} aria-hidden="true" /> محدد الآن</span> : null}
               <span className="offer-product-badge">الأوفر 🔥</span>
               <span className="offer-product-kicker">إنت و2 من صحابك</span>
               <strong><bdi>{settings.products.friends3.priceEgp}</bdi> جنيه</strong>
               <small>3 تقارير كاملة · بدل {settings.products.friends3.regularTotalEgp} جنيه</small>
               <small className="offer-product-saving">وفر {settings.products.friends3.savingsEgp} جنيه</small>
+              {selectedOffer?.targetProduct === "friends_3" && offerCountdown ? <small className="offer-countdown"><Clock3 size={12} aria-hidden="true" /> ينتهي خلال <bdi>{offerCountdown}</bdi></small> : null}
             </button>
           ) : null}
         </div>
@@ -739,7 +759,7 @@ function GuestPaymentOffer({
         {mode === "rejected" ? <p className="payment-rejected">لم تتم الموافقة على الطلب السابق. يمكنك إرسال إيصال جديد.</p> : null}
         {error ? <p className="payment-inline-error" role="alert">{error}</p> : null}
         <button className="offer-cta" disabled={mode === "submitting"}>
-          {mode === "submitting" ? "جارٍ إرسال الإيصال…" : productType === "friends_3" ? "ادفع وافتح التقارير" : "افتح تقريري"}
+          {mode === "submitting" ? "جارٍ إرسال الإيصال…" : selectedOffer?.ctaText ?? (productType === "friends_3" ? "ادفع وافتح التقارير" : "افتح تقريري")}
           <ChevronLeft size={19} aria-hidden="true" />
         </button>
       </div>

@@ -11,6 +11,7 @@ This is the operational playbook for adding a later coordination stage or a repl
 - A prediction run is an immutable snapshot. Never update an earlier Stage‑2 row when Stage‑3 data arrives.
 - The public entitlement is `(year, seat_number)` with scope `year_all_stages`; an approved 2026 payment must unlock current and later 2026 reports without another payment or login. Legacy `(user_id, saved_student_id, year)` rows remain for account compatibility only.
 - Products are server-configured: one report is 35 جنيه and the enabled friends offer is 69 جنيه for three distinct real 2026 seat numbers. Friends branches are selected later when each seat is searched.
+- Public offer presentation is server-configured in `payment_settings`: target product, badge/title/subtitle/CTA, end time, countdown, and visibility in the header, pricing cards, and locked offer. The initial launch offer targets the individual 35 جنيه product for 24 hours; expiry removes urgency styling without disabling either product.
 - A friends approval locks and checks every linked seat in one Neon transaction, then creates three seat entitlements or none; duplicate/paid seats cancel the pending payment without partial unlock.
 - Codex may prepare and push a staged build. Only the owner/AntiGravity may apply production data changes and promote the deployment.
 

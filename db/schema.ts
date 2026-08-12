@@ -622,6 +622,17 @@ export const paymentSettings = pgTable("payment_settings", {
     .notNull()
     .default("69.00"),
   friends3Enabled: boolean("friends_3_enabled").notNull().default(true),
+  offerEnabled: boolean("offer_enabled").notNull().default(true),
+  offerTargetProduct: paymentProductTypeEnum("offer_target_product"),
+  offerBadgeText: text("offer_badge_text").notNull().default("عرض لفترة محدودة"),
+  offerTitle: text("offer_title").notNull().default("عرض التقرير الفردي"),
+  offerSubtitle: text("offer_subtitle").notNull().default("افتح تقريرك الكامل بسعر خاص"),
+  offerCtaText: text("offer_cta_text").notNull().default("استفد من العرض"),
+  offerEndAt: timestamp("offer_end_at", { withTimezone: true }),
+  offerShowCountdown: boolean("offer_show_countdown").notNull().default(true),
+  offerShowInHeader: boolean("offer_show_in_header").notNull().default(true),
+  offerShowInPricingCard: boolean("offer_show_in_pricing_card").notNull().default(true),
+  offerShowInLockedOffer: boolean("offer_show_in_locked_offer").notNull().default(true),
   vodafoneCashNumber: text("vodafone_cash_number")
     .notNull()
     .default("01001014231"),
