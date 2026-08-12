@@ -456,7 +456,6 @@ function GuestPaymentOffer({
   const [lineIndex, setLineIndex] = useState(0);
   const [method, setMethod] = useState("");
   const [senderIdentifier, setSenderIdentifier] = useState("");
-  const [transactionReference, setTransactionReference] = useState("");
   const [receipt, setReceipt] = useState<File | null>(null);
   const [paymentId, setPaymentId] = useState(paymentState?.status === "pending" ? paymentState.paymentId : "");
   const [mode, setMode] = useState<"form" | "submitting" | "pending" | "rejected">(
@@ -530,7 +529,6 @@ function GuestPaymentOffer({
           seatNumber,
           method,
           senderIdentifier,
-          transactionReference: transactionReference || undefined,
           idempotencyKey: crypto.randomUUID(),
         }),
       });
@@ -605,7 +603,6 @@ function GuestPaymentOffer({
           ))}
         </div>
         <label className="payment-field">رقم المُرسِل<input value={senderIdentifier} onChange={(event) => setSenderIdentifier(event.target.value)} inputMode="tel" required /></label>
-        <label className="payment-field">مرجع العملية <small>اختياري</small><input value={transactionReference} onChange={(event) => setTransactionReference(event.target.value)} /></label>
         <label className="receipt-picker"><Upload size={17} /><span>{receipt ? receipt.name : "ارفع صورة الإيصال — حتى 5MB"}</span><input type="file" accept="image/jpeg,image/png,image/webp" required onChange={(event) => setReceipt(event.target.files?.[0] ?? null)} /></label>
         {mode === "rejected" ? <p className="payment-rejected">لم تتم الموافقة على الطلب السابق. يمكنك إرسال إيصال جديد.</p> : null}
         {error ? <p className="payment-inline-error" role="alert">{error}</p> : null}
