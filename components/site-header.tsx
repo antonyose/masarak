@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
-import { AuthButton } from "@/components/auth-button";
 
 export function SiteHeader() {
   return (
@@ -23,13 +21,6 @@ export function SiteHeader() {
           <Link href="/methodology">طريقة الحساب</Link>
         </nav>
 
-        <div className="flex items-center gap-3">
-          <AuthButton />
-          <Link className="header-cta" href="/predict">
-            <Sparkles size={17} aria-hidden="true" />
-            <span>ابدأ برقم جلوسك</span>
-          </Link>
-        </div>
       </div>
     </header>
   );

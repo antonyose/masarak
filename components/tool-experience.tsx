@@ -11,7 +11,6 @@ import {
   GraduationCap,
   LockKeyhole,
   Search,
-  ShieldCheck,
   Sparkles,
   Upload,
 } from "lucide-react";
@@ -220,10 +219,12 @@ export function ToolExperience() {
         <div>
           <span className="conversion-badge">
             <Sparkles size={15} aria-hidden="true" />
-            توقعات محدثة لتنسيق 2026
+            <span>
+              <b>السيستم اتحدّث</b>
+              <small>بعد نتيجة المرحلة الأولى — التوقعات أدق بكتير</small>
+            </span>
           </span>
           <h2>اعرف أقرب كلياتك برقم الجلوس</h2>
-          <p>أول ترشيح مجانًا، والتقرير الكامل للمرحلة الثانية والثالثة.</p>
         </div>
         <ol className="journey-steps" aria-label="خطوات التقرير">
           <li className="is-current"><b>1</b><span>رقم الجلوس</span></li>
@@ -256,10 +257,6 @@ export function ToolExperience() {
                 {!loading ? <ArrowLeft size={18} aria-hidden="true" /> : null}
               </button>
             </div>
-            <p className="seat-helper">
-              <ShieldCheck size={15} aria-hidden="true" />
-              بنستخدم نتيجتك علشان الترشيحات تكون مناسبة ليك.
-            </p>
           </form>
         ) : !report ? (
           <form onSubmit={submitDetails} className="details-step">

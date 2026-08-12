@@ -290,6 +290,17 @@ a {
   font-weight: 800;
 }
 
+.conversion-badge > span {
+  display: grid;
+  gap: 0.08rem;
+}
+
+.conversion-badge small {
+  color: oklch(0.96 0.03 86);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
 .conversion-intro h2 {
   margin: 0;
   font-size: 1.55rem;
