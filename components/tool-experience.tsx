@@ -111,6 +111,11 @@ function simpleProximity(label: string) {
   return label === "نطاق قريب استرشادي" ? "قريبة منك" : label;
 }
 
+function formatScore(value: number | null) {
+  if (value == null || !Number.isFinite(value)) return "—";
+  return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.00$/, "");
+}
+
 function normalizeReport(data: Record<string, unknown>): PredictionResponse {
   if (data.premium && data.report && typeof data.report === "object") {
     return {
@@ -416,6 +421,24 @@ function Report({
           <h3>{report.premium ? "كل اختياراتك المناسبة" : "بداية مبشّرة ليك"}</h3>
         </div>
         <button type="button" onClick={onReset}>ابدأ من جديد</button>
+      </div>
+
+      <div className="report-student-summary" aria-label="بيانات نتيجتك">
+        <div className="report-student-identity">
+          <div className="report-student-avatar" aria-hidden="true">
+            <GraduationCap size={22} />
+          </div>
+          <div>
+            <span>نتيجتك</span>
+            <strong title={result.studentName}>{result.studentName}</strong>
+            <small>رقم الجلوس <bdi className="ltr-number">{result.seatNumber}</bdi></small>
+          </div>
+        </div>
+        <div className="report-score-block">
+          <span>المجموع</span>
+          <strong><bdi className="ltr-number">{formatScore(result.totalScore)}</bdi></strong>
+          <small>من <bdi className="ltr-number">{formatScore(result.maxScore)}</bdi></small>
+        </div>
       </div>
 
       <div className={report.premium ? "full-recommendations" : ""}>

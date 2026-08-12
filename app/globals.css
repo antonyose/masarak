@@ -717,6 +717,81 @@ a {
   line-height: 1.4;
 }
 
+.report-student-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.report-student-identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.report-student-avatar {
+  width: 2.65rem;
+  height: 2.65rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: var(--radius-sm);
+}
+
+.report-student-identity > div:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 0.08rem;
+}
+
+.report-student-identity span,
+.report-score-block span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.report-student-identity strong {
+  overflow: hidden;
+  color: var(--navy);
+  font-size: 0.98rem;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.report-student-identity small,
+.report-score-block small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.report-score-block {
+  min-width: 7rem;
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: 0.02rem;
+  padding-inline-start: 1rem;
+  border-inline-start: 1px solid var(--line);
+  text-align: center;
+}
+
+.report-score-block strong {
+  color: var(--primary-hover);
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
 .free-recommendation {
   display: flex;
   align-items: center;
@@ -1925,6 +2000,31 @@ a {
 
   .free-recommendation > svg {
     display: none;
+  }
+
+  .report-student-summary {
+    align-items: stretch;
+    gap: 0.65rem;
+    padding: 0.75rem;
+  }
+
+  .report-student-avatar {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  .report-student-identity strong {
+    max-width: 15ch;
+    font-size: 0.9rem;
+  }
+
+  .report-score-block {
+    min-width: 5.4rem;
+    padding-inline-start: 0.65rem;
+  }
+
+  .report-score-block strong {
+    font-size: 1.3rem;
   }
 }
 
