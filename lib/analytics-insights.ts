@@ -68,7 +68,7 @@ export function buildBehaviorFunnel(
     event_name: step.event_name,
     label: step.label,
     total: values[step.event_name] ?? 0,
-    instrumented: mode === "sessions" || step.legacy || (lookup[step.event_name] ?? 0) > 0,
+    instrumented: mode === "sessions" || step.legacy,
   }));
 }
 

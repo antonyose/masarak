@@ -12,6 +12,7 @@ describe("admin behavior analytics", () => {
       { event_name: "search_result", total: 228 },
       { event_name: "pricing_cta_clicked", total: 53 },
       { event_name: "header_offer_clicked", total: 8 },
+      { event_name: "report_viewed", total: 2 },
       { event_name: "payment_submitted", total: 7 },
     ], 7, "aggregate");
 
