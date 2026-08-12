@@ -24,6 +24,19 @@ function configurePayment({ productType = "single", seats = ["2001970"], existin
   });
 }
 
+function configurePaymentWithoutReceipt() {
+  query.mockImplementation(async (statement: unknown) => {
+    const sql = String(statement ?? "");
+    if (sql.includes("FROM payment_submissions")) {
+      return { rows: [{ id: "payment", status: "pending", user_id: null, saved_student_id: null, prediction_id: "prediction", year: 2026, seat_number: "2001970", product_type: "single", receipt_blob_key: null }] };
+    }
+    if (sql.includes("FROM payment_submission_seats")) return { rows: [{ year: 2026, seat_number: "2001970", position: 1 }] };
+    if (sql.includes("FROM seat_entitlements")) return { rows: [] };
+    if (sql.includes("UPDATE payment_submissions")) return { rowCount: 1, rows: [] };
+    return { rowCount: 1, rows: [] };
+  });
+}
+
 describe("payment review transaction", () => {
   beforeEach(() => query.mockReset());
 
@@ -44,6 +57,18 @@ describe("payment review transaction", () => {
     expect(statements.filter((statement) => statement.includes("INSERT INTO seat_entitlements")).length).toBe(3);
     const grantCall = query.mock.calls.find(([statement]) => String(statement).includes("'grant'"));
     expect(grantCall?.[1]).toContain(3);
+  });
+
+  it("requires an explicit override before approving without a receipt", async () => {
+    configurePaymentWithoutReceipt();
+    await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve" })).rejects.toThrow("RECEIPT_REQUIRED");
+  });
+
+  it("approves without a receipt when the admin explicitly overrides it", async () => {
+    configurePaymentWithoutReceipt();
+    await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve", allowMissingReceipt: true })).resolves.toMatchObject({ status: "approved" });
+    const auditCall = query.mock.calls.find(([statement]) => String(statement).includes("INSERT INTO admin_audit_logs"));
+    expect(auditCall?.[1]?.join(" ")).toContain("approvedWithoutReceipt");
   });
 
   it("cancels a duplicate guest payment without granting a second seat", async () => {

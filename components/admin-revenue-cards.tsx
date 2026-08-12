@@ -21,6 +21,7 @@ const METHOD_LABELS: Record<string, string> = {
 const PRODUCT_LABELS: Record<string, string> = {
   single: "تقرير فردي",
   friends_3: "عرض الصحاب (3)",
+  manual_admin: "تفعيل مباشر من الأدمن",
 };
 
 function fmtEgp(n: number) {

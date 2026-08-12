@@ -88,9 +88,28 @@ export const paymentCreateSchema = z.object({
 });
 
 export const paymentReviewSchema = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("approve") }),
+  z.object({
+    action: z.literal("approve"),
+    allowMissingReceipt: z.boolean().optional().default(false),
+  }),
   z.object({
     action: z.literal("reject"),
     reason: z.string().trim().min(3).max(500),
   }),
 ]);
+
+export const adminManualEntitlementSchema = z.object({
+  year: z.literal(2026),
+  seatNumber: z.string().trim().regex(/^[\d٠-٩۰-۹]{4,14}$/),
+  recordRevenue: z.boolean(),
+  amount: z.number().finite().min(0).max(10000),
+  method: z.enum(["vodafone_cash", "orange_cash", "instapay"]).nullable(),
+  note: z.string().trim().max(500).optional(),
+}).superRefine((value, context) => {
+  if (value.recordRevenue && value.amount <= 0) {
+    context.addIssue({ code: "custom", path: ["amount"], message: "أدخل مبلغًا أكبر من صفر." });
+  }
+  if (value.recordRevenue && !value.method) {
+    context.addIssue({ code: "custom", path: ["method"], message: "اختر طريقة التحصيل." });
+  }
+});

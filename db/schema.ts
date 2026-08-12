@@ -1154,6 +1154,39 @@ export const predictionEntitlements = pgTable(
   ],
 );
 
+export const adminManualEntitlementGrants = pgTable(
+  "admin_manual_entitlement_grants",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    year: integer("year").notNull(),
+    seatNumber: text("seat_number").notNull(),
+    studentNameSnapshot: text("student_name_snapshot"),
+    recordRevenue: boolean("record_revenue").notNull().default(false),
+    amount: numeric("amount", { precision: 10, scale: 2 })
+      .notNull()
+      .default("0"),
+    currency: text("currency").notNull().default("EGP"),
+    method: paymentMethodEnum("method"),
+    note: text("note"),
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => user.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("admin_manual_grants_year_seat_idx").on(
+      table.year,
+      table.seatNumber,
+    ),
+    index("admin_manual_grants_revenue_created_idx").on(
+      table.recordRevenue,
+      table.createdAt,
+    ),
+  ],
+);
+
 export const seatEntitlements = pgTable(
   "seat_entitlements",
   {
@@ -1164,9 +1197,10 @@ export const seatEntitlements = pgTable(
       () => predictionRuns.id,
       { onDelete: "set null" },
     ),
-    paymentId: uuid("payment_id")
-      .notNull()
-      .references(() => paymentSubmissions.id),
+    paymentId: uuid("payment_id").references(() => paymentSubmissions.id),
+    manualGrantId: uuid("manual_grant_id").references(
+      () => adminManualEntitlementGrants.id,
+    ),
     scope: text("scope").notNull().default("year_all_stages"),
     unlockedAt: timestamp("unlocked_at", { withTimezone: true })
       .notNull()
@@ -1181,6 +1215,7 @@ export const seatEntitlements = pgTable(
       table.seatNumber,
     ),
     index("seat_entitlements_payment_idx").on(table.paymentId),
+    uniqueIndex("seat_entitlements_manual_grant_idx").on(table.manualGrantId),
     index("seat_entitlements_seat_idx").on(table.seatNumber),
   ],
 );

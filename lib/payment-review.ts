@@ -12,12 +12,14 @@ export async function reviewPaymentTransaction({
   paymentId,
   actorUserId,
   action,
+  allowMissingReceipt = false,
   rejectionReason,
   requestId,
 }: {
   paymentId: string;
   actorUserId: string;
   action: "approve" | "reject";
+  allowMissingReceipt?: boolean;
   rejectionReason?: string;
   requestId?: string;
 }) {
@@ -44,7 +46,7 @@ export async function reviewPaymentTransaction({
       return { status: "approved" as const, idempotent: true };
     }
     if (payment.status !== "pending") throw new Error("PAYMENT_NOT_PENDING");
-    if (action === "approve" && !payment.receipt_blob_key) {
+    if (action === "approve" && !payment.receipt_blob_key && !allowMissingReceipt) {
       throw new Error("RECEIPT_REQUIRED");
     }
 
@@ -122,6 +124,7 @@ export async function reviewPaymentTransaction({
         year: payment.year,
         productType: payment.product_type,
         seatNumbers,
+        approvedWithoutReceipt: !payment.receipt_blob_key,
       });
       await client.query(
         `INSERT INTO credit_ledger
@@ -168,7 +171,11 @@ export async function reviewPaymentTransaction({
         `payment.${nextStatus}`,
         paymentId,
         JSON.stringify({ status: "pending", productType: payment.product_type, seatNumbers: seats.map((seat) => seat.seat_number) }),
-        JSON.stringify({ status: nextStatus, rejectionReason: rejectionReason ?? null }),
+        JSON.stringify({
+          status: nextStatus,
+          rejectionReason: rejectionReason ?? null,
+          approvedWithoutReceipt: action === "approve" && !payment.receipt_blob_key,
+        }),
         requestId ?? null,
       ],
     );

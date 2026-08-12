@@ -82,7 +82,7 @@ export function AdminPaymentsTable({
   payments: AdminPayment[];
   loading: boolean;
   onRefresh: () => void;
-  onReview: (id: string, action: "approve" | "reject") => void;
+  onReview: (id: string, action: "approve" | "reject", allowMissingReceipt?: boolean) => void;
 }) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
@@ -221,7 +221,15 @@ export function AdminPaymentsTable({
                           تفاصيل <ChevronDown size={15} className={expanded ? "rotate-180" : ""} />
                         </button>
                         {payment.status === "pending" ? <>
-                          <button type="button" disabled={loading || !payment.hasReceipt} onClick={() => onReview(payment.id, "approve")} className="admin-btn admin-btn-approve"><Check size={15} /> قبول</button>
+                          <button
+                            type="button"
+                            disabled={loading}
+                            onClick={() => {
+                              if (!payment.hasReceipt && !window.confirm("الطلب بدون إيصال. هل تريد قبوله وفتح التقرير رغم ذلك؟ سيتم تسجيل القرار في سجل التدقيق.")) return;
+                              onReview(payment.id, "approve", !payment.hasReceipt);
+                            }}
+                            className="admin-btn admin-btn-approve"
+                          ><Check size={15} /> {payment.hasReceipt ? "قبول" : "قبول بدون إيصال"}</button>
                           <button type="button" disabled={loading} onClick={() => onReview(payment.id, "reject")} className="admin-btn admin-btn-reject"><X size={15} /> رفض</button>
                         </> : null}
                       </div>

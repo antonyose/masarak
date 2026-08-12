@@ -447,24 +447,42 @@ export async function getRevenueAnalytics() {
     if (!process.env.DATABASE_URL) return empty;
     const db = getDatabase();
     const totals = await db.execute(sql`
+      WITH revenue_events AS (
+        SELECT expected_amount::numeric AS amount, reviewed_at AS occurred_at
+        FROM payment_submissions WHERE status = 'approved'
+        UNION ALL
+        SELECT amount::numeric, created_at
+        FROM admin_manual_entitlement_grants WHERE record_revenue = true
+      )
       SELECT
-        COALESCE(SUM(CASE WHEN status = 'approved' THEN expected_amount::numeric ELSE 0 END), 0)::numeric AS total_revenue,
-        COALESCE(SUM(CASE WHEN status = 'approved' AND reviewed_at >= CURRENT_DATE THEN expected_amount::numeric ELSE 0 END), 0)::numeric AS today_revenue,
-        COALESCE(SUM(CASE WHEN status = 'approved' AND reviewed_at >= CURRENT_DATE - 7 THEN expected_amount::numeric ELSE 0 END), 0)::numeric AS week_revenue,
-        COALESCE(SUM(CASE WHEN status = 'approved' AND reviewed_at >= CURRENT_DATE - 30 THEN expected_amount::numeric ELSE 0 END), 0)::numeric AS month_revenue,
-        COUNT(*) FILTER (WHERE status = 'approved')::int AS total_approved,
-        COUNT(*) FILTER (WHERE status = 'pending')::int AS total_pending,
-        COUNT(*) FILTER (WHERE status = 'rejected')::int AS total_rejected
-      FROM payment_submissions
+        COALESCE((SELECT SUM(amount) FROM revenue_events), 0)::numeric AS total_revenue,
+        COALESCE((SELECT SUM(amount) FROM revenue_events WHERE occurred_at >= CURRENT_DATE), 0)::numeric AS today_revenue,
+        COALESCE((SELECT SUM(amount) FROM revenue_events WHERE occurred_at >= CURRENT_DATE - 7), 0)::numeric AS week_revenue,
+        COALESCE((SELECT SUM(amount) FROM revenue_events WHERE occurred_at >= CURRENT_DATE - 30), 0)::numeric AS month_revenue,
+        (SELECT COUNT(*)::int FROM payment_submissions WHERE status = 'approved') AS total_approved,
+        (SELECT COUNT(*)::int FROM payment_submissions WHERE status = 'pending') AS total_pending,
+        (SELECT COUNT(*)::int FROM payment_submissions WHERE status = 'rejected') AS total_rejected
     `);
     const byProduct = await db.execute(sql`
-      SELECT product_type, COUNT(*)::int AS count, COALESCE(SUM(expected_amount::numeric), 0)::numeric AS revenue
-      FROM payment_submissions WHERE status = 'approved'
+      SELECT product_type, COUNT(*)::int AS count, COALESCE(SUM(amount), 0)::numeric AS revenue
+      FROM (
+        SELECT product_type::text AS product_type, expected_amount::numeric AS amount
+        FROM payment_submissions WHERE status = 'approved'
+        UNION ALL
+        SELECT 'manual_admin', amount::numeric
+        FROM admin_manual_entitlement_grants WHERE record_revenue = true
+      ) revenue_by_product
       GROUP BY product_type
     `);
     const byMethod = await db.execute(sql`
-      SELECT method, COUNT(*)::int AS count, COALESCE(SUM(expected_amount::numeric), 0)::numeric AS revenue
-      FROM payment_submissions WHERE status = 'approved'
+      SELECT method, COUNT(*)::int AS count, COALESCE(SUM(amount), 0)::numeric AS revenue
+      FROM (
+        SELECT method::text AS method, expected_amount::numeric AS amount
+        FROM payment_submissions WHERE status = 'approved'
+        UNION ALL
+        SELECT method::text, amount::numeric
+        FROM admin_manual_entitlement_grants WHERE record_revenue = true
+      ) revenue_by_method
       GROUP BY method
     `);
     const t = totals.rows[0] as Record<string, unknown> | undefined;

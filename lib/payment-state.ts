@@ -27,7 +27,11 @@ export async function getSeatPaymentState({
       ),
     )
     .limit(1);
-  if (entitlement) return { status: "unlocked", paymentId: entitlement.paymentId };
+  if (entitlement) {
+    return entitlement.paymentId
+      ? { status: "unlocked", paymentId: entitlement.paymentId }
+      : { status: "unlocked" };
+  }
 
   const [linkedSeat] = await getDatabase()
     .select({ paymentId: paymentSubmissionSeats.paymentId })

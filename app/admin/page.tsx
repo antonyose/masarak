@@ -14,6 +14,7 @@ import { AdminBehaviorOverview, type AdminBehaviorData } from "@/components/admi
 import { AdminRevenueCards } from "@/components/admin-revenue-cards";
 import { AdminAuditTable } from "@/components/admin-audit-table";
 import { AdminPaymentsTable, type AdminPayment } from "@/components/admin-payments-table";
+import { AdminQuickEntitlement } from "@/components/admin-quick-entitlement";
 
 type Coordination = {
   counts: { sources: number; officialCutoffs2026: number; stageVacancies2026: number };
@@ -108,7 +109,7 @@ export default function AdminPage() {
     return () => window.clearInterval(timer);
   }, [tab, session?.user]);
 
-  async function review(id: string, action: "approve" | "reject") {
+  async function review(id: string, action: "approve" | "reject", allowMissingReceipt = false) {
     const reason = action === "reject" ? window.prompt("سبب الرفض الظاهر للمستخدم:") : undefined;
     if (action === "reject" && (!reason || reason.trim().length < 3)) return;
     setLoading(true);
@@ -116,7 +117,7 @@ export default function AdminPage() {
       const response = await fetch(`/api/admin/payments/${id}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(action === "approve" ? { action } : { action, reason }),
+        body: JSON.stringify(action === "approve" ? { action, allowMissingReceipt } : { action, reason }),
       });
       const result = await response.json();
       if (!response.ok) setError(result.error ?? "تعذر تنفيذ الإجراء.");
@@ -263,7 +264,8 @@ export default function AdminPage() {
       {/* Payments Tab */}
       {tab === "payments" && (
         <div className="admin-tab-panel">
-          <AdminPaymentsTable payments={payments} loading={loading} onRefresh={() => void load()} onReview={(id, action) => void review(id, action)} />
+          <AdminQuickEntitlement onCreated={load} />
+          <AdminPaymentsTable payments={payments} loading={loading} onRefresh={() => void load()} onReview={(id, action, allowMissingReceipt) => void review(id, action, allowMissingReceipt)} />
         </div>
       )}
 

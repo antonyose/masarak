@@ -21,6 +21,7 @@ const ACTION_LABELS: Record<string, string> = {
   "payment.approve": "قبول دفعة",
   "payment.reject": "رفض دفعة",
   "payment.approve_duplicate": "دفعة مكررة",
+  "entitlement.manual_grant": "تفعيل مباشر لرقم جلوس",
   "settings.update": "تعديل الإعدادات",
   "model.activate": "تفعيل نموذج",
   "admin.role_update": "تعديل صلاحية",

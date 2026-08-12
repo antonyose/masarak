@@ -18,6 +18,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       paymentId: id,
       actorUserId: session.user.id,
       action: parsed.data.action,
+      allowMissingReceipt: parsed.data.action === "approve" ? parsed.data.allowMissingReceipt : false,
       rejectionReason: parsed.data.action === "reject" ? parsed.data.reason : undefined,
       requestId: request.headers.get("x-request-id") ?? randomUUID(),
     });
