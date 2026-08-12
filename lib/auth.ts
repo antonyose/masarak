@@ -51,15 +51,24 @@ export const auth = betterAuth({
   },
   trustedOrigins: [
     "https://masarak.live",
+    "https://www.masarak.live",
+    "https://masarak.me",
+    "https://www.masarak.me",
+    "https://masarak-app.vercel.app",
+    "https://masarak-app-git-main-antonyoses-projects.vercel.app",
     "https://masarak-58p2ie82j-antonyoses-projects.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+    ...(process.env.VERCEL_PROJECT_PRODUCTION_URL ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`] : []),
   ],
   secret: productionRequired(
     process.env.BETTER_AUTH_SECRET,
     "BETTER_AUTH_SECRET",
     "local-development-secret-only-32chars",
   ),
-  baseURL: process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : (process.env.BETTER_AUTH_URL || "https://masarak.live"),
+  baseURL:
+    process.env.BETTER_AUTH_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://masarak.live"),
 });
