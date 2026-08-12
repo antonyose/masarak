@@ -9,9 +9,9 @@ export async function GET() {
     priceEgp: settings.fullReportPriceEgp,
     currency: "EGP",
     methods: [
-      settings.vodafoneEnabled ? { id: "vodafone_cash", label: "Vodafone Cash", recipient: settings.vodafoneCashNumber, deepLink: settings.vodafoneDeepLink, logoSrc: "/payment-logos/vodafone-cash.png" } : null,
-      settings.orangeEnabled ? { id: "orange_cash", label: "Orange Cash", recipient: settings.orangeCashNumber, logoSrc: "/payment-logos/orange-cash.png" } : null,
-      settings.instapayEnabled ? { id: "instapay", label: "InstaPay", recipient: settings.instapayIdentifier, logoSrc: "/payment-logos/instapay.png" } : null,
+      settings.vodafoneEnabled ? { id: "vodafone_cash", label: "فودافون كاش", recipient: settings.vodafoneCashNumber, deepLink: settings.vodafoneDeepLink, logoSrc: "/payment-logos/vodafone-cash.png" } : null,
+      settings.orangeEnabled ? { id: "orange_cash", label: "أورنج كاش", recipient: settings.orangeCashNumber, logoSrc: "/payment-logos/orange-cash.png" } : null,
+      settings.instapayEnabled ? { id: "instapay", label: "إنستا باي", recipient: settings.instapayIdentifier, logoSrc: "/payment-logos/instapay.png" } : null,
     ].filter(Boolean),
     instructions: settings.paymentInstructions,
     supportContact: settings.supportContact,

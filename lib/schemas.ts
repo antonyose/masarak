@@ -81,7 +81,7 @@ export const paymentCreateSchema = z.object({
   year: z.literal(2026).optional(),
   seatNumber: z.string().trim().regex(/^[\d٠-٩۰-۹]{4,14}$/).optional(),
   method: z.enum(["vodafone_cash", "orange_cash", "instapay"]),
-  senderIdentifier: z.string().trim().min(4).max(80),
+  senderIdentifier: z.string().trim().max(80).optional(),
   transactionReference: z.string().trim().max(120).optional(),
   idempotencyKey: z.string().uuid(),
 });

@@ -128,7 +128,7 @@ export async function POST(request: Request) {
         method,
         expectedAmount: settings.fullReportPriceEgp,
         priceSnapshotJson: priceSnapshot,
-        senderIdentifier: parsed.data.senderIdentifier,
+        senderIdentifier: parsed.data.senderIdentifier || "من الإيصال",
         transactionReference: parsed.data.transactionReference,
         clientIdempotencyKey: parsed.data.idempotencyKey,
       })
