@@ -4,8 +4,7 @@ import { getMaxScore } from "@/lib/grade-scales";
 import { enforceRateLimit } from "@/lib/request-security";
 import { predictionPreviewSchema } from "@/lib/schemas";
 import { getPaymentSettings } from "@/lib/settings";
-import { toFreeStage2Report } from "@/lib/stage2-prediction";
-import { calculateActiveStage2Report } from "@/lib/prediction-service";
+import { calculateActiveStage2Report, publicPredictionPayload } from "@/lib/prediction-service";
 
 export const runtime = "nodejs";
 
@@ -34,7 +33,7 @@ export async function POST(request: Request) {
     await trackEvent("predict");
     return NextResponse.json(
       {
-        ...toFreeStage2Report(report, settings.freeRecommendationCount),
+        ...publicPredictionPayload(report, settings.freeRecommendationCount),
         canSave: false,
         saveRequirement: "real_turso_seat_result",
       },

@@ -10,6 +10,37 @@ import { calculateStage2Report, toFreeStage2Report } from "@/lib/stage2-predicti
 import { loadStage2CoordinationContext } from "@/lib/coordination-repository";
 import { findTursoResultBySeat } from "@/lib/turso";
 import { recordPredictionV2Shadow } from "@/lib/prediction-v2/shadow-service";
+import {
+  calculatePredictionV2,
+  isPredictionV2Report,
+  toFreePredictionV2Report,
+} from "@/lib/prediction-v2/model";
+import type { PredictionV2Report } from "@/lib/prediction-v2/types";
+
+type Stage2Input = Parameters<typeof calculateStage2Report>[0];
+type ActivePredictionReport = ReturnType<typeof calculateStage2Report> | PredictionV2Report;
+
+function usesPredictionV2(model: { version: string }) {
+  return model.version === "stage2-2026-v2-shadow" || model.version.startsWith("stage2-2026-v2");
+}
+
+async function calculateReportForModel(
+  model: Awaited<ReturnType<typeof getActiveStage2Model>>,
+  input: Stage2Input,
+): Promise<ActivePredictionReport> {
+  if (usesPredictionV2(model)) {
+    return calculatePredictionV2({
+      score: input.score,
+      maxScore: input.maxScore,
+      percentage: input.percentage,
+      educationSystem: input.educationSystem,
+      branch: input.branch,
+      governorate: input.governorate,
+    });
+  }
+  const context = await loadStage2CoordinationContext(model);
+  return calculateStage2Report({ ...input, ...context });
+}
 
 async function safelyRecordV2Shadow(
   input: Parameters<typeof recordPredictionV2Shadow>[0],
@@ -59,7 +90,6 @@ export async function createImmutablePrediction({
   governorate?: string;
 }) {
   const model = await getActiveStage2Model();
-  const context = await loadStage2CoordinationContext(model);
   const settings = await getPaymentSettings();
   if (
     (student.educationSystem !== "new" && student.educationSystem !== "old") ||
@@ -67,7 +97,7 @@ export async function createImmutablePrediction({
   ) {
     throw new Error("UNSUPPORTED_STUDENT_SNAPSHOT");
   }
-  const report = calculateStage2Report({
+  const report = await calculateReportForModel(model, {
     score: student.scoreSnapshot,
     maxScore: student.maxScoreSnapshot,
     percentage: student.percentageSnapshot,
@@ -75,7 +105,6 @@ export async function createImmutablePrediction({
     branch: student.branch,
     governorate,
     branchSource: student.branchSource,
-    ...context,
   });
   const inputHash = deterministicInputHash({
     year: 2026,
@@ -105,7 +134,7 @@ export async function createImmutablePrediction({
     })
     .onConflictDoNothing()
     .returning();
-  if (created) {
+  if (created && !usesPredictionV2(model)) {
     await safelyRecordV2Shadow({
       productionPredictionRunId: created.id,
       score: report.score,
@@ -115,8 +144,8 @@ export async function createImmutablePrediction({
       branch: report.branch,
       governorate,
     });
-    return { run: created, report };
   }
+  if (created) return { run: created, report };
   const [existing] = await getDatabase()
     .select()
     .from(predictionRuns)
@@ -129,15 +158,18 @@ export async function createImmutablePrediction({
       ),
     )
     .limit(1);
-  await safelyRecordV2Shadow({
-    productionPredictionRunId: existing.id,
-    score: existing.score,
-    maxScore: report.maxScore,
-    percentage: existing.percentage,
-    educationSystem: report.educationSystem,
-    branch: report.branch,
-    governorate,
-  });
+  if (!existing) throw new Error("PREDICTION_CREATE_FAILED");
+  if (!usesPredictionV2(model)) {
+    await safelyRecordV2Shadow({
+      productionPredictionRunId: existing.id,
+      score: existing.score,
+      maxScore: report.maxScore,
+      percentage: existing.percentage,
+      educationSystem: report.educationSystem,
+      branch: report.branch,
+      governorate,
+    });
+  }
   return { run: existing, report: existing.resultSnapshotJson as unknown as typeof report };
 }
 
@@ -159,9 +191,8 @@ export async function createPublicImmutablePrediction({
   }
 
   const model = await getActiveStage2Model();
-  const context = await loadStage2CoordinationContext(model);
   const settings = await getPaymentSettings();
-  const report = calculateStage2Report({
+  const report = await calculateReportForModel(model, {
     score: result.totalScore,
     maxScore: result.maxScore,
     percentage: result.percentage,
@@ -169,7 +200,6 @@ export async function createPublicImmutablePrediction({
     branch,
     governorate,
     branchSource: "user_provided",
-    ...context,
   });
   const inputHash = deterministicInputHash({
     year: 2026,
@@ -200,7 +230,7 @@ export async function createPublicImmutablePrediction({
     })
     .onConflictDoNothing()
     .returning();
-  if (created) {
+  if (created && !usesPredictionV2(model)) {
     await safelyRecordV2Shadow({
       productionPredictionRunId: created.id,
       score: report.score,
@@ -210,8 +240,8 @@ export async function createPublicImmutablePrediction({
       branch: report.branch,
       governorate,
     });
-    return { run: created, report, result };
   }
+  if (created) return { run: created, report, result };
 
   const [existing] = await getDatabase()
     .select()
@@ -228,15 +258,17 @@ export async function createPublicImmutablePrediction({
     )
     .limit(1);
   if (!existing) throw new Error("PREDICTION_CREATE_FAILED");
-  await safelyRecordV2Shadow({
-    productionPredictionRunId: existing.id,
-    score: existing.score,
-    maxScore: report.maxScore,
-    percentage: existing.percentage,
-    educationSystem: report.educationSystem,
-    branch: report.branch,
-    governorate,
-  });
+  if (!usesPredictionV2(model)) {
+    await safelyRecordV2Shadow({
+      productionPredictionRunId: existing.id,
+      score: existing.score,
+      maxScore: report.maxScore,
+      percentage: existing.percentage,
+      educationSystem: report.educationSystem,
+      branch: report.branch,
+      governorate,
+    });
+  }
   return {
     run: existing,
     report: existing.resultSnapshotJson as unknown as typeof report,
@@ -244,15 +276,17 @@ export async function createPublicImmutablePrediction({
   };
 }
 
-export async function calculateActiveStage2Report(input: Parameters<typeof calculateStage2Report>[0]) {
+export async function calculateActiveStage2Report(input: Stage2Input) {
   const model = await getActiveStage2Model();
-  const context = await loadStage2CoordinationContext(model);
-  return calculateStage2Report({ ...input, ...context });
+  return calculateReportForModel(model, input);
 }
 
 export function publicPredictionPayload(
-  report: ReturnType<typeof calculateStage2Report>,
+  report: ActivePredictionReport,
   freeRecommendationCount: number,
 ) {
+  if (isPredictionV2Report(report)) {
+    return toFreePredictionV2Report(report, freeRecommendationCount);
+  }
   return toFreeStage2Report(report, freeRecommendationCount);
 }

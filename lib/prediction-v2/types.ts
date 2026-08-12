@@ -220,10 +220,16 @@ export type Stage3ForecastV2 = {
   availabilityLabel: "متوقع يظهر في المرحلة الثالثة";
   predictedCutoffPercentage: number;
   expectedRange: [number, number];
+  fit: FitSignal;
+  fitLabel: "مناسب جدًا" | "فرصة جيدة" | "اختيار طموح" | "بعيد عن مجموعك";
+  difference: number;
   internalConfidence: InternalConfidence;
   limitedDataWarning: string | null;
   requiresAptitudeTest: boolean;
   governorate: string | null;
+  proximityTier: ProximityTier;
+  proximityLabel: string;
+  basis: "current_stage_2_vacancy" | "historical_public_option";
 };
 
 export type PredictionV2Report = {

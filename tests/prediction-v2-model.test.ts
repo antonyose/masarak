@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { calculatePredictionV2, getPredictionV2Seed } from "@/lib/prediction-v2/model";
+import { calculatePredictionV2, getPredictionV2Seed, toFreePredictionV2Report } from "@/lib/prediction-v2/model";
 
 const seed = getPredictionV2Seed();
 const regressionInput = {
@@ -78,6 +78,39 @@ describe("Prediction V2 eligibility, model, ranking, and report composition", ()
       row.availability === "forecast_stage_3" && row.availabilityLabel === "متوقع يظهر في المرحلة الثالثة",
     )).toBe(true);
     expect(JSON.stringify(report.groups.stage3Forecast)).not.toContain("متاح رسميًا");
+    expect(report.groups.stage3Forecast.items.every((row) => row.basis === "current_stage_2_vacancy")).toBe(true);
+  });
+
+  it.each([
+    ["science", 50], ["science", 60],
+    ["mathematics", 50], ["mathematics", 60],
+    ["literary", 50], ["literary", 60],
+  ] as const)("keeps the report open with honest Stage-3 forecasts for %s at %s%%", (branch, percentage) => {
+    const report = calculatePredictionV2({
+      score: (percentage / 100) * 320,
+      maxScore: 320,
+      percentage,
+      educationSystem: "new",
+      branch,
+      governorate: "القاهرة",
+      aptitudeTestPassed: false,
+    });
+    expect(report.eligibility.status).toBe("below_stage_2_floor");
+    expect(report.groups.stage3Forecast.items.length).toBeGreaterThan(0);
+    expect(report.groups.stage3Forecast.items.length).toBeLessThanOrEqual(seed.model.stage3DisplayCap);
+    expect(report.recommendations).toEqual([]);
+    expect(report.groups.stage3Forecast.items.every((row) =>
+      row.availabilityLabel === "متوقع يظهر في المرحلة الثالثة" &&
+      !row.requiresAptitudeTest,
+    )).toBe(true);
+  });
+
+  it("keeps the free Stage-3 preview useful and the paywall count truthful", () => {
+    const full = calculatePredictionV2({ ...regressionInput, percentage: 60, score: 192 });
+    const free = toFreePredictionV2Report(full, 1);
+    expect(free.groups.stage3Forecast.items).toHaveLength(1);
+    expect(free.lockedRecommendationCount).toBe(full.groups.stage3Forecast.items.length - 1);
+    expect(free.totalRecommendationCount).toBe(full.groups.stage3Forecast.items.length);
   });
 
   it.each([

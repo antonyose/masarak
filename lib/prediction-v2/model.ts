@@ -317,7 +317,9 @@ function stage3Forecasts({
   governorate,
   aptitudeTestPassed,
   currentVacancyIds,
+  currentVacancyLabels,
   closedIds,
+  educationSystem,
 }: {
   seed: PredictionV2Seed;
   context: RuntimeContext;
@@ -326,14 +328,20 @@ function stage3Forecasts({
   governorate?: string;
   aptitudeTestPassed?: boolean;
   currentVacancyIds: Set<string>;
+  currentVacancyLabels: Map<string, string>;
   closedIds: Set<string>;
+  educationSystem: EducationSystem;
 }) {
   const priors = sectorPriors({ seed, histories: context.histories, branch, predictionYear: 2026 });
   const forecasts: Stage3ForecastV2[] = [];
   for (const option of seed.admissionOptions) {
+    const isCurrentStage2Vacancy = currentVacancyIds.has(option.id);
+    const isForecastCandidate = educationSystem === "new"
+      ? isCurrentStage2Vacancy
+      : isPublicCoreClass(option.institutionClass);
     if (
       option.branch !== branch ||
-      currentVacancyIds.has(option.id) ||
+      !isForecastCandidate ||
       closedIds.has(option.id) ||
       (option.requiresAptitudeTest && aptitudeTestPassed !== true)
     ) continue;
@@ -345,29 +353,40 @@ function stage3Forecasts({
       predictionYear: 2026,
       sparsePrior: seed.model.sparseShrinkagePrior,
     });
-    if (predicted == null || predicted > Math.max(72, percentage + 5)) continue;
+    if (predicted == null) continue;
     const halfWidth = intervalHalfWidth({ seed, context, branch, sector: option.sector, history });
     const confidence = confidenceFor(history, halfWidth);
+    const fit = fitForScore(percentage, predicted, halfWidth);
+    const proximityTier = getProximityTier(governorate, option.governorate ?? "");
     forecasts.push({
       id: `stage3:${option.id}`,
       admissionOptionId: option.id,
-      officialNameArabic: option.canonicalNameArabic,
+      officialNameArabic: currentVacancyLabels.get(option.id) ?? option.canonicalNameArabic,
       branch,
       availability: "forecast_stage_3",
       availabilityLabel: "متوقع يظهر في المرحلة الثالثة",
       predictedCutoffPercentage: round(predicted),
       expectedRange: [round(Math.max(0, predicted - halfWidth)), round(Math.min(100, predicted + halfWidth))],
+      fit,
+      fitLabel: fitLabels[fit],
+      difference: round(percentage - predicted),
       internalConfidence: confidence,
       limitedDataWarning: confidence === "low" ? "البيانات التاريخية للكليّة دي محدودة" : null,
       requiresAptitudeTest: option.requiresAptitudeTest,
       governorate: option.governorate,
+      proximityTier,
+      proximityLabel: proximityLabels[proximityTier],
+      basis: isCurrentStage2Vacancy ? "current_stage_2_vacancy" : "historical_public_option",
     });
   }
-  return forecasts.sort((a, b) =>
-    Math.abs(percentage - a.predictedCutoffPercentage) - Math.abs(percentage - b.predictedCutoffPercentage) ||
-    proximityRank(getProximityTier(governorate, a.governorate ?? "")) - proximityRank(getProximityTier(governorate, b.governorate ?? "")) ||
-    a.admissionOptionId.localeCompare(b.admissionOptionId),
-  );
+  return forecasts.sort((a, b) => {
+    const fitGroup = (fit: FitSignal) => fit === "green" || fit === "yellow" ? 0 : fit === "orange" ? 1 : 2;
+    return fitGroup(a.fit) - fitGroup(b.fit) ||
+      Math.abs(a.difference) - Math.abs(b.difference) ||
+      confidenceRank[a.internalConfidence] - confidenceRank[b.internalConfidence] ||
+      proximityRank(a.proximityTier) - proximityRank(b.proximityTier) ||
+      a.admissionOptionId.localeCompare(b.admissionOptionId);
+  });
 }
 
 export function calculatePredictionV2({
@@ -409,6 +428,11 @@ export function calculatePredictionV2({
       .filter((vacancy) => vacancy.resolutionStatus === "resolved" && vacancy.admissionOptionId)
       .map((vacancy) => vacancy.admissionOptionId!),
   );
+  const currentVacancyLabels = new Map(
+    publicVacancies.flatMap((vacancy) => vacancy.admissionOptionId
+      ? [[vacancy.admissionOptionId, vacancy.officialNameArabic] as const]
+      : []),
+  );
   const officialClosedFacts = seed.officialCutoffs.filter((cutoff) =>
     cutoff.educationSystem === educationSystem &&
     cutoff.branch === branch &&
@@ -417,16 +441,20 @@ export function calculatePredictionV2({
   const closedIds = new Set(
     officialClosedFacts.flatMap((cutoff) => cutoff.admissionOptionId ? [cutoff.admissionOptionId] : []),
   );
-  const forecastCandidates = stage3Forecasts({
-    seed,
-    context,
-    branch,
-    percentage,
-    governorate,
-    aptitudeTestPassed,
-    currentVacancyIds,
-    closedIds,
-  });
+  const forecastCandidates = !eligible || educationSystem !== "new"
+    ? stage3Forecasts({
+        seed,
+        context,
+        branch,
+        percentage,
+        governorate,
+        aptitudeTestPassed,
+        currentVacancyIds,
+        currentVacancyLabels,
+        closedIds,
+        educationSystem,
+      })
+    : [];
   const visibleForecasts = forecastCandidates.slice(0, seed.model.stage3DisplayCap);
 
   if (!eligible || educationSystem !== "new") {
@@ -465,19 +493,28 @@ export function calculatePredictionV2({
         active: true,
         code: belowFloor ? "BELOW_STAGE2_FLOOR" : "SYSTEM_AVAILABILITY_UNKNOWN",
         message: belowFloor
-          ? "لا توجد اختيارات مرحلة ثانية صالحة لهذا المجموع. توقعات المرحلة الثالثة منفصلة وغير رسمية."
-          : "لن نخمن إتاحة غير موثقة لهذا النظام.",
+          ? visibleForecasts.length
+            ? "التقرير مفتوح بتوقعات مستقلة للمرحلة الثالثة، مبنية على اختيارات حكومية ظلت شاغرة في المرحلة الثانية وتاريخ الحدود السابقة."
+            : "لا توجد أدلة كافية لعرض اختيارات واقعية؛ لم نضف اختيارات مصطنعة."
+          : visibleForecasts.length
+            ? "التقرير استرشادي تاريخي لهذا النظام، ولا يدّعي إتاحة رسمية غير منشورة."
+            : "لن نخمن إتاحة غير موثقة لهذا النظام.",
         reasons: belowFloor ? ["stage_floor"] : ["education_system_data"],
       },
       diagnostics: {
         candidateVacancies: publicVacancies.length,
         resolvedCandidates: currentVacancyIds.size,
         unresolvedCandidates: publicVacancies.filter((row) => row.resolutionStatus !== "resolved").length,
-        modeledCandidates: 0,
-        unmodeledCandidates: currentVacancyIds.size,
+        modeledCandidates: forecastCandidates.length,
+        unmodeledCandidates: Math.max(0, currentVacancyIds.size - forecastCandidates.length),
         aptitudeExcludedCandidates: 0,
-        realisticOptions: 0,
-        fitCounts: { green: 0, yellow: 0, orange: 0, red: 0 },
+        realisticOptions: forecastCandidates.filter((row) => row.fit === "green" || row.fit === "yellow").length,
+        fitCounts: {
+          green: forecastCandidates.filter((row) => row.fit === "green").length,
+          yellow: forecastCandidates.filter((row) => row.fit === "yellow").length,
+          orange: forecastCandidates.filter((row) => row.fit === "orange").length,
+          red: forecastCandidates.filter((row) => row.fit === "red").length,
+        },
         sourceOfficialArtifact: seed.sources.filter((source) => source.key.startsWith("stage2-2026")).every((source) => source.officialArtifact),
       },
       disclaimer: "توقعات المرحلة الثالثة تحليل تاريخي منفصل وليست إعلان إتاحة أو ضمان قبول. المرجع النهائي هو موقع التنسيق ووزارة التعليم العالي.",
@@ -637,6 +674,52 @@ export function calculatePredictionV2({
 
 export function getPredictionV2Seed() {
   return defaultSeed;
+}
+
+export function isPredictionV2Report(report: unknown): report is PredictionV2Report {
+  return Boolean(
+    report &&
+    typeof report === "object" &&
+    (report as { schemaVersion?: string }).schemaVersion === "prediction-v2-report@1",
+  );
+}
+
+export function toFreePredictionV2Report(
+  report: PredictionV2Report,
+  freeRecommendationCount: number,
+) {
+  const freeCount = Math.max(0, freeRecommendationCount);
+  const stage2Items = [
+    ...report.groups.closest.items,
+    ...report.groups.ambitious.items,
+    ...report.groups.higherThanScore.items,
+  ];
+  const sourceItems = report.eligibility.eligible
+    ? stage2Items
+    : report.groups.stage3Forecast.items;
+  const visibleIds = new Set(sourceItems.slice(0, freeCount).map((item) => item.id));
+  // The paywall count must describe what the paid report will actually render.
+  // Model-level hidden counts remain available for diagnostics, not sales copy.
+  const totalCount = sourceItems.length;
+  const keep = <T extends { id: string }>(items: T[]) => items.filter((item) => visibleIds.has(item.id));
+
+  return {
+    ...report,
+    groups: {
+      closest: { items: keep(report.groups.closest.items), hiddenCount: 0 },
+      ambitious: { items: keep(report.groups.ambitious.items), hiddenCount: 0 },
+      stage3Forecast: { items: keep(report.groups.stage3Forecast.items), hiddenCount: 0 },
+      higherThanScore: {
+        items: keep(report.groups.higherThanScore.items),
+        hiddenCount: 0,
+        collapsed: true as const,
+      },
+    },
+    recommendations: keep(report.recommendations),
+    totalRecommendationCount: totalCount,
+    lockedRecommendationCount: Math.max(0, totalCount - Math.min(freeCount, sourceItems.length)),
+    premium: false as const,
+  };
 }
 
 export function getPredictionV2RuntimeContextForTests(seed = defaultSeed) {

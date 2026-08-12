@@ -46,7 +46,7 @@ type PaymentState =
   | { status: "pending"; paymentId: string; hasReceipt: boolean }
   | { status: "rejected"; paymentId: string }
   | { status: "none" };
-type PredictionResponse = {
+type LegacyPredictionResponse = {
   predictionId?: string;
   eligibility: { eligible: boolean };
   recommendations: Recommendation[];
@@ -58,6 +58,48 @@ type PredictionResponse = {
   paymentState?: PaymentState;
   branch?: Branch;
 };
+type V2Fit = "green" | "yellow" | "orange" | "red";
+type V2ReportItem = {
+  id: string;
+  officialNameArabic: string;
+  fit: V2Fit;
+  fitLabel: "مناسب جدًا" | "فرصة جيدة" | "اختيار طموح" | "بعيد عن مجموعك";
+  expectedRange: [number, number];
+  predictedCutoffPercentage: number;
+  proximityLabel: string;
+  requiresAptitudeTest: boolean;
+  limitedDataWarning: string | null;
+  availability: "listed_stage_2" | "forecast_stage_3";
+  availabilityLabel?: "متوقع يظهر في المرحلة الثالثة";
+};
+type V2PredictionResponse = {
+  schemaVersion: "prediction-v2-report@1";
+  predictionId?: string;
+  eligibility: {
+    eligible: boolean;
+    status: "eligible_stage_2" | "below_stage_2_floor" | "availability_unknown";
+    minimumScore: number;
+    minimumPercentage: number;
+    message: string;
+  };
+  groups: {
+    closest: { items: V2ReportItem[]; hiddenCount: number };
+    ambitious: { items: V2ReportItem[]; hiddenCount: number };
+    stage3Forecast: { items: V2ReportItem[]; hiddenCount: number };
+    higherThanScore: { items: V2ReportItem[]; hiddenCount: number; collapsed: true };
+  };
+  recommendations: V2ReportItem[];
+  coverageWarning: { active: boolean; message: string };
+  disclaimer: string;
+  lockedRecommendationCount?: number;
+  premium?: boolean;
+  unlocked?: boolean;
+  message?: string;
+  requiresBranch?: boolean;
+  paymentState?: PaymentState;
+  branch?: Branch;
+};
+type PredictionResponse = LegacyPredictionResponse | V2PredictionResponse;
 type PaymentSettings = {
   priceEgp: string;
   serverNow: string;
@@ -128,6 +170,10 @@ function normalizeReport(data: Record<string, unknown>): PredictionResponse {
     };
   }
   return data as PredictionResponse;
+}
+
+function isV2Report(report: PredictionResponse): report is V2PredictionResponse {
+  return "schemaVersion" in report && report.schemaVersion === "prediction-v2-report@1";
 }
 
 export function ToolExperience() {
@@ -387,6 +433,18 @@ function Report({
   onReset: () => void;
   onUnlocked: (report: PredictionResponse) => void;
 }) {
+  if (isV2Report(report)) {
+    return (
+      <PredictionV2StudentReport
+        report={report}
+        result={result}
+        settings={settings}
+        initialProduct={initialProduct}
+        onReset={onReset}
+        onUnlocked={onUnlocked}
+      />
+    );
+  }
   const recommendations = report.premium
     ? report.recommendations
     : report.recommendations.slice(0, 1);
@@ -480,6 +538,140 @@ function Report({
           />
         </section>
       ) : null}
+    </div>
+  );
+}
+
+function PredictionV2StudentReport({
+  report,
+  result,
+  settings,
+  initialProduct,
+  onReset,
+  onUnlocked,
+}: {
+  report: V2PredictionResponse;
+  result: StudentResult;
+  settings: PaymentSettings | null;
+  initialProduct: ProductType;
+  onReset: () => void;
+  onUnlocked: (report: PredictionResponse) => void;
+}) {
+  const isStage3Report = !report.eligibility.eligible;
+  const sections = isStage3Report
+    ? [{ key: "stage3", title: "أقرب توقعات المرحلة الثالثة لمجموعك", items: report.groups.stage3Forecast.items }]
+    : [
+        { key: "closest", title: "أقرب اختيارات لمجموعك", items: report.groups.closest.items },
+        { key: "ambitious", title: "اختيارات طموحة", items: report.groups.ambitious.items },
+        { key: "higher", title: "اختيارات أعلى من مجموعك", items: report.groups.higherThanScore.items },
+      ];
+  const visibleCount = sections.reduce((count, section) => count + section.items.length, 0);
+
+  if (!visibleCount) {
+    return (
+      <div className="simple-result-state">
+        <GraduationCap size={34} aria-hidden="true" />
+        <h3>مفيش بيانات كفاية لترشيح آمن دلوقتي</h3>
+        <p>{report.coverageWarning.message}</p>
+        <button type="button" onClick={onReset}>جرّب رقم جلوس تاني</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="report-conversion" aria-live="polite">
+      <div className="report-heading">
+        <div>
+          {report.premium
+            ? <span className="premium-open-badge">التقرير الكامل مفتوح ✓</span>
+            : <span>{isStage3Report ? "توقعك المجاني للمرحلة الثالثة" : "ترشيحك المجاني"}</span>}
+          <h3>
+            {isStage3Report
+              ? report.premium ? "تقرير مناسب لمجموعك للمرحلة الثالثة" : "أقرب توقع لمجموعك"
+              : report.premium ? "كل اختياراتك المناسبة" : "بداية مبشّرة ليك"}
+          </h3>
+        </div>
+        <button type="button" onClick={onReset}>ابدأ من جديد</button>
+      </div>
+
+      <div className="report-student-summary" aria-label="بيانات نتيجتك">
+        <div className="report-student-identity">
+          <div className="report-student-avatar" aria-hidden="true"><GraduationCap size={22} /></div>
+          <div>
+            <span>نتيجتك</span>
+            <strong title={result.studentName}>{result.studentName}</strong>
+            <small>رقم الجلوس <bdi className="ltr-number">{result.seatNumber}</bdi></small>
+          </div>
+        </div>
+        <div className="report-score-block">
+          <span>المجموع</span>
+          <strong><bdi className="ltr-number">{formatScore(result.totalScore)}</bdi></strong>
+          <small>من <bdi className="ltr-number">{formatScore(result.maxScore)}</bdi></small>
+        </div>
+      </div>
+
+      {isStage3Report ? (
+        <div className="stage3-report-notice" role="note">
+          <strong>التقرير مفتوح — لكنه توقع، مش إتاحة رسمية</strong>
+          <p>{report.eligibility.message}</p>
+        </div>
+      ) : null}
+
+      <div className="v2-report-sections">
+        {sections.map((section) => section.items.length ? (
+          <section key={section.key} className="v2-report-section" aria-labelledby={`section-${section.key}`}>
+            <h4 id={`section-${section.key}`}>{section.title}</h4>
+            <div className="v2-recommendation-grid">
+              {section.items.map((item, index) => (
+                <article key={item.id} className={`free-recommendation v2-recommendation fit-${item.fit}`}>
+                  <div className="recommendation-number">{index + 1}</div>
+                  <div className="recommendation-copy">
+                    <span>{item.fitLabel}</span>
+                    <h4>{item.officialNameArabic}</h4>
+                    <p>
+                      {item.availability === "forecast_stage_3" ? "متوقع يظهر في المرحلة الثالثة · " : "متاح في قائمة المرحلة الثانية · "}
+                      نطاق متوقع <bdi className="ltr-number">{item.expectedRange[0]}%–{item.expectedRange[1]}%</bdi>
+                    </p>
+                    <small>{simpleProximity(item.proximityLabel)}</small>
+                    {item.requiresAptitudeTest ? <small className="recommendation-warning">يتطلب اجتياز اختبار قدرات</small> : null}
+                    {item.limitedDataWarning ? <small className="recommendation-warning">{item.limitedDataWarning}</small> : null}
+                  </div>
+                  <GraduationCap size={28} aria-hidden="true" />
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null)}
+      </div>
+
+      {!report.premium && report.lockedRecommendationCount ? (
+        <section className="locked-recommendations" aria-label="ترشيحات مقفولة">
+          <div className="locked-title">
+            <LockKeyhole size={19} aria-hidden="true" />
+            <div>
+              <strong>باقي التقرير متاح بعد التفعيل</strong>
+              <span>
+                {isStage3Report
+                  ? `${report.lockedRecommendationCount} توقعات إضافية مرتبة حسب قربها من مجموعك`
+                  : "شوف كل الاختيارات المناسبة لمجموعك ومحافظتك"}
+              </span>
+            </div>
+          </div>
+          <div className="locked-card-stack" aria-hidden="true">
+            {[0, 1, 2].map((item) => <LockedSampleCard key={item} index={item} />)}
+          </div>
+          <GuestPaymentOffer
+            predictionId={report.predictionId ?? ""}
+            seatNumber={result.seatNumber}
+            settings={settings}
+            initialProduct={initialProduct}
+            paymentState={report.paymentState}
+            onUnlocked={onUnlocked}
+          />
+        </section>
+      ) : null}
+
+      <p className="v2-report-disclaimer">{report.disclaimer}</p>
     </div>
   );
 }
