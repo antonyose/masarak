@@ -39,14 +39,16 @@ export async function POST(request: Request) {
     });
     let branch = parsed.data.branch;
     let governorate = parsed.data.governorate;
-    if (entitlement) {
+    if (entitlement?.originPredictionId) {
       const origin = await requirePrediction(entitlement.originPredictionId);
-      branch = origin.branch === "science" || origin.branch === "mathematics" || origin.branch === "literary"
-        ? origin.branch
-        : undefined;
-      governorate = origin.governorate && isEgyptianGovernorate(origin.governorate)
-        ? origin.governorate
-        : undefined;
+      if (origin.seatNumber === parsed.data.seatNumber) {
+        branch = origin.branch === "science" || origin.branch === "mathematics" || origin.branch === "literary"
+          ? origin.branch
+          : undefined;
+        governorate = origin.governorate && isEgyptianGovernorate(origin.governorate)
+          ? origin.governorate
+          : undefined;
+      }
     }
     if (!branch) {
       return NextResponse.json(

@@ -78,8 +78,9 @@ export const accountUpdateSchema = z.object({
 
 export const paymentCreateSchema = z.object({
   predictionId: z.string().uuid(),
-  year: z.literal(2026).optional(),
-  seatNumber: z.string().trim().regex(/^[\d٠-٩۰-۹]{4,14}$/).optional(),
+  year: z.literal(2026),
+  productType: z.enum(["single", "friends_3"]),
+  seatNumbers: z.array(z.string().trim().regex(/^[\d٠-٩۰-۹]{4,14}$/)).min(1).max(3),
   method: z.enum(["vodafone_cash", "orange_cash", "instapay"]),
   senderIdentifier: z.string().trim().max(80).optional(),
   transactionReference: z.string().trim().max(120).optional(),

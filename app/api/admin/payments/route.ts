@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
-import { paymentSubmissions, predictionRuns, savedStudents, user } from "@/db/schema";
+import { paymentSubmissionSeats, paymentSubmissions, predictionRuns, savedStudents, user } from "@/db/schema";
 import { AuthorizationError, requireAdmin } from "@/lib/authz";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,7 @@ export async function GET(request: Request) {
         id: paymentSubmissions.id,
         status: paymentSubmissions.status,
         method: paymentSubmissions.method,
+        productType: paymentSubmissions.productType,
         expectedAmount: paymentSubmissions.expectedAmount,
         senderIdentifier: paymentSubmissions.senderIdentifier,
         transactionReference: paymentSubmissions.transactionReference,
@@ -37,7 +38,15 @@ export async function GET(request: Request) {
           : eq(paymentSubmissions.status, status),
       )
       .orderBy(desc(paymentSubmissions.submittedAt));
-    return NextResponse.json({ payments: rows.map(({ hasReceipt, ...row }) => ({ ...row, hasReceipt: Boolean(hasReceipt) })) }, { headers: { "Cache-Control": "private, no-store" } });
+    const payments = await Promise.all(rows.map(async ({ hasReceipt, ...row }) => {
+      const seats = await getDatabase()
+        .select({ seatNumber: paymentSubmissionSeats.seatNumber, position: paymentSubmissionSeats.position })
+        .from(paymentSubmissionSeats)
+        .where(eq(paymentSubmissionSeats.paymentId, row.id))
+        .orderBy(paymentSubmissionSeats.position);
+      return { ...row, seatNumbers: seats.length ? seats.map((seat) => seat.seatNumber) : [row.seatNumber], hasReceipt: Boolean(hasReceipt) };
+    }));
+    return NextResponse.json({ payments }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     const status = error instanceof AuthorizationError ? error.status : 500;
     return NextResponse.json({ error: "غير مصرح بالوصول." }, { status });

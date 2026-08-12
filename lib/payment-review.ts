@@ -2,6 +2,12 @@ import "server-only";
 
 import { inNeonTransaction } from "@/db/transaction";
 
+type PaymentSeatRow = {
+  year: number;
+  seat_number: string;
+  position: number;
+};
+
 export async function reviewPaymentTransaction({
   paymentId,
   actorUserId,
@@ -24,9 +30,11 @@ export async function reviewPaymentTransaction({
       prediction_id: string;
       year: number;
       seat_number: string;
+      product_type: "single" | "friends_3";
       receipt_blob_key: string | null;
     }>(
-      `SELECT id, status, user_id, saved_student_id, prediction_id, year, seat_number, receipt_blob_key
+      `SELECT id, status, user_id, saved_student_id, prediction_id, year, seat_number,
+              product_type, receipt_blob_key
        FROM payment_submissions WHERE id = $1 FOR UPDATE`,
       [paymentId],
     );
@@ -40,26 +48,45 @@ export async function reviewPaymentTransaction({
       throw new Error("RECEIPT_REQUIRED");
     }
 
+    const seatResult = await client.query<PaymentSeatRow>(
+      `SELECT year, seat_number, position
+       FROM payment_submission_seats
+       WHERE payment_id = $1
+       ORDER BY seat_number, position
+       FOR UPDATE`,
+      [paymentId],
+    );
+    const seats = seatResult.rows.length
+      ? seatResult.rows
+      : [{ year: payment.year, seat_number: payment.seat_number, position: 1 }];
+    const expectedCount = payment.product_type === "friends_3" ? 3 : 1;
+    if (seats.length !== expectedCount || new Set(seats.map((seat) => seat.seat_number)).size !== seats.length) {
+      throw new Error("PAYMENT_SEAT_SET_INVALID");
+    }
+
     if (action === "approve") {
-      await client.query(
-        `SELECT pg_advisory_xact_lock(hashtext($1 || ':' || $2))`,
-        [String(payment.year), payment.seat_number],
-      );
-      const existing = await client.query<{ id: string; payment_id: string }>(
-        `SELECT id, payment_id
+      for (const seat of [...seats].sort((a, b) => a.seat_number.localeCompare(b.seat_number))) {
+        await client.query(
+          `SELECT pg_advisory_xact_lock(hashtext($1 || ':' || $2))`,
+          [String(seat.year), seat.seat_number],
+        );
+      }
+      const existing = await client.query<{ seat_number: string }>(
+        `SELECT seat_number
          FROM seat_entitlements
-         WHERE year = $1 AND seat_number = $2
+         WHERE year = ANY($1::int[]) AND seat_number = ANY($2::text[])
          FOR UPDATE`,
-        [payment.year, payment.seat_number],
+        [seats.map((seat) => seat.year), seats.map((seat) => seat.seat_number)],
       );
-      if (existing.rows[0]) {
+      if (existing.rows.length) {
+        const unlockedSeats = existing.rows.map((row) => row.seat_number);
         const cancelled = await client.query(
           `UPDATE payment_submissions
            SET status = 'cancelled', reviewed_at = now(), reviewed_by = $2,
                rejection_reason = $3
            WHERE id = $1 AND status = 'pending'
            RETURNING id`,
-          [paymentId, actorUserId, "هذا المقعد مفتوح بالفعل."],
+          [paymentId, actorUserId, "واحد من أرقام الجلوس مفتوح بالفعل."],
         );
         if (cancelled.rowCount !== 1) throw new Error("PAYMENT_REVIEW_RACE");
         await client.query(
@@ -69,8 +96,8 @@ export async function reviewPaymentTransaction({
           [
             actorUserId,
             paymentId,
-            JSON.stringify({ status: "pending", year: payment.year, seatNumber: payment.seat_number }),
-            JSON.stringify({ status: "cancelled", reason: "seat_already_unlocked" }),
+            JSON.stringify({ status: "pending", seatNumbers: seats.map((seat) => seat.seat_number) }),
+            JSON.stringify({ status: "cancelled", reason: "seat_already_unlocked", unlockedSeats }),
             requestId ?? null,
           ],
         );
@@ -89,25 +116,31 @@ export async function reviewPaymentTransaction({
     if (updated.rowCount !== 1) throw new Error("PAYMENT_REVIEW_RACE");
 
     if (action === "approve") {
+      const seatNumbers = seats.map((seat) => seat.seat_number);
       const metadata = JSON.stringify({
         scope: "2026_all_stages",
         year: payment.year,
-        seatNumber: payment.seat_number,
+        productType: payment.product_type,
+        seatNumbers,
       });
       await client.query(
         `INSERT INTO credit_ledger
           (user_id, saved_student_id, prediction_id, payment_id, event_type, units, idempotency_key, metadata_json, created_by)
-         VALUES ($1, $2, $3, $4, 'grant', 1, $5, $6::jsonb, $7)
+         VALUES ($1, $2, $3, $4, 'grant', $5, $6, $7::jsonb, $8)
          ON CONFLICT (idempotency_key) DO NOTHING`,
-        [payment.user_id, payment.saved_student_id, payment.prediction_id, paymentId, `payment:${paymentId}:grant`, metadata, actorUserId],
+        [payment.user_id, payment.saved_student_id, payment.prediction_id, paymentId, seats.length, `payment:${paymentId}:grant`, metadata, actorUserId],
       );
-      await client.query(
-        `INSERT INTO seat_entitlements
-          (year, seat_number, origin_prediction_id, payment_id, scope)
-         VALUES ($1, $2, $3, $4, 'year_all_stages')
-         ON CONFLICT (year, seat_number) DO NOTHING`,
-        [payment.year, payment.seat_number, payment.prediction_id, paymentId],
-      );
+      for (const seat of seats) {
+        const inserted = await client.query(
+          `INSERT INTO seat_entitlements
+            (year, seat_number, origin_prediction_id, payment_id, scope)
+           VALUES ($1, $2, $3, $4, 'year_all_stages')
+           ON CONFLICT (year, seat_number) DO NOTHING
+           RETURNING id`,
+          [seat.year, seat.seat_number, seat.position === 1 ? payment.prediction_id : null, paymentId],
+        );
+        if (inserted.rowCount !== 1) throw new Error("PAYMENT_REVIEW_RACE");
+      }
       if (payment.user_id && payment.saved_student_id) {
         await client.query(
           `INSERT INTO prediction_entitlements
@@ -120,9 +153,9 @@ export async function reviewPaymentTransaction({
       await client.query(
         `INSERT INTO credit_ledger
           (user_id, saved_student_id, prediction_id, payment_id, event_type, units, idempotency_key, metadata_json, created_by)
-         VALUES ($1, $2, $3, $4, 'consume', -1, $5, $6::jsonb, $7)
+         VALUES ($1, $2, $3, $4, 'consume', $5, $6, $7::jsonb, $8)
          ON CONFLICT (idempotency_key) DO NOTHING`,
-        [payment.user_id, payment.saved_student_id, payment.prediction_id, paymentId, `payment:${paymentId}:consume`, metadata, actorUserId],
+        [payment.user_id, payment.saved_student_id, payment.prediction_id, paymentId, -seats.length, `payment:${paymentId}:consume`, metadata, actorUserId],
       );
     }
 
@@ -134,7 +167,7 @@ export async function reviewPaymentTransaction({
         actorUserId,
         `payment.${nextStatus}`,
         paymentId,
-        JSON.stringify({ status: "pending", year: payment.year, seatNumber: payment.seat_number }),
+        JSON.stringify({ status: "pending", productType: payment.product_type, seatNumbers: seats.map((seat) => seat.seat_number) }),
         JSON.stringify({ status: nextStatus, rejectionReason: rejectionReason ?? null }),
         requestId ?? null,
       ],

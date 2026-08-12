@@ -15,6 +15,7 @@ import {
   Upload,
 } from "lucide-react";
 import { egyptianGovernorates } from "@/lib/governorates";
+import { normalizeDigits } from "@/lib/normalize-arabic";
 
 type Branch = "science" | "mathematics" | "literary";
 type System = "new" | "old";
@@ -56,6 +57,18 @@ type PredictionResponse = {
 };
 type PaymentSettings = {
   priceEgp: string;
+  products: {
+    single: { id: "single"; label: string; priceEgp: string; seatCount: 1 };
+    friends3: {
+      id: "friends_3";
+      label: string;
+      priceEgp: string;
+      seatCount: 3;
+      enabled: boolean;
+      regularTotalEgp: string;
+      savingsEgp: string;
+    };
+  };
   methods: Array<{
     id: string;
     label: string;
@@ -64,6 +77,7 @@ type PaymentSettings = {
     logoSrc: string;
   }>;
 };
+type ProductType = "single" | "friends_3";
 
 const branchLabels: Record<Branch, string> = {
   science: "علمي علوم",
@@ -111,6 +125,7 @@ export function ToolExperience() {
   const [governorate, setGovernorate] = useState("");
   const [report, setReport] = useState<PredictionResponse | null>(null);
   const [settings, setSettings] = useState<PaymentSettings | null>(null);
+  const [requestedProduct, setRequestedProduct] = useState<ProductType>("single");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -204,12 +219,22 @@ export function ToolExperience() {
       .catch(() => undefined);
   }, [report]);
 
+  useEffect(() => {
+    const selectProduct = (event: Event) => {
+      const product = (event as CustomEvent<ProductType>).detail;
+      if (product === "single" || product === "friends_3") setRequestedProduct(product);
+    };
+    window.addEventListener("masarak-product-select", selectProduct);
+    return () => window.removeEventListener("masarak-product-select", selectProduct);
+  }, []);
+
   function resetJourney() {
     setResult(null);
     setReport(null);
     setBranch("");
     setGovernorate("");
     setSettings(null);
+    setRequestedProduct("single");
     setError("");
   }
 
@@ -317,6 +342,7 @@ export function ToolExperience() {
             branch={branch as Branch}
             governorate={governorate}
             settings={settings}
+            initialProduct={requestedProduct}
             onReset={resetJourney}
             onUnlocked={setReport}
           />
@@ -334,6 +360,7 @@ function Report({
   branch,
   governorate,
   settings,
+  initialProduct,
   onReset,
   onUnlocked,
 }: {
@@ -342,6 +369,7 @@ function Report({
   branch: Branch;
   governorate: string;
   settings: PaymentSettings | null;
+  initialProduct: ProductType;
   onReset: () => void;
   onUnlocked: (report: PredictionResponse) => void;
 }) {
@@ -414,6 +442,7 @@ function Report({
             predictionId={report.predictionId ?? ""}
             seatNumber={result.seatNumber}
             settings={settings}
+            initialProduct={initialProduct}
             paymentState={report.paymentState}
             onUnlocked={onUnlocked}
           />
@@ -440,16 +469,21 @@ function GuestPaymentOffer({
   predictionId,
   seatNumber,
   settings,
+  initialProduct,
   paymentState,
   onUnlocked,
 }: {
   predictionId: string;
   seatNumber: string;
   settings: PaymentSettings | null;
+  initialProduct: ProductType;
   paymentState?: PaymentState;
   onUnlocked: (report: PredictionResponse) => void;
 }) {
   const [lineIndex, setLineIndex] = useState(0);
+  const [productType, setProductType] = useState<ProductType>(initialProduct);
+  const [friendSeats, setFriendSeats] = useState<[string, string]>(["", ""]);
+  const [seatError, setSeatError] = useState("");
   const [method, setMethod] = useState("");
   const [receipt, setReceipt] = useState<File | null>(null);
   const [copiedMethod, setCopiedMethod] = useState<string | null>(null);
@@ -467,9 +501,17 @@ function GuestPaymentOffer({
   }, []);
 
   useEffect(() => {
+    setProductType(initialProduct);
+  }, [initialProduct]);
+
+  useEffect(() => {
     if (!settings?.methods.length) return;
     setMethod((current) => current || settings.methods[0].id);
   }, [settings]);
+
+  const selectedProduct = productType === "friends_3"
+    ? settings?.products.friends3
+    : settings?.products.single;
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -537,12 +579,27 @@ function GuestPaymentOffer({
 
   async function submitPayment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!settings || !method || !receipt) {
+    if (!settings || !selectedProduct || !method || !receipt) {
       setError("اختار طريقة الدفع وارفع صورة الإيصال.");
       return;
     }
+    const normalizedFriends = friendSeats.map((seat) => normalizeDigits(seat.trim()));
+    const seatNumbers = productType === "friends_3"
+      ? [seatNumber, ...normalizedFriends]
+      : [seatNumber];
+    if (productType === "friends_3") {
+      if (normalizedFriends.some((seat) => !/^\d{4,14}$/.test(seat))) {
+        setSeatError("اكتب رقم جلوس صحيح لكل صاحب.");
+        return;
+      }
+      if (new Set(seatNumbers).size !== seatNumbers.length) {
+        setSeatError("كل رقم جلوس لازم يكون مختلف.");
+        return;
+      }
+    }
     setMode("submitting");
     setError("");
+    setSeatError("");
     try {
       const response = await fetch("/api/payments", {
         method: "POST",
@@ -550,7 +607,8 @@ function GuestPaymentOffer({
         body: JSON.stringify({
           predictionId,
           year: 2026,
-          seatNumber,
+          productType,
+          seatNumbers,
           method,
           idempotencyKey: crypto.randomUUID(),
         }),
@@ -561,6 +619,10 @@ function GuestPaymentOffer({
         const fullData = await full.json();
         if (full.ok && fullData.premium) onUnlocked(normalizeReport(fullData));
         return;
+      }
+      if (!response.ok && data.code === "SEAT_ALREADY_UNLOCKED") {
+        setSeatError(`الرقم ${data.unlockedSeats?.[0] ?? "ده"} مفتوح بالفعل. اكتب رقمًا آخر.`);
+        throw new Error("SEAT_ALREADY_UNLOCKED");
       }
       if (!response.ok) throw new Error(data.error);
       const id = String(data.payment.id);
@@ -580,7 +642,9 @@ function GuestPaymentOffer({
       setPolling(true);
     } catch (caught) {
       setMode("form");
-      setError(caught instanceof Error ? caught.message : "تعذر إرسال الدفع.");
+      if (!(caught instanceof Error && caught.message === "SEAT_ALREADY_UNLOCKED")) {
+        setError(caught instanceof Error ? caught.message : "تعذر إرسال الدفع.");
+      }
     }
   }
 
@@ -613,8 +677,32 @@ function GuestPaymentOffer({
         </ul>
       </div>
       <div className="offer-action">
-        <span>السعر الحالي</span>
-        <strong><bdi>{settings.priceEgp}</bdi> ج.م</strong>
+        <div className="offer-product-picker" role="radiogroup" aria-label="اختار العرض">
+          <button type="button" className={`offer-product-card${productType === "single" ? " is-selected" : ""}`} onClick={() => setProductType("single")}>
+            <span className="offer-product-kicker">تقريرك</span>
+            <strong><bdi>{settings.products.single.priceEgp}</bdi> جنيه</strong>
+            <small>تقرير كامل لرقم جلوس واحد</small>
+          </button>
+          {settings.products.friends3.enabled ? (
+            <button type="button" className={`offer-product-card offer-product-card-featured${productType === "friends_3" ? " is-selected" : ""}`} onClick={() => setProductType("friends_3")}>
+              <span className="offer-product-badge">الأوفر 🔥</span>
+              <span className="offer-product-kicker">إنت و2 من صحابك</span>
+              <strong><bdi>{settings.products.friends3.priceEgp}</bdi> جنيه</strong>
+              <small>3 تقارير كاملة · بدل {settings.products.friends3.regularTotalEgp} جنيه</small>
+              <small className="offer-product-saving">وفر {settings.products.friends3.savingsEgp} جنيه</small>
+            </button>
+          ) : null}
+        </div>
+        {productType === "friends_3" ? (
+          <div className="friends-seat-fields">
+            <label><span>أنت</span><input value={seatNumber} readOnly aria-label="رقم جلوسك" /></label>
+            <label><span>صاحبك الأول</span><input value={friendSeats[0]} onChange={(event) => setFriendSeats([event.target.value, friendSeats[1]])} inputMode="numeric" placeholder="رقم الجلوس" required /></label>
+            <label><span>صاحبك التاني</span><input value={friendSeats[1]} onChange={(event) => setFriendSeats([friendSeats[0], event.target.value])} inputMode="numeric" placeholder="رقم الجلوس" required /></label>
+            <small>كل واحد يختار شعبته بعد ما يبحث برقم جلوسه.</small>
+          </div>
+        ) : null}
+        <div className="offer-price-line"><span>السعر</span><strong><bdi>{selectedProduct?.priceEgp}</bdi> جنيه</strong></div>
+        {seatError ? <p className="payment-inline-error" role="alert">{seatError}</p> : null}
         <div className="payment-method-grid" role="radiogroup" aria-label="طرق الدفع">
           {settings.methods.map((item) => {
             const inputId = `payment-method-${item.id}`;
@@ -651,7 +739,7 @@ function GuestPaymentOffer({
         {mode === "rejected" ? <p className="payment-rejected">لم تتم الموافقة على الطلب السابق. يمكنك إرسال إيصال جديد.</p> : null}
         {error ? <p className="payment-inline-error" role="alert">{error}</p> : null}
         <button className="offer-cta" disabled={mode === "submitting"}>
-          {mode === "submitting" ? "جارٍ إرسال الإيصال…" : "افتح التقرير الكامل"}
+          {mode === "submitting" ? "جارٍ إرسال الإيصال…" : productType === "friends_3" ? "ادفع وافتح التقارير" : "افتح تقريري"}
           <ChevronLeft size={19} aria-hidden="true" />
         </button>
       </div>

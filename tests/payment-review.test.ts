@@ -9,52 +9,75 @@ vi.mock("@/db/transaction", () => ({
 
 import { reviewPaymentTransaction } from "@/lib/payment-review";
 
+function configurePayment({ productType = "single", seats = ["2001970"], existing = [] as Array<{ seat_number: string }> } = {}) {
+  query.mockImplementation(async (statement: unknown) => {
+    const sql = String(statement ?? "");
+    if (sql.includes("FROM payment_submissions")) {
+      return { rows: [{ id: "payment", status: "pending", user_id: "user", saved_student_id: "student", prediction_id: "prediction", year: 2026, seat_number: seats[0], product_type: productType, receipt_blob_key: "receipts/private.webp" }] };
+    }
+    if (sql.includes("FROM payment_submission_seats")) {
+      return { rows: seats.map((seat_number, index) => ({ year: 2026, seat_number, position: index + 1 })) };
+    }
+    if (sql.includes("FROM seat_entitlements")) return { rows: existing };
+    if (sql.includes("UPDATE payment_submissions")) return { rowCount: 1, rows: [] };
+    return { rowCount: 1, rows: [] };
+  });
+}
+
 describe("payment review transaction", () => {
   beforeEach(() => query.mockReset());
 
-  it("creates grant, annual entitlement, consume, and audit only after conditional approval", async () => {
-    query
-      .mockResolvedValueOnce({ rows: [{ id: "payment", status: "pending", user_id: "user", saved_student_id: "student", prediction_id: "prediction", year: 2026, seat_number: "2001970", receipt_blob_key: "receipts/private.webp" }] })
-      .mockResolvedValueOnce({ rowCount: 1 })
-      .mockResolvedValue({ rowCount: 1, rows: [] });
+  it("creates one entitlement and matching ledger events for an individual approval", async () => {
+    configurePayment();
     await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve" })).resolves.toEqual({ status: "approved", idempotent: false });
     const statements = query.mock.calls.map(([statement]) => String(statement));
-    expect(statements.some((statement) => statement.includes("event_type, units") && statement.includes("'grant', 1"))).toBe(true);
-    expect(statements.some((statement) => statement.includes("prediction_entitlements"))).toBe(true);
-    expect(statements.some((statement) => statement.includes("seat_entitlements"))).toBe(true);
-    expect(statements.some((statement) => statement.includes("'consume', -1"))).toBe(true);
+    expect(statements.filter((statement) => statement.includes("INSERT INTO seat_entitlements")).length).toBe(1);
+    expect(statements.some((statement) => statement.includes("'grant', $5"))).toBe(true);
+    expect(statements.some((statement) => statement.includes("'consume', $5"))).toBe(true);
     expect(statements.some((statement) => statement.includes("admin_audit_logs"))).toBe(true);
   });
 
-  it("treats an approval retry as an idempotent no-op", async () => {
-    query.mockResolvedValueOnce({ rows: [{ id: "payment", status: "approved", user_id: "user", saved_student_id: "student", prediction_id: "prediction", year: 2026, seat_number: "2001970", receipt_blob_key: "receipts/private.webp" }] });
-    await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve" })).resolves.toEqual({ status: "approved", idempotent: true });
-    expect(query).toHaveBeenCalledTimes(1);
+  it("creates exactly three entitlements for a friends approval", async () => {
+    configurePayment({ productType: "friends_3", seats: ["2001970", "2001980", "2001990"] });
+    await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve" })).resolves.toEqual({ status: "approved", idempotent: false });
+    const statements = query.mock.calls.map(([statement]) => String(statement));
+    expect(statements.filter((statement) => statement.includes("INSERT INTO seat_entitlements")).length).toBe(3);
+    const grantCall = query.mock.calls.find(([statement]) => String(statement).includes("'grant'"));
+    expect(grantCall?.[1]).toContain(3);
   });
 
   it("cancels a duplicate guest payment without granting a second seat", async () => {
-    query
-      .mockResolvedValueOnce({ rows: [{ id: "payment-2", status: "pending", user_id: null, saved_student_id: null, prediction_id: "prediction-2", year: 2026, seat_number: "2001970", receipt_blob_key: "receipts/private.webp" }] })
-      .mockResolvedValueOnce({ rowCount: 1 })
-      .mockResolvedValueOnce({ rows: [{ id: "entitlement", payment_id: "payment" }] })
-      .mockResolvedValue({ rowCount: 1, rows: [] });
-
-    await expect(reviewPaymentTransaction({ paymentId: "payment-2", actorUserId: "admin", action: "approve" })).resolves.toMatchObject({
-      status: "cancelled",
-      alreadyUnlocked: true,
-    });
+    configurePayment({ existing: [{ seat_number: "2001970" }] });
+    await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve" })).resolves.toMatchObject({ status: "cancelled", alreadyUnlocked: true });
     const statements = query.mock.calls.map(([statement]) => String(statement));
-    expect(statements.some((statement) => statement.includes("seat_entitlements"))).toBe(true);
-    expect(statements.some((statement) => statement.includes("'grant', 1"))).toBe(false);
+    expect(statements.some((statement) => statement.includes("payment.cancelled_duplicate_seat"))).toBe(true);
+    expect(statements.some((statement) => statement.includes("INSERT INTO seat_entitlements"))).toBe(false);
   });
 
-  it("rejects without creating a seat entitlement", async () => {
-    query
-      .mockResolvedValueOnce({ rows: [{ id: "payment-3", status: "pending", user_id: null, saved_student_id: null, prediction_id: "prediction-3", year: 2026, seat_number: "2001980", receipt_blob_key: "receipts/private.webp" }] })
-      .mockResolvedValue({ rowCount: 1, rows: [] });
-
-    await expect(reviewPaymentTransaction({ paymentId: "payment-3", actorUserId: "admin", action: "reject", rejectionReason: "إيصال غير واضح" })).resolves.toMatchObject({ status: "rejected" });
+  it("rejects without creating an entitlement", async () => {
+    configurePayment();
+    await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "reject", rejectionReason: "إيصال غير واضح" })).resolves.toMatchObject({ status: "rejected" });
     const statements = query.mock.calls.map(([statement]) => String(statement));
-    expect(statements.some((statement) => statement.includes("seat_entitlements"))).toBe(false);
+    expect(statements.some((statement) => statement.includes("INSERT INTO seat_entitlements"))).toBe(false);
+  });
+
+  it("fails the whole friends approval when one entitlement insert races", async () => {
+    let entitlementInserts = 0;
+    query.mockImplementation(async (statement: unknown) => {
+      const sql = String(statement ?? "");
+      if (sql.includes("FROM payment_submissions")) return { rows: [{ id: "payment", status: "pending", user_id: null, saved_student_id: null, prediction_id: "prediction", year: 2026, seat_number: "2001970", product_type: "friends_3", receipt_blob_key: "receipts/private.webp" }] };
+      if (sql.includes("FROM payment_submission_seats")) return { rows: ["2001970", "2001980", "2001990"].map((seat_number, index) => ({ year: 2026, seat_number, position: index + 1 })) };
+      if (sql.includes("FROM seat_entitlements")) return { rows: [] };
+      if (sql.includes("INSERT INTO seat_entitlements")) return { rowCount: ++entitlementInserts === 1 ? 1 : 0, rows: [] };
+      return { rowCount: 1, rows: [] };
+    });
+    await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve" })).rejects.toThrow("PAYMENT_REVIEW_RACE");
+    expect(entitlementInserts).toBe(2);
+  });
+
+  it("treats an approval retry as an idempotent no-op", async () => {
+    query.mockResolvedValueOnce({ rows: [{ id: "payment", status: "approved", user_id: "user", saved_student_id: "student", prediction_id: "prediction", year: 2026, seat_number: "2001970", product_type: "single", receipt_blob_key: "receipts/private.webp" }] });
+    await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve" })).resolves.toEqual({ status: "approved", idempotent: true });
+    expect(query).toHaveBeenCalledTimes(1);
   });
 });

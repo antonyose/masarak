@@ -2,7 +2,7 @@ import "server-only";
 
 import { and, desc, eq } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
-import { paymentSubmissions, seatEntitlements } from "@/db/schema";
+import { paymentSubmissionSeats, paymentSubmissions, seatEntitlements } from "@/db/schema";
 
 export type SeatPaymentState =
   | { status: "unlocked"; paymentId?: string }
@@ -29,7 +29,27 @@ export async function getSeatPaymentState({
     .limit(1);
   if (entitlement) return { status: "unlocked", paymentId: entitlement.paymentId };
 
-  const [payment] = await getDatabase()
+  const [linkedSeat] = await getDatabase()
+    .select({ paymentId: paymentSubmissionSeats.paymentId })
+    .from(paymentSubmissionSeats)
+    .where(
+      and(
+        eq(paymentSubmissionSeats.year, year),
+        eq(paymentSubmissionSeats.seatNumber, seatNumber),
+      ),
+    )
+    .limit(1);
+  const [payment] = linkedSeat
+    ? await getDatabase()
+      .select({
+        id: paymentSubmissions.id,
+        status: paymentSubmissions.status,
+        receiptBlobKey: paymentSubmissions.receiptBlobKey,
+      })
+      .from(paymentSubmissions)
+      .where(eq(paymentSubmissions.id, linkedSeat.paymentId))
+      .limit(1)
+    : await getDatabase()
     .select({
       id: paymentSubmissions.id,
       status: paymentSubmissions.status,

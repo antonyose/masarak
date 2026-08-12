@@ -16,7 +16,7 @@ export function ToolPage({
           <p>{description}</p>
         </div>
       </section>
-      <section className="tool-stage" style={{ paddingTop: "1.2rem" }}>
+      <section id="prediction-tool" className="tool-stage" style={{ paddingTop: "1.2rem" }}>
         <div className="shell">
           <ToolExperience />
         </div>

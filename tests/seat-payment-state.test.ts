@@ -36,6 +36,7 @@ describe("public seat payment state", () => {
   it("returns pending only for a payment awaiting review", async () => {
     select
       .mockImplementationOnce(() => chain([]))
+      .mockImplementationOnce(() => chain([]))
       .mockImplementationOnce(() => chain([{ id: "payment", status: "pending", receiptBlobKey: "private/key" }]));
     await expect(getSeatPaymentState({ year: 2026, seatNumber: "2001970" })).resolves.toEqual({
       status: "pending",
@@ -47,6 +48,7 @@ describe("public seat payment state", () => {
   it("keeps rejected and unpaid seats locked", async () => {
     select
       .mockImplementationOnce(() => chain([]))
+      .mockImplementationOnce(() => chain([]))
       .mockImplementationOnce(() => chain([{ id: "payment", status: "rejected", receiptBlobKey: null }]));
     await expect(getSeatPaymentState({ year: 2026, seatNumber: "2001970" })).resolves.toEqual({
       status: "rejected",
@@ -54,6 +56,7 @@ describe("public seat payment state", () => {
     });
 
     select
+      .mockImplementationOnce(() => chain([]))
       .mockImplementationOnce(() => chain([]))
       .mockImplementationOnce(() => chain([]));
     await expect(getSeatPaymentState({ year: 2026, seatNumber: "2001980" })).resolves.toEqual({ status: "none" });

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { PricingSection } from "@/components/pricing-section";
 import { ToolExperience } from "@/components/tool-experience";
 
 export default function HomePage() {
@@ -17,7 +18,7 @@ export default function HomePage() {
         <div className="shell hero-inner">
           <div className="hero-content">
             <span className="hero-stage-note">
-              محدث بعد ظهور المرحلة الأولى · تنسيق 2026
+              السيستم اتحدّث بعد نتيجة المرحلة الأولى · التوقعات أدق بكتير
             </span>
             <h1>
               اعرف
@@ -30,11 +31,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="tool-stage" aria-label="توقعات تنسيق 2026">
+      <section id="prediction-tool" className="tool-stage" aria-label="توقعات تنسيق 2026">
         <div className="shell">
           <ToolExperience />
         </div>
       </section>
+      <PricingSection />
     </>
   );
 }

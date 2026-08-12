@@ -44,6 +44,10 @@ export const paymentMethodEnum = pgEnum("payment_method", [
   "orange_cash",
   "instapay",
 ]);
+export const paymentProductTypeEnum = pgEnum("payment_product_type", [
+  "single",
+  "friends_3",
+]);
 export const paymentStatusEnum = pgEnum("payment_status", [
   "pending",
   "approved",
@@ -605,6 +609,19 @@ export const paymentSettings = pgTable("payment_settings", {
   })
     .notNull()
     .default("99.00"),
+  singleReportPriceEgp: numeric("single_report_price_egp", {
+    precision: 10,
+    scale: 2,
+  })
+    .notNull()
+    .default("35.00"),
+  friends3PriceEgp: numeric("friends_3_price_egp", {
+    precision: 10,
+    scale: 2,
+  })
+    .notNull()
+    .default("69.00"),
+  friends3Enabled: boolean("friends_3_enabled").notNull().default(true),
   vodafoneCashNumber: text("vodafone_cash_number")
     .notNull()
     .default("01001014231"),
@@ -652,6 +669,9 @@ export const paymentSubmissions = pgTable(
       .references(() => predictionRuns.id),
     year: integer("year").notNull(),
     seatNumber: text("seat_number").notNull(),
+    productType: paymentProductTypeEnum("product_type")
+      .notNull()
+      .default("single"),
     method: paymentMethodEnum("method").notNull(),
     expectedAmount: numeric("expected_amount", { precision: 10, scale: 2 })
       .notNull(),
@@ -703,6 +723,37 @@ export const paymentSubmissions = pgTable(
       table.seatNumber,
       table.status,
       table.createdAt,
+    ),
+  ],
+);
+
+export const paymentSubmissionSeats = pgTable(
+  "payment_submission_seats",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    paymentId: uuid("payment_id")
+      .notNull()
+      .references(() => paymentSubmissions.id, { onDelete: "cascade" }),
+    year: integer("year").notNull(),
+    seatNumber: text("seat_number").notNull(),
+    position: integer("position").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("payment_submission_seats_payment_year_seat_idx").on(
+      table.paymentId,
+      table.year,
+      table.seatNumber,
+    ),
+    uniqueIndex("payment_submission_seats_payment_position_idx").on(
+      table.paymentId,
+      table.position,
+    ),
+    index("payment_submission_seats_year_seat_idx").on(
+      table.year,
+      table.seatNumber,
     ),
   ],
 );
@@ -778,9 +829,10 @@ export const seatEntitlements = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     year: integer("year").notNull(),
     seatNumber: text("seat_number").notNull(),
-    originPredictionId: uuid("origin_prediction_id")
-      .notNull()
-      .references(() => predictionRuns.id),
+    originPredictionId: uuid("origin_prediction_id").references(
+      () => predictionRuns.id,
+      { onDelete: "set null" },
+    ),
     paymentId: uuid("payment_id")
       .notNull()
       .references(() => paymentSubmissions.id),
@@ -797,7 +849,7 @@ export const seatEntitlements = pgTable(
       table.year,
       table.seatNumber,
     ),
-    uniqueIndex("seat_entitlements_payment_idx").on(table.paymentId),
+    index("seat_entitlements_payment_idx").on(table.paymentId),
     index("seat_entitlements_seat_idx").on(table.seatNumber),
   ],
 );

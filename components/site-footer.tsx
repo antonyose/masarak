@@ -24,7 +24,6 @@ export function SiteFooter() {
         <div className="footer-links">
           <div>
             <h3>الأدوات</h3>
-            <Link href="/result-search">اعرف نتيجتك</Link>
             <Link href="/predict">اعرف الكليات المتوقعة</Link>
             <Link href="/faculties">دليل الكليات</Link>
           </div>

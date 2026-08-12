@@ -104,16 +104,21 @@ All changes are additive Neon migrations. Use UUID primary keys for new transact
 
 ## `payment_settings`
 
-- Singleton row with `id`, `full_report_price_egp numeric(10,2)`, recipient fields and enabled flags for Vodafone Cash, Orange Cash, and InstaPay, `vodafone_deep_link`, `payment_instructions`, `support_contact`, `free_recommendation_count`, `homepage_stage_message`, `updated_by`, `updated_at`.
-- Seed: EGP 99; Vodafone `01001014231` and `http://vf.eg/vfcash?id=mt&qrId=hpSxBH`; Orange `01276101944`; InstaPay `01276101944`; all enabled; free count 1; current WhatsApp contact for support.
+- Singleton row keeps legacy `full_report_price_egp` for compatibility and adds `single_report_price_egp`, `friends_3_price_egp`, and `friends_3_enabled`, alongside recipient fields and enabled flags for Vodafone Cash, Orange Cash, and InstaPay, `vodafone_deep_link`, `payment_instructions`, `support_contact`, `free_recommendation_count`, `homepage_stage_message`, `updated_by`, `updated_at`.
+- Seed: individual 35 جنيه; friends offer 69 جنيه enabled; Vodafone `01001014231` and `http://vf.eg/vfcash?id=mt&qrId=hpSxBH`; Orange `01276101944`; InstaPay `01276101944`; all enabled; free count 1; current WhatsApp contact for support.
 - The current coordination stage remains authoritative in `coordination_cycles`, avoiding two conflicting stage fields.
 
 ## `payment_submissions`
 
-- Columns: `id`, `user_id`, `saved_student_id`, `prediction_id`, `method`, `expected_amount`, `currency`, `price_snapshot_json`, `sender_identifier`, `transaction_reference`, `receipt_blob_key`, `receipt_sha256`, `status`, `created_at`, `submitted_at`, `reviewed_at`, `reviewed_by`, `rejection_reason`, `client_idempotency_key`.
+- Columns: `id`, nullable `user_id`, nullable `saved_student_id`, required `prediction_id`, `year`, primary `seat_number`, `product_type` (`single` or `friends_3`), `method`, `expected_amount`, `currency`, `price_snapshot_json`, `sender_identifier` (receipt-derived for guests), `transaction_reference`, `receipt_blob_key`, `receipt_sha256`, `status`, `created_at`, `submitted_at`, `reviewed_at`, `reviewed_by`, `rejection_reason`, `client_idempotency_key`.
 - Methods: `vodafone_cash`, `orange_cash`, `instapay`. Statuses: `pending`, `approved`, `rejected`, `cancelled`.
-- FK ownership chain to user/student/prediction and reviewer; unique receipt hash and client idempotency key; indexes `(status, submitted_at)`, user/date, student/date.
+- FK ownership chain to optional user/student/prediction and reviewer; unique receipt hash and guest-safe idempotency key; indexes `(status, submitted_at)`, user/date, student/date, and pending primary seat.
 - Create the row with the server price snapshot; `submitted_at` remains null until a valid private receipt is attached. Admin queues include only submitted rows.
+
+## `payment_submission_seats`
+
+- Normalized rows link one payment to one, or three, normalized 2026 seat numbers with a position and creation timestamp.
+- Unique `(payment_id, year, seat_number)` and `(payment_id, position)`; indexed `(year, seat_number)`. Existing payments are backfilled with their primary seat.
 
 ## `credit_ledger`
 
@@ -126,6 +131,11 @@ All changes are additive Neon migrations. Use UUID primary keys for new transact
 - Columns: `id`, `user_id`, `saved_student_id`, `year`, `origin_prediction_id`, `payment_id`, `scope`, `unlocked_at`.
 - Unique `(user_id, saved_student_id, year)` and unique payment ID.
 - Scope is `year_all_stages`; approval in 2026 authorizes every Stage-2/Stage-3 model-version report for that saved student while preserving each report snapshot.
+
+## `seat_entitlements`
+
+- Public customer authorization is unique `(year, seat_number)` with scope `year_all_stages`; `origin_prediction_id` is nullable for secondary friends seats and `payment_id` is indexed, not unique.
+- A single approved payment creates one row; an approved friends payment creates three rows atomically. Legacy account entitlements remain for compatibility.
 
 ## `admin_audit_logs`
 
@@ -215,16 +225,16 @@ Free output includes result facts, score, percentage, active-stage eligibility, 
 
 # 11. Payment Implementation
 
-1. User selects unlock from a saved 2026 Turso student report.
-2. Server verifies session, ownership, completed phone, report relationship, and absence of an existing entitlement.
-3. Server reads active settings, snapshots EGP 99 plus enabled recipients/instructions, and creates an idempotent payment row.
+1. A guest selects an individual report or the three-seat friends offer from a public 2026 Turso student report; the individual option is selected by default.
+2. Server verifies the prediction seat/year, re-fetches every requested Turso seat, validates the configured product seat count, and rejects any already-entitled friends seat.
+3. Server reads active settings, snapshots the selected 35/69 جنيه product plus enabled recipients/instructions, and creates an idempotent payment row with normalized `payment_submission_seats` rows.
 4. UI offers Vodafone Cash, Orange Cash, and InstaPay. Vodafone preserves the existing direct link; Orange/InstaPay provide copyable identifiers and instructions.
-5. Upload endpoint checks `Content-Length`, authentication, ownership, pending state, MIME signature/type, and maximum 5 MB. Allow JPEG, PNG, and WebP only.
+5. Upload endpoint checks `Content-Length`, matching primary seat/payment context, pending state, MIME signature/type, and maximum 5 MB. Allow JPEG, PNG, and WebP only; no student login or sender field is required.
 6. Read bytes server-side, calculate SHA-256, reject an existing hash generically, generate a random non-PII Blob key, and upload privately. If the DB update fails, delete the orphan Blob best-effort.
 7. Set `submitted_at` and show pending UX. Poll status every 5–10 seconds while the page is open.
 8. Admin receipt access goes through an admin-authenticated server route; never persist or return an anonymous public URL.
 9. Reject records a reason and creates no entitlement. Resubmission creates a new payment record, preserving the rejected history.
-10. Approval transaction conditionally changes pending to approved, creates ledger events, creates entitlement, and writes audit history.
+10. Approval transaction locks all linked seats in deterministic order, conditionally changes pending to approved, creates one grant/consume pair with seat-count units, creates one or three seat entitlements atomically, and writes audit history.
 
 # 12. Ledger / Entitlement Implementation
 

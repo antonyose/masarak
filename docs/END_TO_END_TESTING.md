@@ -20,7 +20,7 @@ Confirm the following before testing:
 - `RATE_LIMIT_SECRET` is present and server-only.
 - Better Auth tables remain intact; email/password is enabled; an owner account exists with an audited `admin` role.
 - Coordination sources, aliases, Stage-1 official cutoffs, Stage-2 rules/vacancies, and an active Stage-2 model are present.
-- Payment settings show EGP 99, free recommendation count 1, current support contact, and:
+- Payment settings show individual `35.00` جنيه, friends offer `69.00` جنيه (enabled), free recommendation count 1, current support contact, and:
   - Vodafone Cash enabled: `01001014231` with `http://vf.eg/vfcash?id=mt&qrId=hpSxBH`.
   - Orange Cash enabled: `01276101944`.
   - InstaPay enabled: `01276101944`.
@@ -50,7 +50,7 @@ where table_schema = 'public'
     'coordination_sources', 'coordination_cycles',
     'coordination_stage_rules', 'official_cutoffs', 'stage_vacancies',
     'model_versions', 'saved_students', 'prediction_runs',
-    'payment_settings', 'payment_submissions', 'credit_ledger',
+    'payment_settings', 'payment_submissions', 'payment_submission_seats', 'credit_ledger',
     'prediction_entitlements', 'seat_entitlements', 'admin_audit_logs'
   )
 order by table_name;
@@ -63,6 +63,7 @@ Verify:
 - No migration copied the 919,396 student records into Neon.
 - `prediction_runs.seat_number` is populated for historical rows and guest snapshots can have nullable ownership fields.
 - `seat_entitlements` has a unique `(year, seat_number)` key and all approved 2026 payments reconcile into it where possible.
+- `payment_submission_seats` has unique `(payment_id, year, seat_number)` and `(payment_id, position)` constraints; a friends payment has exactly three rows.
 - Unique saved-student key is `(user_id, year, seat_number)`, not `(year, seat_number)`.
 - Vacancy/cutoff natural keys include year, stage, system, branch, and faculty.
 - Receipt hash and payment idempotency keys are unique.
@@ -203,10 +204,10 @@ Test both browser presentation and raw network payloads:
 
 As admin verify:
 
-- Full report price is EGP 99 and displayed from the server setting.
+- Individual report price is 35 جنيه and the enabled friends offer is 69 جنيه; both prices are displayed from server settings. The friends card reports the regular 105 جنيه total and 36 جنيه savings.
 - Vodafone number/link, Orange number, InstaPay identifier, method flags, instructions, support contact, free count, and homepage message are editable.
 - Disable each payment method individually and confirm it disappears from new checkout options without affecting existing price snapshots.
-- Change price in a controlled staged test, create a payment, and confirm the server snapshots that price. Restore EGP 99.
+- Change either product price in a controlled staged test, create a payment, and confirm the server snapshots that product price. Restore 35/69 جنيه.
 - Every price, recipient, enabled flag, stage-message, or support change creates an audit entry with actor/time and before/after values.
 - Public checkout renders the supplied assets from `/payment-logos/vodafone-cash.png`, `/payment-logos/orange-cash.png`, and `/payment-logos/instapay.png` for the corresponding enabled method.
 
@@ -217,9 +218,9 @@ Use a safe test workflow. Do not transfer real money unless the owner explicitly
 For Vodafone Cash, Orange Cash, and InstaPay:
 
 1. Start from a public 2026 seat prediction without entitlement.
-2. Confirm checkout shows EGP 99 from the server and the correct selected recipient.
+2. Confirm checkout shows the selected server-configured product price (35 جنيه by default, or 69 جنيه for the friends offer) and the correct recipient.
 3. For Vodafone, verify the preserved direct link opens in a separate safe context.
-4. Enter sender/reference fields and upload a clearly marked synthetic receipt image.
+4. Select the product first. For friends, confirm the searched seat is prefilled and two additional distinct real seats are required; no branch is collected at checkout. Upload a clearly marked synthetic receipt image (sender input is intentionally omitted because it appears on the receipt).
 5. Confirm the payment row’s expected amount/settings snapshot cannot be changed through client request editing.
 6. Confirm receipt metadata is private, status becomes pending, and submitted time is populated.
 7. Refresh the prediction page; pending state persists by seat number without an account.
@@ -245,7 +246,7 @@ Guest submissions must work while logged out and must be associated with `(2026,
 - Normal Better Auth user: denied even with legacy `masarak_admin_token` cookie manually inserted.
 - Confirm the legacy password login endpoint is removed or nonfunctional and no fallback password works.
 - Database `admin` user: can access dashboard, payments, settings, coordination, model, and audit views.
-- Pending submitted payments show guest/account indicator, student when available, seat number, expected amount, method, sender/reference, receipt, and submission time.
+- Pending submitted payments show product type, every purchased seat number, guest/account indicator, student when available, expected amount, method, reference, receipt, and submission time.
 - Verify the owner-promotion action was performed through the audited script and the admin-role change appears in audit history.
 
 # 18. Payment Approval
@@ -264,7 +265,8 @@ Approve once. Expected:
 
 - Payment transitions pending → approved with reviewer/time.
 - Exactly one grant and one consume ledger event are created.
-- Exactly one `(2026, seat_number)` `year_all_stages` entitlement is created. Legacy user/student entitlement is created only when ownership fields exist.
+- Exactly one `(2026, seat_number)` `year_all_stages` entitlement is created for an individual payment, and exactly three are created for a friends payment. Legacy user/student entitlement is created only when ownership fields exist.
+- Approval of a friends payment is atomic: if any seat is already entitled or any linked seat fails validation, the payment unlocks zero seats and the cancellation/rollback is audited.
 - Exactly one approval audit event is created.
 
 Double-click, retry the request, refresh/reapprove, and send concurrent approval requests if tooling permits. Expected: approved response remains stable and no duplicate status transition, ledger event, entitlement, or audit approval appears.
@@ -281,9 +283,11 @@ Double-click, retry the request, refresh/reapprove, and send concurrent approval
 
 - Keep the pending payment page open and approve from the admin session.
 - Confirm 5–10-second polling detects approval without realtime infrastructure.
-- Expected Arabic success state: “تم تأكيد الدفع 🎉” and “التقرير الكامل متاح الآن”.
+- Expected Arabic success state: “التقرير الكامل مفتوح ✓”.
 - Confirm the report refetches and full analysis appears automatically.
 - Refresh, open a private window, use another browser/device, and search the same seat. The full report remains authorized without login.
+- Repeat this for all three seats in an approved friends payment. A fourth unrelated seat remains locked.
+- Search a paid friend seat later from a clean device. If its branch is unknown, select the branch then verify a new immutable snapshot is created and the same seat entitlement unlocks the full report.
 - Keep the page open while admin approval occurs; 5–10-second polling detects approval and reveals the report.
 - Create a test Stage-3 prediction for the same seat with a new model version. The existing 2026 seat entitlement unlocks it while the Stage-2 snapshot remains unchanged.
 - A different seat remains locked even when the same browser/account is used.
@@ -356,7 +360,7 @@ No log should contain passwords, auth tokens, receipt bytes, full Blob URLs, Tur
 | Vercel | `RATE_LIMIT_SECRET` | Strong server-only value | May be new | Owner/AntiGravity sets if absent |
 | Neon | Coordination seeds | Stage-1 facts, Stage-2 rules/vacancies, sources/aliases | New | Apply after dry-run review |
 | Neon | Active model | Validated Stage-2 version | New | Admin activation after metrics review |
-| Neon | Payment settings | EGP 99; three enabled methods; supplied recipients; free count 1 | New | Verify values |
+| Neon | Payment settings | Individual 35 جنيه; friends 69 جنيه enabled; three enabled methods; supplied recipients; free count 1 | New | Verify values |
 | Neon | Owner role | Existing owner email promoted to `admin` | New | Owner must provide exact email/run approval |
 | Vercel | Staged release gate | Main builds staged; custom domain unchanged | Existing | Owner alone promotes later |
 
@@ -373,7 +377,7 @@ Do not purchase services, change providers, recreate OAuth, move result data, or
 - [ ] Google regression and email/password flows pass.
 - [ ] Guest prediction snapshots and optional account history remain immutable.
 - [ ] Free payload contains no premium recommendation data.
-- [ ] Vodafone, Orange, and InstaPay submissions pass at server-snapshotted EGP 99.
+- [ ] Vodafone, Orange, and InstaPay submissions pass at server-snapshotted 35/69 جنيه product prices.
 - [ ] Private receipt validation/access/duplicate behavior passes.
 - [ ] Normal users cannot access admin routes.
 - [ ] Approval/retry creates one ledger pair, entitlement, and audit event.
