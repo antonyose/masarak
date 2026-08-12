@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Check,
   ChevronLeft,
+  Copy,
   GraduationCap,
   LockKeyhole,
   Search,
@@ -457,6 +458,7 @@ function GuestPaymentOffer({
   const [method, setMethod] = useState("");
   const [senderIdentifier, setSenderIdentifier] = useState("");
   const [receipt, setReceipt] = useState<File | null>(null);
+  const [copiedMethod, setCopiedMethod] = useState<string | null>(null);
   const [paymentId, setPaymentId] = useState(paymentState?.status === "pending" ? paymentState.paymentId : "");
   const [mode, setMode] = useState<"form" | "submitting" | "pending" | "rejected">(
     paymentState?.status === "pending" && paymentState.hasReceipt ? "pending" : paymentState?.status === "rejected" ? "rejected" : "form",
@@ -464,6 +466,11 @@ function GuestPaymentOffer({
   const [error, setError] = useState("");
   const [polling, setPolling] = useState(paymentState?.status === "pending" && paymentState.hasReceipt);
   const pollingRef = useRef(false);
+  const copyResetRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (copyResetRef.current) window.clearTimeout(copyResetRef.current);
+  }, []);
 
   useEffect(() => {
     if (!settings?.methods.length) return;
@@ -510,6 +517,29 @@ function GuestPaymentOffer({
       window.clearInterval(timer);
     };
   }, [onUnlocked, paymentId, polling, predictionId, seatNumber]);
+
+  async function copyRecipient(methodId: string, recipient: string) {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(recipient);
+      } else {
+        const helper = document.createElement("textarea");
+        helper.value = recipient;
+        helper.setAttribute("readonly", "true");
+        helper.style.position = "fixed";
+        helper.style.opacity = "0";
+        document.body.appendChild(helper);
+        helper.select();
+        document.execCommand("copy");
+        helper.remove();
+      }
+      setCopiedMethod(methodId);
+      if (copyResetRef.current) window.clearTimeout(copyResetRef.current);
+      copyResetRef.current = window.setTimeout(() => setCopiedMethod(null), 1800);
+    } catch {
+      setError("تعذر نسخ الرقم. اضغط مطولًا على الرقم لنسخه.");
+    }
+  }
 
   async function submitPayment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -592,15 +622,35 @@ function GuestPaymentOffer({
       <div className="offer-action">
         <span>السعر الحالي</span>
         <strong><bdi>{settings.priceEgp}</bdi> ج.م</strong>
-        <div className="payment-method-grid" aria-label="طرق الدفع">
-          {settings.methods.map((item) => (
-            <label key={item.id} className={method === item.id ? "is-selected" : ""}>
-              <input type="radio" name="payment-method" value={item.id} checked={method === item.id} onChange={() => setMethod(item.id)} />
-              <span className="payment-logo-tile"><Image src={item.logoSrc} alt="" width={58} height={38} /></span>
-              <span>{item.label}</span>
-              <small>{item.recipient}</small>
-            </label>
-          ))}
+        <div className="payment-method-grid" role="radiogroup" aria-label="طرق الدفع">
+          {settings.methods.map((item) => {
+            const inputId = `payment-method-${item.id}`;
+            const isSelected = method === item.id;
+            const isCopied = copiedMethod === item.id;
+            return (
+              <div key={item.id} className={`payment-method-option${isSelected ? " is-selected" : ""}`}>
+                <input id={inputId} type="radio" name="payment-method" value={item.id} checked={isSelected} onChange={() => setMethod(item.id)} />
+                <label htmlFor={inputId} className="payment-method-select">
+                  <span className="payment-logo-tile">
+                    <Image src={item.logoSrc} alt={`${item.label} logo`} width={88} height={48} sizes="(max-width: 480px) 25vw, 110px" />
+                  </span>
+                  <span className="payment-method-name">{item.label}</span>
+                </label>
+                <div className="payment-recipient-row">
+                  <bdi>{item.recipient}</bdi>
+                  <button
+                    type="button"
+                    className="payment-copy-button"
+                    onClick={() => void copyRecipient(item.id, item.recipient)}
+                    aria-label={`${isCopied ? "تم نسخ" : "نسخ"} رقم ${item.label}`}
+                  >
+                    {isCopied ? <Check size={12} aria-hidden="true" /> : <Copy size={12} aria-hidden="true" />}
+                    <span>{isCopied ? "تم النسخ" : "نسخ"}</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
         <label className="payment-field">رقم المُرسِل<input value={senderIdentifier} onChange={(event) => setSenderIdentifier(event.target.value)} inputMode="tel" required /></label>
         <label className="receipt-picker"><Upload size={17} /><span>{receipt ? receipt.name : "ارفع صورة الإيصال — حتى 5MB"}</span><input type="file" accept="image/jpeg,image/png,image/webp" required onChange={(event) => setReceipt(event.target.files?.[0] ?? null)} /></label>
