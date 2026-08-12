@@ -3705,3 +3705,120 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* Header stays a two-item rail on narrow screens: the brand never clips and
+   the offer chip gives up secondary copy before it gives up its timer. */
+.header-inner {
+  min-width: 0;
+}
+
+.brand {
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.header-offer {
+  max-width: min(18rem, 42vw);
+  flex: 0 1 auto;
+}
+
+.header-offer-copy {
+  max-width: 12rem;
+}
+
+@media (max-width: 900px) {
+  .header-inner {
+    gap: 0.75rem;
+  }
+
+  .header-offer {
+    max-width: 11.5rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .header-inner {
+    width: min(calc(100% - 1rem), 1160px);
+    min-height: 64px;
+    gap: 0.5rem;
+  }
+
+  .brand {
+    gap: 0.45rem;
+  }
+
+  .brand-mark {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .brand-mark svg {
+    width: 1.65rem;
+    height: 1.65rem;
+  }
+
+  .brand-copy small,
+  .header-offer-copy span {
+    display: none;
+  }
+
+  .brand-copy > span {
+    font-size: 0.9rem;
+  }
+
+  .header-offer {
+    max-width: 10.8rem;
+    padding: 0.3rem 0.4rem;
+    gap: 0.3rem;
+  }
+
+  .header-offer-copy {
+    max-width: 6.5rem;
+  }
+
+  .header-offer-copy strong {
+    max-width: 6.5rem;
+    font-size: 0.62rem;
+  }
+
+  .header-offer-arrow {
+    display: none;
+  }
+
+  .header-offer-countdown {
+    padding: 0.18rem 0.25rem;
+    font-size: 0.57rem;
+  }
+}
+
+@media (max-width: 460px) {
+  .header-inner {
+    gap: 0.3rem;
+  }
+
+  .brand {
+    gap: 0.35rem;
+  }
+
+  .brand-copy > span {
+    font-size: 0.82rem;
+  }
+
+  .header-offer {
+    max-width: 9.7rem;
+    flex-basis: 9.7rem;
+  }
+
+  .header-offer-copy {
+    max-width: 5.4rem;
+  }
+
+  .header-offer-copy strong {
+    max-width: 5.4rem;
+    font-size: 0.56rem;
+  }
+
+  .header-offer-countdown {
+    font-size: 0.52rem;
+  }
+}

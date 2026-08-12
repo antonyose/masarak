@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, FileCheck2, MessageCircle, ShieldCheck, Sparkles, UsersRound } from "lucide-react";
+import { ArrowLeft, FileCheck2, Sparkles, UsersRound } from "lucide-react";
 import { OfferCountdown } from "@/components/offer-countdown";
 import { formatEgp, getServerBasedNow, isOfferActive, type PublicOffer } from "@/lib/offer-config";
 
@@ -102,18 +102,7 @@ export function PricingSection() {
             </article>
           ) : null}
         </div>
-        <PricingTrustRow />
       </div>
     </section>
-  );
-}
-
-function PricingTrustRow() {
-  return (
-    <div className="pricing-trust-row" aria-label="معلومات الدفع والدعم">
-      <div><ShieldCheck className="pricing-trust-icon" size={25} aria-hidden="true" /><span><strong>بياناتك آمنة</strong><small>خصوصيتك محمية</small></span></div>
-      <div><MessageCircle className="pricing-trust-icon" size={25} aria-hidden="true" /><span><strong>دعم سريع</strong><small>نحن هنا لمساعدتك</small></span></div>
-      <div><FileCheck2 className="pricing-trust-icon" size={25} aria-hidden="true" /><span><strong>دفع واضح</strong><small>راجع بيانات التحويل قبل الإرسال</small></span></div>
-    </div>
   );
 }
