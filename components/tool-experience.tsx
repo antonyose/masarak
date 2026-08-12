@@ -143,10 +143,11 @@ const categoryLabels: Record<Recommendation["category"], string> = {
 };
 
 const offerLines = [
-  "افتح التقرير الكامل وخد باقي الترشيحات",
-  "خطوة بسيطة تطمّنك وتسهّل قرارك",
-  "اعرف اختياراتك الأقرب بشكل أوضح",
-  "تقرير واحد للمرحلة الثانية والثالثة",
+  "اعرف أنسب الكليات لمجموعك",
+  "شوف فرصك في المرحلة التانية",
+  "والمتوقع ليك في المرحلة التالتة",
+  "كل ده برقم الجلوس فقط",
+  "بـ35 جنيه بس",
 ];
 
 function simpleProximity(label: string) {
@@ -758,7 +759,7 @@ function GuestPaymentOffer({
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = window.setInterval(() => setLineIndex((current) => (current + 1) % offerLines.length), 3200);
+    const timer = window.setInterval(() => setLineIndex((current) => (current + 1) % offerLines.length), 2600);
     return () => window.clearInterval(timer);
   }, []);
 
@@ -913,16 +914,26 @@ function GuestPaymentOffer({
   return (
     <form className="unlock-offer guest-payment-offer" onSubmit={submitPayment}>
       <div className="offer-main">
-        <span className="offer-label">{selectedOffer?.title ?? "تقريرك الكامل"}</span>
-        <h4>افتح كل الترشيحات المناسبة ليك</h4>
-        <p className="offer-rotator" key={lineIndex}>{offerLines[lineIndex]}</p>
-        <ul>
-          <li><Check size={16} /> كل الاختيارات المناسبة لمجموعك</li>
-          <li><Check size={16} /> يشمل المرحلة الثانية والثالثة</li>
-          <li><Check size={16} /> بدون حساب — برقم الجلوس فقط</li>
-        </ul>
+        <div className="offer-main-copy">
+          <h4>افتح التقرير الكامل</h4>
+          <div className="offer-rotator-wrap" aria-live="polite" aria-atomic="true">
+            <p className="offer-rotator" key={lineIndex}>{offerLines[lineIndex]}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="offer-main-cta"
+          aria-controls={`locked-report-options-${predictionId}`}
+          onClick={() => {
+            trackFunnel("offer_clicked", { product: productType, source: "locked_report_promo" });
+            document.getElementById(`locked-report-options-${predictionId}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        >
+          افتح تقريري الآن
+          <ChevronLeft size={18} aria-hidden="true" />
+        </button>
       </div>
-      <div className="offer-action">
+      <div className="offer-action" id={`locked-report-options-${predictionId}`}>
         <div className="offer-product-picker" role="radiogroup" aria-label="اختار العرض">
           <button type="button" className={`offer-product-card${productType === "single" ? " is-selected" : ""}${selectedOffer?.targetProduct === "single" ? " has-offer" : ""}`} onClick={() => { setProductType("single"); trackFunnel("product_selected", { product: "single", source: "locked_report" }); }} aria-pressed={productType === "single"}>
             {productType === "single" ? <span className="offer-selected-badge"><Check size={12} aria-hidden="true" /> محدد الآن</span> : null}
