@@ -3836,3 +3836,53 @@ a {
     font-size: 0.52rem;
   }
 }
+
+/* Keep the offer as one coherent control. The icon and timer are content,
+   not separate tiles competing with the header surface. */
+.header-offer-icon {
+  width: auto;
+  height: auto;
+  padding: 0.08rem;
+  background: transparent;
+  border-radius: 0;
+}
+
+.header-offer-countdown {
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  border-radius: 0;
+}
+
+.header-offer-countdown svg {
+  color: var(--primary);
+}
+
+@media (max-width: 720px) {
+  .header-offer {
+    background: oklch(0.99 0.006 207);
+    border-color: oklch(0.78 0.06 83);
+  }
+
+  .header-offer-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+  }
+
+  .header-offer-countdown {
+    padding: 0;
+    font-size: 0.56rem;
+  }
+}
+
+@media (max-width: 460px) {
+  .header-offer-countdown > span {
+    display: none;
+  }
+
+  .header-offer-countdown {
+    gap: 0.14rem;
+    font-size: 0.57rem;
+  }
+}
