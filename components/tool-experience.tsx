@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -11,8 +12,8 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Upload,
 } from "lucide-react";
-import { useSession } from "@/lib/auth-client";
 import { egyptianGovernorates } from "@/lib/governorates";
 
 type Branch = "science" | "mathematics" | "literary";
@@ -36,20 +37,32 @@ type Recommendation = {
   proximityLabel: string;
   requiresAptitudeTest: boolean;
 };
+type PaymentState =
+  | { status: "unlocked"; paymentId?: string }
+  | { status: "pending"; paymentId: string; hasReceipt: boolean }
+  | { status: "rejected"; paymentId: string }
+  | { status: "none" };
 type PredictionResponse = {
   predictionId?: string;
   eligibility: { eligible: boolean };
   recommendations: Recommendation[];
   lockedRecommendationCount?: number;
   premium?: boolean;
-};
-type PredictionApiResponse = PredictionResponse & {
-  report?: PredictionResponse;
-  error?: string;
+  unlocked?: boolean;
+  message?: string;
+  requiresBranch?: boolean;
+  paymentState?: PaymentState;
+  branch?: Branch;
 };
 type PaymentSettings = {
   priceEgp: string;
-  methods: Array<{ id: string; label: string; recipient: string }>;
+  methods: Array<{
+    id: string;
+    label: string;
+    recipient: string;
+    deepLink?: string;
+    logoSrc: string;
+  }>;
 };
 
 const branchLabels: Record<Branch, string> = {
@@ -66,20 +79,32 @@ const categoryLabels: Record<Recommendation["category"], string> = {
   insufficient_data: "لسه بنحدّثه",
 };
 
+const offerLines = [
+  "افتح التقرير الكامل وخد باقي الترشيحات",
+  "خطوة بسيطة تطمّنك وتسهّل قرارك",
+  "اعرف اختياراتك الأقرب بشكل أوضح",
+  "تقرير واحد للمرحلة الثانية والثالثة",
+];
+
 function simpleProximity(label: string) {
   return label === "نطاق قريب استرشادي" ? "قريبة منك" : label;
 }
 
-const offerLines = [
-  "اعرف أقرب كلياتك بشكل أوضح",
-  "افتح التقرير الكامل وخد باقي الترشيحات",
-  "خطوة بسيطة تطمّنك وتسهّل قرارك",
-  "تقرير واحد للمرحلة الثانية والثالثة",
-  "مبلغ بسيط يساعدك تختار وأنت مطمّن",
-];
+function normalizeReport(data: Record<string, unknown>): PredictionResponse {
+  if (data.premium && data.report && typeof data.report === "object") {
+    return {
+      ...(data.report as PredictionResponse),
+      predictionId: String(data.predictionId ?? ""),
+      premium: true,
+      unlocked: true,
+      paymentState: data.paymentState as PaymentState | undefined,
+      branch: data.branch as Branch | undefined,
+    };
+  }
+  return data as PredictionResponse;
+}
 
 export function ToolExperience() {
-  const { data: session, isPending } = useSession();
   const [seatNumber, setSeatNumber] = useState("");
   const [result, setResult] = useState<StudentResult | null>(null);
   const [branch, setBranch] = useState<Branch | "">("");
@@ -88,7 +113,6 @@ export function ToolExperience() {
   const [settings, setSettings] = useState<PaymentSettings | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const resumeHandled = useRef(false);
 
   async function findResult(value: string) {
     const response = await fetch("/api/result-search", {
@@ -113,57 +137,22 @@ export function ToolExperience() {
 
   async function createReport(
     student: StudentResult,
-    selectedBranch: Branch,
+    selectedBranch?: Branch,
     selectedGovernorate?: string,
   ) {
-    if (session?.user) {
-      const savedResponse = await fetch("/api/saved-students", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          year: 2026,
-          seatNumber: student.seatNumber,
-          branch: selectedBranch,
-        }),
-      });
-      const saved = await savedResponse.json();
-      if (!savedResponse.ok) throw new Error(saved.error);
-      const predictionResponse = await fetch("/api/predictions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          savedStudentId: saved.student.id,
-          governorate: selectedGovernorate || undefined,
-        }),
-      });
-      const prediction = (await predictionResponse.json()) as PredictionApiResponse;
-      if (!predictionResponse.ok) throw new Error(prediction.error);
-      if (prediction.premium && prediction.report) {
-        return {
-          ...prediction.report,
-          predictionId: prediction.predictionId,
-          premium: true,
-        };
-      }
-      return prediction;
-    }
-
-    const previewResponse = await fetch("/api/predictions/preview", {
+    const response = await fetch("/api/predictions/public", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         year: 2026,
-        educationSystem: student.educationSystem,
-        branch: selectedBranch,
-        score: student.totalScore,
-        percentage: student.percentage,
-        governorate: selectedGovernorate || undefined,
         seatNumber: student.seatNumber,
+        branch: selectedBranch || undefined,
+        governorate: selectedGovernorate || undefined,
       }),
     });
-    const preview = await previewResponse.json();
-    if (!previewResponse.ok) throw new Error(preview.error);
-    return preview as PredictionResponse;
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error);
+    return normalizeReport(data);
   }
 
   async function submitSeat(event: FormEvent) {
@@ -174,14 +163,13 @@ export function ToolExperience() {
     try {
       const found = await findResult(seatNumber);
       setResult(found);
-      setBranch(found.branch === "unknown" ? "" : found.branch);
-      if (
-        found.governorate &&
-        egyptianGovernorates.includes(
-          found.governorate as (typeof egyptianGovernorates)[number],
-        )
-      ) {
-        setGovernorate(found.governorate);
+      setGovernorate(found.governorate ?? "");
+      const knownBranch = found.branch === "unknown" ? undefined : found.branch;
+      setBranch(knownBranch ?? "");
+      const nextReport = await createReport(found, knownBranch, found.governorate ?? undefined);
+      if (!nextReport.requiresBranch) {
+        setReport(nextReport);
+        if (nextReport.branch) setBranch(nextReport.branch);
       }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "تعذر إظهار النتيجة.");
@@ -208,43 +196,20 @@ export function ToolExperience() {
   }
 
   useEffect(() => {
-    if (isPending || resumeHandled.current) return;
-    const params = new URLSearchParams(window.location.search);
-    const resumedSeat = params.get("seat");
-    const resumedBranch = params.get("branch") as Branch | null;
-    if (!resumedSeat || !resumedBranch || !session?.user) return;
-    resumeHandled.current = true;
-    const resumedGovernorate = params.get("governorate") || "";
-    setSeatNumber(resumedSeat);
-    setBranch(resumedBranch);
-    setGovernorate(resumedGovernorate);
-    setLoading(true);
-    void findResult(resumedSeat)
-      .then(async (found) => {
-        setResult(found);
-        setReport(await createReport(found, resumedBranch, resumedGovernorate));
-        window.history.replaceState({}, "", window.location.pathname);
-      })
-      .catch((caught) =>
-        setError(caught instanceof Error ? caught.message : "تعذر استكمال التقرير."),
-      )
-      .finally(() => setLoading(false));
-  }, [isPending, session?.user]);
-
-  useEffect(() => {
-    if (!session?.user || !report || report.premium) return;
+    if (!report || report.premium) return;
     void fetch("/api/payment-settings")
       .then(async (response) => {
         if (response.ok) setSettings(await response.json());
       })
       .catch(() => undefined);
-  }, [report, session?.user]);
+  }, [report]);
 
   function resetJourney() {
     setResult(null);
     setReport(null);
     setBranch("");
     setGovernorate("");
+    setSettings(null);
     setError("");
   }
 
@@ -336,10 +301,7 @@ export function ToolExperience() {
 
             <label className="governorate-field">
               محافظتك <small>اختياري</small>
-              <select
-                value={governorate}
-                onChange={(event) => setGovernorate(event.target.value)}
-              >
+              <select value={governorate} onChange={(event) => setGovernorate(event.target.value)}>
                 <option value="">اختار المحافظة</option>
                 {egyptianGovernorates.map((item) => <option key={item}>{item}</option>)}
               </select>
@@ -356,9 +318,9 @@ export function ToolExperience() {
             result={result}
             branch={branch as Branch}
             governorate={governorate}
-            signedIn={Boolean(session?.user)}
             settings={settings}
             onReset={resetJourney}
+            onUnlocked={setReport}
           />
         )}
 
@@ -373,28 +335,21 @@ function Report({
   result,
   branch,
   governorate,
-  signedIn,
   settings,
   onReset,
+  onUnlocked,
 }: {
   report: PredictionResponse;
   result: StudentResult;
   branch: Branch;
   governorate: string;
-  signedIn: boolean;
   settings: PaymentSettings | null;
   onReset: () => void;
+  onUnlocked: (report: PredictionResponse) => void;
 }) {
   const recommendations = report.premium
     ? report.recommendations
     : report.recommendations.slice(0, 1);
-  const loginParams = new URLSearchParams({
-    seat: result.seatNumber,
-    branch,
-  });
-  if (governorate) loginParams.set("governorate", governorate);
-  const returnPath = `/?${loginParams.toString()}`;
-  const loginHref = `/login?next=${encodeURIComponent(returnPath)}`;
 
   if (!report.eligibility.eligible) {
     return (
@@ -422,8 +377,8 @@ function Report({
     <div className="report-conversion" aria-live="polite">
       <div className="report-heading">
         <div>
-          <span>{report.premium ? "تقريرك الكامل" : "ترشيحك المجاني"}</span>
-          <h3>{report.premium ? "دي أقرب اختياراتك" : "بداية مبشّرة ليك"}</h3>
+          {report.premium ? <span className="premium-open-badge">التقرير الكامل مفتوح ✓</span> : <span>ترشيحك المجاني</span>}
+          <h3>{report.premium ? "كل اختياراتك المناسبة" : "بداية مبشّرة ليك"}</h3>
         </div>
         <button type="button" onClick={onReset}>ابدأ من جديد</button>
       </div>
@@ -457,20 +412,13 @@ function Report({
             {[0, 1, 2].map((item) => <LockedSampleCard key={item} index={item} />)}
           </div>
 
-          {!signedIn ? (
-            <div className="signin-unlock">
-              <div>
-                <h4>سجّل دخولك علشان تكمّل تقريرك</h4>
-                <p>حساب واحد يحفظ نتيجتك وترشيحاتك لحد المرحلة الثالثة.</p>
-              </div>
-              <Link href={loginHref} className="conversion-primary">
-                تسجيل الدخول أو حساب جديد
-                <ArrowLeft size={18} aria-hidden="true" />
-              </Link>
-            </div>
-          ) : report.predictionId ? (
-            <UnlockOffer predictionId={report.predictionId} settings={settings} />
-          ) : null}
+          <GuestPaymentOffer
+            predictionId={report.predictionId ?? ""}
+            seatNumber={result.seatNumber}
+            settings={settings}
+            paymentState={report.paymentState}
+            onUnlocked={onUnlocked}
+          />
         </section>
       ) : null}
 
@@ -492,51 +440,180 @@ function LockedSampleCard({ index }: { index: number }) {
   );
 }
 
-function UnlockOffer({
+function GuestPaymentOffer({
   predictionId,
+  seatNumber,
   settings,
+  paymentState,
+  onUnlocked,
 }: {
   predictionId: string;
+  seatNumber: string;
   settings: PaymentSettings | null;
+  paymentState?: PaymentState;
+  onUnlocked: (report: PredictionResponse) => void;
 }) {
   const [lineIndex, setLineIndex] = useState(0);
+  const [method, setMethod] = useState("");
+  const [senderIdentifier, setSenderIdentifier] = useState("");
+  const [transactionReference, setTransactionReference] = useState("");
+  const [receipt, setReceipt] = useState<File | null>(null);
+  const [paymentId, setPaymentId] = useState(paymentState?.status === "pending" ? paymentState.paymentId : "");
+  const [mode, setMode] = useState<"form" | "submitting" | "pending" | "rejected">(
+    paymentState?.status === "pending" && paymentState.hasReceipt ? "pending" : paymentState?.status === "rejected" ? "rejected" : "form",
+  );
+  const [error, setError] = useState("");
+  const [polling, setPolling] = useState(paymentState?.status === "pending" && paymentState.hasReceipt);
+  const pollingRef = useRef(false);
+
+  useEffect(() => {
+    if (!settings?.methods.length) return;
+    setMethod((current) => current || settings.methods[0].id);
+  }, [settings]);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = window.setInterval(
-      () => setLineIndex((current) => (current + 1) % offerLines.length),
-      3200,
-    );
+    const timer = window.setInterval(() => setLineIndex((current) => (current + 1) % offerLines.length), 3200);
     return () => window.clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    if (!polling || pollingRef.current) return;
+    pollingRef.current = true;
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const response = await fetch(`/api/payments/status?year=2026&seatNumber=${encodeURIComponent(seatNumber)}`, { cache: "no-store" });
+        if (!response.ok) return;
+        const state = await response.json() as PaymentState;
+        if (cancelled) return;
+        if (state.status === "unlocked") {
+          const reportResponse = await fetch(`/api/predictions/${predictionId}/report`, { cache: "no-store" });
+          const reportData = await reportResponse.json();
+          if (reportResponse.ok && reportData.premium) {
+            setPolling(false);
+            setMode("form");
+            onUnlocked(normalizeReport(reportData));
+          }
+        } else if (state.status === "rejected") {
+          setPolling(false);
+          setMode("rejected");
+        }
+      } catch {
+        // The next poll retries without exposing a client-side authorization state.
+      }
+    };
+    void check();
+    const timer = window.setInterval(() => void check(), 5000);
+    return () => {
+      cancelled = true;
+      pollingRef.current = false;
+      window.clearInterval(timer);
+    };
+  }, [onUnlocked, paymentId, polling, predictionId, seatNumber]);
+
+  async function submitPayment(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!settings || !method || !receipt) {
+      setError("اختار طريقة الدفع وارفع صورة الإيصال.");
+      return;
+    }
+    setMode("submitting");
+    setError("");
+    try {
+      const response = await fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          predictionId,
+          year: 2026,
+          seatNumber,
+          method,
+          senderIdentifier,
+          transactionReference: transactionReference || undefined,
+          idempotencyKey: crypto.randomUUID(),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok && data.code === "ALREADY_UNLOCKED") {
+        const full = await fetch(`/api/predictions/${predictionId}/report`, { cache: "no-store" });
+        const fullData = await full.json();
+        if (full.ok && fullData.premium) onUnlocked(normalizeReport(fullData));
+        return;
+      }
+      if (!response.ok) throw new Error(data.error);
+      const id = String(data.payment.id);
+      setPaymentId(id);
+      if (data.payment.hasReceipt) {
+        setMode("pending");
+        setPolling(true);
+        return;
+      }
+      const form = new FormData();
+      form.set("seatNumber", seatNumber);
+      form.set("receipt", receipt);
+      const upload = await fetch(`/api/payments/${id}/receipt`, { method: "POST", body: form });
+      const uploadData = await upload.json();
+      if (!upload.ok) throw new Error(uploadData.error);
+      setMode("pending");
+      setPolling(true);
+    } catch (caught) {
+      setMode("form");
+      setError(caught instanceof Error ? caught.message : "تعذر إرسال الدفع.");
+    }
+  }
+
+  if (!settings) {
+    return <div className="unlock-offer offer-loading">جارٍ تجهيز طرق الدفع…</div>;
+  }
+
+  if (mode === "pending") {
+    return (
+      <div className="payment-pending-state">
+        <Check size={22} aria-hidden="true" />
+        <div>
+          <strong>تم استلام التحويل</strong>
+          <span>جاري مراجعة الدفع — هنفتح التقرير تلقائيًا بعد الموافقة.</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="unlock-offer">
+    <form className="unlock-offer guest-payment-offer" onSubmit={submitPayment}>
       <div className="offer-main">
-        <span className="offer-label">عرض التقرير الكامل</span>
+        <span className="offer-label">تقريرك الكامل</span>
         <h4>افتح كل الترشيحات المناسبة ليك</h4>
         <p className="offer-rotator" key={lineIndex}>{offerLines[lineIndex]}</p>
         <ul>
           <li><Check size={16} /> كل الاختيارات المناسبة لمجموعك</li>
-          <li><Check size={16} /> يشمل تحديثات المرحلة الثانية والثالثة</li>
-          <li><Check size={16} /> دفعة واحدة لنفس نتيجة 2026</li>
+          <li><Check size={16} /> يشمل المرحلة الثانية والثالثة</li>
+          <li><Check size={16} /> بدون حساب — برقم الجلوس فقط</li>
         </ul>
       </div>
       <div className="offer-action">
-        {settings ? (
-          <>
-            <span>التقرير الكامل</span>
-            <strong><bdi>{settings.priceEgp}</bdi> ج.م</strong>
-            <div className="payment-method-chips">
-              {settings.methods.map((method) => <small key={method.id}>{method.label}</small>)}
-            </div>
-          </>
-        ) : <div className="offer-price-skeleton" aria-label="جارٍ تحميل السعر" />}
-        <Link href={`/account?prediction=${predictionId}`} className="offer-cta">
-          كمّل الدفع وافتح التقرير
+        <span>السعر الحالي</span>
+        <strong><bdi>{settings.priceEgp}</bdi> ج.م</strong>
+        <div className="payment-method-grid" aria-label="طرق الدفع">
+          {settings.methods.map((item) => (
+            <label key={item.id} className={method === item.id ? "is-selected" : ""}>
+              <input type="radio" name="payment-method" value={item.id} checked={method === item.id} onChange={() => setMethod(item.id)} />
+              <span className="payment-logo-tile"><Image src={item.logoSrc} alt="" width={58} height={38} /></span>
+              <span>{item.label}</span>
+              <small>{item.recipient}</small>
+            </label>
+          ))}
+        </div>
+        <label className="payment-field">رقم المُرسِل<input value={senderIdentifier} onChange={(event) => setSenderIdentifier(event.target.value)} inputMode="tel" required /></label>
+        <label className="payment-field">مرجع العملية <small>اختياري</small><input value={transactionReference} onChange={(event) => setTransactionReference(event.target.value)} /></label>
+        <label className="receipt-picker"><Upload size={17} /><span>{receipt ? receipt.name : "ارفع صورة الإيصال — حتى 5MB"}</span><input type="file" accept="image/jpeg,image/png,image/webp" required onChange={(event) => setReceipt(event.target.files?.[0] ?? null)} /></label>
+        {mode === "rejected" ? <p className="payment-rejected">لم تتم الموافقة على الطلب السابق. يمكنك إرسال إيصال جديد.</p> : null}
+        {error ? <p className="payment-inline-error" role="alert">{error}</p> : null}
+        <button className="offer-cta" disabled={mode === "submitting"}>
+          {mode === "submitting" ? "جارٍ إرسال الإيصال…" : "افتح التقرير الكامل"}
           <ChevronLeft size={19} aria-hidden="true" />
-        </Link>
+        </button>
       </div>
-    </div>
+    </form>
   );
 }

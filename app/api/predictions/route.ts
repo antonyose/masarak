@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
 import { predictionRuns } from "@/db/schema";
-import { AuthorizationError, hasAnnualEntitlement, requireOwnedStudent, requireSession } from "@/lib/authz";
+import { AuthorizationError, hasSeatEntitlement, requireOwnedStudent, requireSession } from "@/lib/authz";
 import { createImmutablePrediction, publicPredictionPayload } from "@/lib/prediction-service";
 import { assertSameOrigin, enforceRateLimit } from "@/lib/request-security";
 import { predictionCreateSchema } from "@/lib/schemas";
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     if (!parsed.success) return NextResponse.json({ error: "بيانات التوقع غير صحيحة." }, { status: 400 });
     const student = await requireOwnedStudent(parsed.data.savedStudentId, session.user.id);
     const { run, report } = await createImmutablePrediction({ userId: session.user.id, student, governorate: parsed.data.governorate });
-    const premium = await hasAnnualEntitlement({ userId: session.user.id, savedStudentId: student.id, year: 2026 });
+    const premium = await hasSeatEntitlement({ year: 2026, seatNumber: student.seatNumber });
     return NextResponse.json(
       premium
         ? { predictionId: run.id, premium: true, report }

@@ -536,13 +536,11 @@ export const predictionRuns = pgTable(
   "prediction_runs",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
     savedStudentId: uuid("saved_student_id")
-      .notNull()
-      .references(() => savedStudents.id, { onDelete: "cascade" }),
+      .references(() => savedStudents.id, { onDelete: "set null" }),
     year: integer("year").notNull(),
+    seatNumber: text("seat_number").notNull(),
     coordinationStage: integer("coordination_stage").notNull(),
     modelVersionId: uuid("model_version_id")
       .notNull()
@@ -579,6 +577,17 @@ export const predictionRuns = pgTable(
     index("prediction_runs_student_created_idx").on(
       table.savedStudentId,
       table.createdAt,
+    ),
+    index("prediction_runs_seat_created_idx").on(
+      table.year,
+      table.seatNumber,
+      table.createdAt,
+    ),
+    index("prediction_runs_seat_model_input_idx").on(
+      table.year,
+      table.seatNumber,
+      table.modelVersionId,
+      table.inputHash,
     ),
     index("prediction_runs_stage_model_idx").on(
       table.year,
@@ -635,15 +644,14 @@ export const paymentSubmissions = pgTable(
   "payment_submissions",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
     savedStudentId: uuid("saved_student_id")
-      .notNull()
-      .references(() => savedStudents.id),
+      .references(() => savedStudents.id, { onDelete: "set null" }),
     predictionId: uuid("prediction_id")
       .notNull()
       .references(() => predictionRuns.id),
+    year: integer("year").notNull(),
+    seatNumber: text("seat_number").notNull(),
     method: paymentMethodEnum("method").notNull(),
     expectedAmount: numeric("expected_amount", { precision: 10, scale: 2 })
       .notNull(),
@@ -673,6 +681,11 @@ export const paymentSubmissions = pgTable(
       table.userId,
       table.clientIdempotencyKey,
     ),
+    uniqueIndex("payment_submissions_guest_idempotency_idx").on(
+      table.year,
+      table.seatNumber,
+      table.clientIdempotencyKey,
+    ),
     index("payment_submissions_status_submitted_idx").on(
       table.status,
       table.submittedAt,
@@ -685,6 +698,12 @@ export const paymentSubmissions = pgTable(
       table.savedStudentId,
       table.createdAt,
     ),
+    index("payment_submissions_seat_status_idx").on(
+      table.year,
+      table.seatNumber,
+      table.status,
+      table.createdAt,
+    ),
   ],
 );
 
@@ -692,12 +711,9 @@ export const creditLedger = pgTable(
   "credit_ledger",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
     savedStudentId: uuid("saved_student_id")
-      .notNull()
-      .references(() => savedStudents.id),
+      .references(() => savedStudents.id, { onDelete: "set null" }),
     predictionId: uuid("prediction_id").references(() => predictionRuns.id),
     paymentId: uuid("payment_id").references(() => paymentSubmissions.id),
     eventType: ledgerEventTypeEnum("event_type").notNull(),
@@ -753,6 +769,36 @@ export const predictionEntitlements = pgTable(
       table.year,
     ),
     uniqueIndex("prediction_entitlements_payment_idx").on(table.paymentId),
+  ],
+);
+
+export const seatEntitlements = pgTable(
+  "seat_entitlements",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    year: integer("year").notNull(),
+    seatNumber: text("seat_number").notNull(),
+    originPredictionId: uuid("origin_prediction_id")
+      .notNull()
+      .references(() => predictionRuns.id),
+    paymentId: uuid("payment_id")
+      .notNull()
+      .references(() => paymentSubmissions.id),
+    scope: text("scope").notNull().default("year_all_stages"),
+    unlockedAt: timestamp("unlocked_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("seat_entitlements_year_seat_idx").on(
+      table.year,
+      table.seatNumber,
+    ),
+    uniqueIndex("seat_entitlements_payment_idx").on(table.paymentId),
+    index("seat_entitlements_seat_idx").on(table.seatNumber),
   ],
 );
 

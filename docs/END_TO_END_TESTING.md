@@ -51,7 +51,7 @@ where table_schema = 'public'
     'coordination_stage_rules', 'official_cutoffs', 'stage_vacancies',
     'model_versions', 'saved_students', 'prediction_runs',
     'payment_settings', 'payment_submissions', 'credit_ledger',
-    'prediction_entitlements', 'admin_audit_logs'
+    'prediction_entitlements', 'seat_entitlements', 'admin_audit_logs'
   )
 order by table_name;
 ```
@@ -61,6 +61,8 @@ Verify:
 - Existing Better Auth tables and data were not recreated or lost.
 - `user.phone` is nullable and `user.role` defaults to `user`.
 - No migration copied the 919,396 student records into Neon.
+- `prediction_runs.seat_number` is populated for historical rows and guest snapshots can have nullable ownership fields.
+- `seat_entitlements` has a unique `(year, seat_number)` key and all approved 2026 payments reconcile into it where possible.
 - Unique saved-student key is `(user_id, year, seat_number)`, not `(year, seat_number)`.
 - Vacancy/cutoff natural keys include year, stage, system, branch, and faculty.
 - Receipt hash and payment idempotency keys are unique.
@@ -75,7 +77,7 @@ from pg_indexes
 where schemaname = 'public'
   and tablename in (
     'saved_students', 'prediction_runs', 'payment_submissions',
-    'credit_ledger', 'prediction_entitlements'
+    'credit_ledger', 'prediction_entitlements', 'seat_entitlements'
   )
 order by tablename, indexname;
 ```
@@ -162,17 +164,17 @@ Verify authenticated access and coherent empty/loading/error states for:
 - `/account/predictions`
 - `/account/payments`
 
-Logged-out requests should return to login without briefly rendering private data. Google users without a phone may view/save results but must be prompted to complete the phone field before payment creation.
+Account pages remain secondary compatibility surfaces. The public student funnel must never redirect to login or require a phone before payment.
 
 # 11. Saved Student Tests
 
-- Search by exact Turso seat number, select an explicit branch, and save.
+- Search by exact Turso seat number, select an explicit branch, and optionally save while authenticated.
 - Query Neon to confirm immutable name/score/max/percentage/system snapshots match Turso.
 - Confirm `branch_source=user_provided` and the UI does not call it dataset-verified.
 - Save the same seat again as the same user. Expected: existing record returned; no duplicate.
 - Save the same year/seat as another user. Expected: succeeds for the other account.
 - Attempt to access User B’s saved-student ID while signed in as User A. Expected: 404/403 with no snapshot leakage.
-- Create a manual-score preview and attempt save/payment. Expected: blocked until a real Turso seat result is selected.
+- Create a manual-score preview and attempt payment. Expected: blocked until a real Turso seat result/prediction is selected.
 
 # 12. Prediction History
 
@@ -191,9 +193,10 @@ Test both browser presentation and raw network payloads:
 - Official public facts and eligibility remain free.
 - Search the JSON response for names/ranges/explanations from locked recommendations. They must be absent, not blurred or encoded.
 - Add/edit `masarak_unlocked` and similar localStorage keys. Nothing should unlock.
-- Manipulate DOM/CSS, replay requests, and call the premium endpoint without a session. Expected: no full report.
-- Use an authenticated owner without entitlement. Expected: free projection only and premium endpoint denied.
-- Try another user’s prediction ID. Expected: denied without revealing premium data.
+- Manipulate DOM/CSS, replay requests, and call the premium endpoint for an unpaid seat. Expected: no full report.
+- Repeat the same unpaid request logged in and logged out. Expected: identical free projection only.
+- Call the premium endpoint anonymously for an approved seat. Expected: full report.
+- Call it for a different/unpaid seat. Expected: free projection only and no premium data.
 - Change `free_recommendation_count` in admin test settings and confirm the server payload—not just CSS—reflects the configured count. Restore it to 1.
 
 # 14. Payment Settings
@@ -205,6 +208,7 @@ As admin verify:
 - Disable each payment method individually and confirm it disappears from new checkout options without affecting existing price snapshots.
 - Change price in a controlled staged test, create a payment, and confirm the server snapshots that price. Restore EGP 99.
 - Every price, recipient, enabled flag, stage-message, or support change creates an audit entry with actor/time and before/after values.
+- Public checkout renders the supplied assets from `/payment-logos/vodafone-cash.png`, `/payment-logos/orange-cash.png`, and `/payment-logos/instapay.png` for the corresponding enabled method.
 
 # 15. Payment Submission
 
@@ -212,15 +216,17 @@ Use a safe test workflow. Do not transfer real money unless the owner explicitly
 
 For Vodafone Cash, Orange Cash, and InstaPay:
 
-1. Start from an owned saved-student prediction without entitlement.
+1. Start from a public 2026 seat prediction without entitlement.
 2. Confirm checkout shows EGP 99 from the server and the correct selected recipient.
 3. For Vodafone, verify the preserved direct link opens in a separate safe context.
 4. Enter sender/reference fields and upload a clearly marked synthetic receipt image.
 5. Confirm the payment row’s expected amount/settings snapshot cannot be changed through client request editing.
 6. Confirm receipt metadata is private, status becomes pending, and submitted time is populated.
-7. Refresh `/account/payments`; pending state persists.
+7. Refresh the prediction page; pending state persists by seat number without an account.
 
 Replay payment creation with the same idempotency key. Expected: no duplicate submission.
+
+Guest submissions must work while logged out and must be associated with `(2026, seat_number, prediction_id)`; no email, password, Google session, or device token is required.
 
 # 16. Receipt Security
 
@@ -239,7 +245,7 @@ Replay payment creation with the same idempotency key. Expected: no duplicate su
 - Normal Better Auth user: denied even with legacy `masarak_admin_token` cookie manually inserted.
 - Confirm the legacy password login endpoint is removed or nonfunctional and no fallback password works.
 - Database `admin` user: can access dashboard, payments, settings, coordination, model, and audit views.
-- Pending submitted payments show user, student, seat number, expected amount, method, sender/reference, receipt, and submission time.
+- Pending submitted payments show guest/account indicator, student when available, seat number, expected amount, method, sender/reference, receipt, and submission time.
 - Verify the owner-promotion action was performed through the audited script and the admin-role change appears in audit history.
 
 # 18. Payment Approval
@@ -249,6 +255,7 @@ Select one pending synthetic payment and record pre-approval counts.
 ```sql
 select status from payment_submissions where id = '<payment-id>';
 select event_type, units from credit_ledger where payment_id = '<payment-id>';
+select * from seat_entitlements where payment_id = '<payment-id>';
 select * from prediction_entitlements where payment_id = '<payment-id>';
 select action from admin_audit_logs where target_id = '<payment-id>';
 ```
@@ -257,7 +264,7 @@ Approve once. Expected:
 
 - Payment transitions pending → approved with reviewer/time.
 - Exactly one grant and one consume ledger event are created.
-- Exactly one `(user, saved_student, 2026)` all-stages entitlement is created.
+- Exactly one `(2026, seat_number)` `year_all_stages` entitlement is created. Legacy user/student entitlement is created only when ownership fields exist.
 - Exactly one approval audit event is created.
 
 Double-click, retry the request, refresh/reapprove, and send concurrent approval requests if tooling permits. Expected: approved response remains stable and no duplicate status transition, ledger event, entitlement, or audit approval appears.
@@ -276,23 +283,23 @@ Double-click, retry the request, refresh/reapprove, and send concurrent approval
 - Confirm 5–10-second polling detects approval without realtime infrastructure.
 - Expected Arabic success state: “تم تأكيد الدفع 🎉” and “التقرير الكامل متاح الآن”.
 - Confirm the report refetches and full analysis appears automatically.
-- Refresh, log out/in, and open from `/account/predictions`; full report remains authorized.
-- Create a test Stage-3 prediction for the same saved student/year with a new model version. The existing 2026 entitlement must unlock it automatically while the Stage-2 snapshot remains unchanged.
-- A different saved student on the same account must not inherit the entitlement.
+- Refresh, open a private window, use another browser/device, and search the same seat. The full report remains authorized without login.
+- Keep the page open while admin approval occurs; 5–10-second polling detects approval and reveals the report.
+- Create a test Stage-3 prediction for the same seat with a new model version. The existing 2026 seat entitlement unlocks it while the Stage-2 snapshot remains unchanged.
+- A different seat remains locked even when the same browser/account is used.
 
 # 21. Cross-User Security
 
-Using User A and User B, attempt:
+Using two browsers and, where applicable, User A and User B, attempt:
 
-- A reading B’s saved student.
-- A reading B’s prediction/free-owned detail or premium report.
-- A using B’s annual entitlement for A’s student.
+- A reading B’s saved student through account-only routes.
+- A reading an unpaid prediction’s premium report.
 - A reading/cancelling B’s payment.
 - A accessing B’s receipt.
 - A calling admin list/review/settings/model endpoints.
 - A changing IDs in URL, JSON body, query string, and polling requests.
 
-All must fail server-side without returning B’s PII, payment evidence, or premium data. Repeat with a valid A entitlement to prove authorization remains scoped to A’s exact saved student/year.
+Account-owned records and receipts must remain protected. Public premium access intentionally succeeds for any request that supplies an approved `(2026, seat_number)` key; a different seat must not inherit it.
 
 # 22. Responsive UX
 
@@ -301,7 +308,7 @@ Inspect at minimum 360×800 mobile, 390×844 mobile, 768px tablet, 1024px deskto
 - Homepage Stage-2 messaging and tool switcher.
 - Seat/name result search and multi-match list.
 - Predictor, branch-source notice, hard facts, locked count, and below-minimum state.
-- Google/login/signup/account completion.
+- Optional Google/login/signup/account compatibility.
 - All four account routes and empty/history states.
 - Payment methods, copy/deep-link actions, receipt upload, pending/rejected/approved states.
 - Premium report and Stage-2 snapshot label.
@@ -364,15 +371,15 @@ Do not purchase services, change providers, recreate OAuth, move result data, or
 - [ ] Stage-1 facts override predictions; Stage-2 boundaries/branches pass.
 - [ ] Unknown branch uses normalized percentage with reduced confidence.
 - [ ] Google regression and email/password flows pass.
-- [ ] Account ownership and immutable history pass.
+- [ ] Guest prediction snapshots and optional account history remain immutable.
 - [ ] Free payload contains no premium recommendation data.
 - [ ] Vodafone, Orange, and InstaPay submissions pass at server-snapshotted EGP 99.
 - [ ] Private receipt validation/access/duplicate behavior passes.
 - [ ] Normal users cannot access admin routes.
 - [ ] Approval/retry creates one ledger pair, entitlement, and audit event.
 - [ ] Rejection creates no entitlement.
-- [ ] Polling unlock and persistent account access pass.
-- [ ] All-2026 entitlement unlocks later Stage-3 report for the same student only.
+- [ ] Polling unlock and cross-device seat access pass.
+- [ ] All-2026 seat entitlement unlocks later Stage-3 report for the same seat only.
 - [ ] Cross-user attempts return no unauthorized data.
 - [ ] Mobile/desktop RTL and accessibility inspection passes.
 - [ ] Console/network/log review finds no secrets, PII analytics, premium leakage, or unexplained failures.

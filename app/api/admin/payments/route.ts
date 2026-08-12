@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
-import { paymentSubmissions, savedStudents, user } from "@/db/schema";
+import { paymentSubmissions, predictionRuns, savedStudents, user } from "@/db/schema";
 import { AuthorizationError, requireAdmin } from "@/lib/authz";
 
 export const dynamic = "force-dynamic";
@@ -25,11 +25,12 @@ export async function GET(request: Request) {
         userName: user.name,
         userEmail: user.email,
         studentName: savedStudents.studentNameSnapshot,
-        seatNumber: savedStudents.seatNumber,
+        seatNumber: predictionRuns.seatNumber,
       })
       .from(paymentSubmissions)
-      .innerJoin(user, eq(user.id, paymentSubmissions.userId))
-      .innerJoin(savedStudents, eq(savedStudents.id, paymentSubmissions.savedStudentId))
+      .innerJoin(predictionRuns, eq(predictionRuns.id, paymentSubmissions.predictionId))
+      .leftJoin(user, eq(user.id, paymentSubmissions.userId))
+      .leftJoin(savedStudents, eq(savedStudents.id, paymentSubmissions.savedStudentId))
       .where(
         status === "pending"
           ? and(eq(paymentSubmissions.status, status), isNotNull(paymentSubmissions.submittedAt))

@@ -9,7 +9,7 @@ This is the operational playbook for adding a later coordination stage or a repl
 - A model version is immutable. Changed configuration or data requires a new version string and data hash.
 - Activation gates apply only to the system/branch/stage scope served by that model. Missing old-system evidence never blocks a complete new-system release.
 - A prediction run is an immutable snapshot. Never update an earlier Stage‑2 row when Stage‑3 data arrives.
-- The entitlement remains `(user_id, saved_student_id, year)` with scope `year_all_stages`; an approved 2026 payment must unlock a later 2026 report without another payment.
+- The public entitlement is `(year, seat_number)` with scope `year_all_stages`; an approved 2026 payment must unlock current and later 2026 reports without another payment or login. Legacy `(user_id, saved_student_id, year)` rows remain for account compatibility only.
 - Codex may prepare and push a staged build. Only the owner/AntiGravity may apply production data changes and promote the deployment.
 
 ## 1. Freeze and review the phase input
@@ -66,10 +66,10 @@ Creating a Stage‑3 report must insert a new `prediction_runs` row with the new
 
 For a user with an existing approved 2026 payment:
 
-1. Create the later-stage prediction for the same saved student.
+1. Create the later-stage prediction for the same seat number, using the stored paid branch context.
 2. Confirm no new payment or ledger grant is created.
-3. Confirm premium retrieval succeeds through the existing `(user, saved student, 2026)` entitlement.
-4. Confirm a different saved student and a different user remain locked.
+3. Confirm anonymous premium retrieval succeeds through the `(2026, seat_number)` entitlement.
+4. Confirm a different seat remains locked regardless of browser, device, or login state.
 5. Confirm the original Stage‑2 premium report still returns its original snapshot.
 
 ## 7. Staged handoff

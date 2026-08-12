@@ -64,6 +64,13 @@ export const predictionCreateSchema = z.object({
   governorate: z.enum(egyptianGovernorates).optional(),
 });
 
+export const publicPredictionCreateSchema = z.object({
+  year: z.literal(2026),
+  seatNumber: z.string().trim().regex(/^[\d٠-٩۰-۹]{4,14}$/),
+  branch: z.enum(["science", "mathematics", "literary"]).optional(),
+  governorate: z.enum(egyptianGovernorates).optional(),
+});
+
 export const accountUpdateSchema = z.object({
   name: z.string().trim().min(2).max(100),
   phone: egyptianPhoneSchema,
@@ -71,6 +78,8 @@ export const accountUpdateSchema = z.object({
 
 export const paymentCreateSchema = z.object({
   predictionId: z.string().uuid(),
+  year: z.literal(2026).optional(),
+  seatNumber: z.string().trim().regex(/^[\d٠-٩۰-۹]{4,14}$/).optional(),
   method: z.enum(["vodafone_cash", "orange_cash", "instapay"]),
   senderIdentifier: z.string().trim().min(4).max(80),
   transactionReference: z.string().trim().max(120).optional(),

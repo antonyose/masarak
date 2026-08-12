@@ -14,20 +14,47 @@ describe("payment review transaction", () => {
 
   it("creates grant, annual entitlement, consume, and audit only after conditional approval", async () => {
     query
-      .mockResolvedValueOnce({ rows: [{ id: "payment", status: "pending", user_id: "user", saved_student_id: "student", prediction_id: "prediction", receipt_blob_key: "receipts/private.webp" }] })
+      .mockResolvedValueOnce({ rows: [{ id: "payment", status: "pending", user_id: "user", saved_student_id: "student", prediction_id: "prediction", year: 2026, seat_number: "2001970", receipt_blob_key: "receipts/private.webp" }] })
       .mockResolvedValueOnce({ rowCount: 1 })
       .mockResolvedValue({ rowCount: 1, rows: [] });
     await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve" })).resolves.toEqual({ status: "approved", idempotent: false });
     const statements = query.mock.calls.map(([statement]) => String(statement));
     expect(statements.some((statement) => statement.includes("event_type, units") && statement.includes("'grant', 1"))).toBe(true);
     expect(statements.some((statement) => statement.includes("prediction_entitlements"))).toBe(true);
+    expect(statements.some((statement) => statement.includes("seat_entitlements"))).toBe(true);
     expect(statements.some((statement) => statement.includes("'consume', -1"))).toBe(true);
     expect(statements.some((statement) => statement.includes("admin_audit_logs"))).toBe(true);
   });
 
   it("treats an approval retry as an idempotent no-op", async () => {
-    query.mockResolvedValueOnce({ rows: [{ id: "payment", status: "approved", user_id: "user", saved_student_id: "student", prediction_id: "prediction", receipt_blob_key: "receipts/private.webp" }] });
+    query.mockResolvedValueOnce({ rows: [{ id: "payment", status: "approved", user_id: "user", saved_student_id: "student", prediction_id: "prediction", year: 2026, seat_number: "2001970", receipt_blob_key: "receipts/private.webp" }] });
     await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve" })).resolves.toEqual({ status: "approved", idempotent: true });
     expect(query).toHaveBeenCalledTimes(1);
+  });
+
+  it("cancels a duplicate guest payment without granting a second seat", async () => {
+    query
+      .mockResolvedValueOnce({ rows: [{ id: "payment-2", status: "pending", user_id: null, saved_student_id: null, prediction_id: "prediction-2", year: 2026, seat_number: "2001970", receipt_blob_key: "receipts/private.webp" }] })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValueOnce({ rows: [{ id: "entitlement", payment_id: "payment" }] })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await expect(reviewPaymentTransaction({ paymentId: "payment-2", actorUserId: "admin", action: "approve" })).resolves.toMatchObject({
+      status: "cancelled",
+      alreadyUnlocked: true,
+    });
+    const statements = query.mock.calls.map(([statement]) => String(statement));
+    expect(statements.some((statement) => statement.includes("seat_entitlements"))).toBe(true);
+    expect(statements.some((statement) => statement.includes("'grant', 1"))).toBe(false);
+  });
+
+  it("rejects without creating a seat entitlement", async () => {
+    query
+      .mockResolvedValueOnce({ rows: [{ id: "payment-3", status: "pending", user_id: null, saved_student_id: null, prediction_id: "prediction-3", year: 2026, seat_number: "2001980", receipt_blob_key: "receipts/private.webp" }] })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await expect(reviewPaymentTransaction({ paymentId: "payment-3", actorUserId: "admin", action: "reject", rejectionReason: "إيصال غير واضح" })).resolves.toMatchObject({ status: "rejected" });
+    const statements = query.mock.calls.map(([statement]) => String(statement));
+    expect(statements.some((statement) => statement.includes("seat_entitlements"))).toBe(false);
   });
 });
