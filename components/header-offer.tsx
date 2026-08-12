@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Clock3, Sparkles } from "lucide-react";
-import { formatOfferCountdown, isOfferActive, type PublicOffer } from "@/lib/offer-config";
+import { ArrowLeft, Clock3 } from "lucide-react";
+import { formatEgp, getServerBasedNow, isOfferActive, type PublicOffer } from "@/lib/offer-config";
+import { OfferCountdown } from "@/components/offer-countdown";
 
 type HeaderOfferSettings = {
+  serverNow: string;
+  receivedAt: number;
   offer: PublicOffer;
   products: {
     single: { priceEgp: string };
@@ -19,13 +22,13 @@ export function HeaderOffer() {
   useEffect(() => {
     void fetch("/api/payment-settings", { cache: "no-store" })
       .then(async (response) => {
-        if (response.ok) setSettings(await response.json());
+        if (response.ok) setSettings({ ...(await response.json()), receivedAt: Date.now() });
       })
       .catch(() => undefined);
   }, []);
 
   const offer = settings?.offer;
-  const active = offer ? isOfferActive(offer, now) : false;
+  const active = offer ? isOfferActive(offer, getServerBasedNow(settings?.serverNow, settings?.receivedAt ?? now, now)) : false;
   useEffect(() => {
     if (!offer?.endAt || !offer.showCountdown || !active) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -35,7 +38,6 @@ export function HeaderOffer() {
   if (!settings || !offer || !offer.targetProduct || !offer.showInHeader || !active) return null;
   const targetPrice = offer.targetProduct === "friends_3" ? settings.products.friends3.priceEgp : settings.products.single.priceEgp;
   const targetLabel = offer.targetProduct === "friends_3" ? "عرض الصحاب" : "عرض التقرير";
-  const countdown = offer.showCountdown ? formatOfferCountdown(offer.endAt, now) : null;
   const targetProduct = offer.targetProduct;
 
   function openOffer() {
@@ -45,12 +47,12 @@ export function HeaderOffer() {
 
   return (
     <button type="button" className="header-offer" onClick={openOffer} aria-label={`${offer.title} — ${offer.ctaText}`}>
-      <span className="header-offer-icon"><Sparkles size={14} aria-hidden="true" /></span>
+      <span className="header-offer-icon"><Clock3 size={15} aria-hidden="true" /></span>
       <span className="header-offer-copy">
-        <strong>{offer.badgeText || targetLabel} · <bdi>{targetPrice}</bdi> جنيه</strong>
-        <span>{offer.ctaText}</span>
+        <strong>{offer.badgeText || targetLabel}</strong>
+        <span>عرض {formatEgp(targetPrice)} جنيه</span>
       </span>
-      {countdown ? <span className="header-offer-countdown"><Clock3 size={13} aria-hidden="true" /><bdi>{countdown}</bdi></span> : null}
+      {offer.showCountdown ? <OfferCountdown endAt={offer.endAt} serverNow={settings.serverNow} receivedAt={settings.receivedAt} compact className="header-offer-countdown" /> : null}
       <ArrowLeft className="header-offer-arrow" size={15} aria-hidden="true" />
     </button>
   );

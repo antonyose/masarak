@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatOfferCountdown, isOfferActive, type PublicOffer } from "@/lib/offer-config";
+import { formatEgp, formatOfferCountdown, getServerBasedNow, isOfferActive, type PublicOffer } from "@/lib/offer-config";
 
 const baseOffer: PublicOffer = {
   enabled: true,
@@ -29,5 +29,12 @@ describe("public offer presentation", () => {
   it("formats a stable zero-padded countdown", () => {
     expect(formatOfferCountdown(baseOffer.endAt, Date.parse("2026-08-12T10:58:42.000Z"))).toBe("01:01:18");
     expect(formatOfferCountdown(baseOffer.endAt, Date.parse("2026-08-12T12:00:01.000Z"))).toBe("00:00:00");
+  });
+
+  it("keeps the countdown anchored to the server timestamp", () => {
+    const receivedAt = Date.parse("2026-08-12T08:00:00.000Z");
+    const clientNow = receivedAt + 5 * 60 * 60 * 1000;
+    expect(getServerBasedNow("2026-08-12T08:00:00.000Z", receivedAt, clientNow)).toBe(clientNow);
+    expect(formatEgp("35.00")).toBe("35");
   });
 });

@@ -10,6 +10,7 @@ import { getPaymentSettings } from "@/lib/settings";
 const settingsSchema = z.object({
   fullReportPriceEgp: z.coerce.number().positive().max(10000),
   singleReportPriceEgp: z.coerce.number().positive().max(10000),
+  singleReportOriginalPriceEgp: z.coerce.number().positive().max(10000),
   friends3PriceEgp: z.coerce.number().positive().max(10000),
   friends3Enabled: z.boolean(),
   offerEnabled: z.boolean(),
@@ -53,7 +54,7 @@ export async function PATCH(request: Request) {
     const parsed = settingsSchema.safeParse(await request.json());
     if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "الإعدادات غير صحيحة." }, { status: 400 });
     const before = await getPaymentSettings();
-    const [after] = await getDatabase().update(paymentSettings).set({ ...parsed.data, fullReportPriceEgp: parsed.data.fullReportPriceEgp.toFixed(2), singleReportPriceEgp: parsed.data.singleReportPriceEgp.toFixed(2), friends3PriceEgp: parsed.data.friends3PriceEgp.toFixed(2), updatedBy: session.user.id, updatedAt: new Date() }).where(eq(paymentSettings.id, 1)).returning();
+    const [after] = await getDatabase().update(paymentSettings).set({ ...parsed.data, fullReportPriceEgp: parsed.data.fullReportPriceEgp.toFixed(2), singleReportPriceEgp: parsed.data.singleReportPriceEgp.toFixed(2), singleReportOriginalPriceEgp: parsed.data.singleReportOriginalPriceEgp.toFixed(2), friends3PriceEgp: parsed.data.friends3PriceEgp.toFixed(2), updatedBy: session.user.id, updatedAt: new Date() }).where(eq(paymentSettings.id, 1)).returning();
     await getDatabase().insert(adminAuditLogs).values({ actorUserId: session.user.id, action: "settings.update", targetType: "payment_settings", targetId: "1", beforeJson: before as unknown as Record<string, unknown>, afterJson: after as unknown as Record<string, unknown> });
     return NextResponse.json({ settings: after });
   } catch (error) {

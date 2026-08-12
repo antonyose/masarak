@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 type Settings = {
   fullReportPriceEgp: string;
   singleReportPriceEgp: string;
+  singleReportOriginalPriceEgp: string;
   friends3PriceEgp: string;
   friends3Enabled: boolean;
   offerEnabled: boolean;
@@ -67,6 +68,7 @@ export function AdminSettingsForm() {
     const payload = {
       fullReportPriceEgp: Number(currentSettings.fullReportPriceEgp),
       singleReportPriceEgp: Number(data.get("singleReportPriceEgp")),
+      singleReportOriginalPriceEgp: Number(data.get("singleReportOriginalPriceEgp")),
       friends3PriceEgp: Number(data.get("friends3PriceEgp")),
       friends3Enabled: checked(data, "friends3Enabled"),
       offerEnabled: checked(data, "offerEnabled"),
@@ -140,6 +142,7 @@ export function AdminSettingsForm() {
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1 text-sm font-bold">سعر التقرير الفردي<input name="singleReportPriceEgp" type="number" step="0.01" defaultValue={settings.singleReportPriceEgp} className="min-h-10 border border-slate-300 px-3" /></label>
+        <label className="grid gap-1 text-sm font-bold">السعر الأصلي للتقرير<input name="singleReportOriginalPriceEgp" type="number" step="0.01" defaultValue={settings.singleReportOriginalPriceEgp} className="min-h-10 border border-slate-300 px-3" /><span className="text-xs font-normal text-slate-500">يظهر كسعر سابق في بطاقة العرض.</span></label>
         <label className="grid gap-1 text-sm font-bold">سعر عرض الصحاب<input name="friends3PriceEgp" type="number" step="0.01" defaultValue={settings.friends3PriceEgp} className="min-h-10 border border-slate-300 px-3" /><span className="admin-check-row"><input name="friends3Enabled" type="checkbox" defaultChecked={settings.friends3Enabled} /> العرض مفعّل</span></label>
         <label className="grid gap-1 text-sm font-bold">عدد التوصيات المجانية<input name="freeRecommendationCount" type="number" min="1" max="10" defaultValue={settings.freeRecommendationCount} className="min-h-10 border border-slate-300 px-3" /></label>
         <label className="grid gap-1 text-sm font-bold">فودافون كاش<input name="vodafoneCashNumber" defaultValue={settings.vodafoneCashNumber} className="min-h-10 border border-slate-300 px-3" /><span className="admin-check-row"><input name="vodafoneEnabled" type="checkbox" defaultChecked={settings.vodafoneEnabled} /> مفعّل</span></label>

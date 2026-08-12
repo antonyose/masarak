@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   Check,
   ChevronLeft,
-  Clock3,
   Copy,
   GraduationCap,
   LockKeyhole,
@@ -17,7 +16,8 @@ import {
 } from "lucide-react";
 import { egyptianGovernorates } from "@/lib/governorates";
 import { normalizeDigits } from "@/lib/normalize-arabic";
-import { formatOfferCountdown, isOfferActive, type PublicOffer } from "@/lib/offer-config";
+import { formatEgp, getServerBasedNow, isOfferActive, type PublicOffer } from "@/lib/offer-config";
+import { OfferCountdown } from "@/components/offer-countdown";
 
 type Branch = "science" | "mathematics" | "literary";
 type System = "new" | "old";
@@ -59,9 +59,11 @@ type PredictionResponse = {
 };
 type PaymentSettings = {
   priceEgp: string;
+  serverNow: string;
+  receivedAt: number;
   offer: PublicOffer;
   products: {
-    single: { id: "single"; label: string; priceEgp: string; seatCount: 1; offer: { badgeText: string; title: string; subtitle: string; ctaText: string; endAt: string | null; showCountdown: boolean } | null };
+    single: { id: "single"; label: string; priceEgp: string; originalPriceEgp: string; savingsEgp: string; seatCount: 1; offer: { badgeText: string; title: string; subtitle: string; ctaText: string; endAt: string | null; showCountdown: boolean } | null };
     friends3: {
       id: "friends_3";
       label: string;
@@ -218,7 +220,7 @@ export function ToolExperience() {
     if (!report || report.premium) return;
     void fetch("/api/payment-settings")
       .then(async (response) => {
-        if (response.ok) setSettings(await response.json());
+        if (response.ok) setSettings({ ...(await response.json()), receivedAt: Date.now() });
       })
       .catch(() => undefined);
   }, [report]);
@@ -517,9 +519,8 @@ function GuestPaymentOffer({
   const selectedProduct = productType === "friends_3"
     ? settings?.products.friends3
     : settings?.products.single;
-  const activeOffer = settings ? isOfferActive(settings.offer, now) && settings.offer.showInLockedOffer : false;
+  const activeOffer = settings ? isOfferActive(settings.offer, getServerBasedNow(settings.serverNow, settings.receivedAt, now)) && settings.offer.showInLockedOffer : false;
   const selectedOffer = activeOffer && settings?.offer.targetProduct === productType ? settings.offer : null;
-  const offerCountdown = selectedOffer?.showCountdown ? formatOfferCountdown(selectedOffer.endAt, now) : null;
 
   useEffect(() => {
     if (!settings?.offer.endAt || !settings.offer.showCountdown || !activeOffer) return;
@@ -698,8 +699,9 @@ function GuestPaymentOffer({
             <span className="offer-product-kicker">تقريرك</span>
             <strong><bdi>{settings.products.single.priceEgp}</bdi> <small>جنيه فقط</small></strong>
             <small>تقرير كامل لرقم جلوس واحد</small>
+            {selectedOffer?.targetProduct === "single" ? <small className="offer-original-price">بدل <s><bdi>{formatEgp(settings.products.single.originalPriceEgp)}</bdi></s> جنيه · وفر {formatEgp(settings.products.single.savingsEgp)} جنيه</small> : null}
             {selectedOffer?.targetProduct === "single" ? <small className="offer-product-saving">{selectedOffer.subtitle}</small> : null}
-            {selectedOffer?.targetProduct === "single" && offerCountdown ? <small className="offer-countdown"><Clock3 size={12} aria-hidden="true" /> ينتهي خلال <bdi>{offerCountdown}</bdi></small> : null}
+            {selectedOffer?.targetProduct === "single" && selectedOffer.showCountdown ? <OfferCountdown endAt={selectedOffer.endAt} serverNow={settings.serverNow} receivedAt={settings.receivedAt} className="offer-countdown" /> : null}
           </button>
           {settings.products.friends3.enabled ? (
             <button type="button" className={`offer-product-card offer-product-card-featured${productType === "friends_3" ? " is-selected" : ""}${selectedOffer?.targetProduct === "friends_3" ? " has-offer" : ""}`} onClick={() => setProductType("friends_3")} aria-pressed={productType === "friends_3"}>
@@ -709,7 +711,7 @@ function GuestPaymentOffer({
               <strong><bdi>{settings.products.friends3.priceEgp}</bdi> جنيه</strong>
               <small>3 تقارير كاملة · بدل {settings.products.friends3.regularTotalEgp} جنيه</small>
               <small className="offer-product-saving">وفر {settings.products.friends3.savingsEgp} جنيه</small>
-              {selectedOffer?.targetProduct === "friends_3" && offerCountdown ? <small className="offer-countdown"><Clock3 size={12} aria-hidden="true" /> ينتهي خلال <bdi>{offerCountdown}</bdi></small> : null}
+              {selectedOffer?.targetProduct === "friends_3" && selectedOffer.showCountdown ? <OfferCountdown endAt={selectedOffer.endAt} serverNow={settings.serverNow} receivedAt={settings.receivedAt} className="offer-countdown" /> : null}
             </button>
           ) : null}
         </div>

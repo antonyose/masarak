@@ -9,6 +9,7 @@ export const defaultPaymentSettings = {
   id: 1,
   fullReportPriceEgp: "99.00",
   singleReportPriceEgp: "35.00",
+  singleReportOriginalPriceEgp: "50.00",
   friends3PriceEgp: "69.00",
   friends3Enabled: true,
   offerEnabled: true,

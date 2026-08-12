@@ -615,6 +615,12 @@ export const paymentSettings = pgTable("payment_settings", {
   })
     .notNull()
     .default("35.00"),
+  singleReportOriginalPriceEgp: numeric("single_report_original_price_egp", {
+    precision: 10,
+    scale: 2,
+  })
+    .notNull()
+    .default("50.00"),
   friends3PriceEgp: numeric("friends_3_price_egp", {
     precision: 10,
     scale: 2,

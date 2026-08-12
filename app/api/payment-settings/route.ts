@@ -5,17 +5,24 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const settings = await getPaymentSettings();
+  const serverNow = new Date();
+  const serverNowIso = serverNow.toISOString();
   const offerEndAt = settings.offerEndAt ? new Date(settings.offerEndAt) : null;
   const offerProductEnabled = settings.offerTargetProduct !== "friends_3" || settings.friends3Enabled;
-  const offerActive = settings.offerEnabled && offerProductEnabled && (!offerEndAt || offerEndAt.getTime() > Date.now());
+  const offerActive = settings.offerEnabled && offerProductEnabled && (!offerEndAt || offerEndAt.getTime() > serverNow.getTime());
+  const singlePrice = Number(settings.singleReportPriceEgp);
+  const singleOriginalPrice = Number(settings.singleReportOriginalPriceEgp);
   return NextResponse.json({
     priceEgp: settings.singleReportPriceEgp,
     currency: "EGP",
+    serverNow: serverNowIso,
     products: {
       single: {
         id: "single",
         label: "تقريرك",
         priceEgp: settings.singleReportPriceEgp,
+        originalPriceEgp: settings.singleReportOriginalPriceEgp,
+        savingsEgp: Math.max(0, singleOriginalPrice - singlePrice).toFixed(2),
         seatCount: 1,
         offer: settings.offerTargetProduct === "single" && offerActive && settings.offerShowInPricingCard
           ? {
@@ -57,6 +64,7 @@ export async function GET() {
       subtitle: settings.offerSubtitle,
       ctaText: settings.offerCtaText,
       endAt: offerEndAt?.toISOString() ?? null,
+      offerEndsAt: offerEndAt?.toISOString() ?? null,
       showCountdown: settings.offerShowCountdown,
       showInHeader: settings.offerShowInHeader,
       showInPricingCard: settings.offerShowInPricingCard,
