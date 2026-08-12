@@ -422,8 +422,6 @@ function Report({
           />
         </section>
       ) : null}
-
-      <p className="report-note">الترشيحات استرشادية، والنتيجة النهائية حسب موقع التنسيق.</p>
     </div>
   );
 }

@@ -86,10 +86,6 @@ export function PremiumReport({ predictionId }: { predictionId: string }) {
           </article>
         ))}
       </div>
-
-      <p className="text-xs leading-6 text-slate-500">
-        الترشيحات استرشادية، والنتيجة النهائية حسب موقع التنسيق.
-      </p>
     </div>
   );
 }
