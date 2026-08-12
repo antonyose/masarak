@@ -35,6 +35,7 @@ type V2Diagnostics = {
   modelVersion: string;
   shadow: true;
   activated: false;
+  activation: { active: boolean; activeModelVersion: string | null; activatedAt: string | null };
   data: {
     publicSourceRows: number;
     publicTechnologicalRows: number;
@@ -211,12 +212,16 @@ export default function AdminPage() {
             <section className="admin-panel">
               <div className="admin-panel-header">
                 <div>
-                  <div className="admin-section-kicker">Prediction V2 · Shadow</div>
+                  <div className="admin-section-kicker">Prediction V2 · {v2.activation.active ? "Production" : "Shadow"}</div>
                   <h3 className="admin-panel-title">{v2.modelVersion}</h3>
-                  <p className="admin-panel-sub">غير مفعّل ولا يغيّر تقارير V1 أو الدفع والاستحقاقات.</p>
+                  <p className="admin-panel-sub">
+                    {v2.activation.active
+                      ? "النموذج النشط حاليًا لتقارير الطلاب، مع بقاء V1 واللقطات والاستحقاقات محفوظة."
+                      : "نموذج ظل غير مفعّل ولا يغيّر تقارير V1 أو الدفع والاستحقاقات."}
+                  </p>
                 </div>
-                <span className={`admin-status-badge ${v2.evaluation.gates.activationReady ? "admin-status-approved" : "admin-status-pending"}`}>
-                  {v2.evaluation.gates.activationReady ? "جاهز للتفعيل" : "محجوب عن التفعيل"}
+                <span className={`admin-status-badge ${v2.activation.active || v2.evaluation.gates.activationReady ? "admin-status-approved" : "admin-status-pending"}`}>
+                  {v2.activation.active ? "مفعّل في الإنتاج" : v2.evaluation.gates.activationReady ? "جاهز للتفعيل" : "محجوب عن التفعيل"}
                 </span>
               </div>
               <div className="admin-coord-grid">
