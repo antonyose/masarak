@@ -21,6 +21,7 @@ const settings = {
   singleReportOriginalPriceEgp: "50.00",
   friends3PriceEgp: "69.00",
   friends3Enabled: true,
+  autoAcceptPayments: false,
   offerEnabled: true,
   offerTargetProduct: "single" as const,
   offerBadgeText: "عرض لفترة محدودة",

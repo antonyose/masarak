@@ -71,6 +71,14 @@ describe("payment review transaction", () => {
     expect(auditCall?.[1]?.join(" ")).toContain("approvedWithoutReceipt");
   });
 
+  it("labels automatic approvals distinctly in the audit log", async () => {
+    configurePaymentWithoutReceipt();
+    await reviewPaymentTransaction({ paymentId: "payment", actorUserId: null, action: "approve", allowMissingReceipt: true, reviewSource: "auto" });
+    const auditCall = query.mock.calls.find(([statement]) => String(statement).includes("INSERT INTO admin_audit_logs"));
+    expect(auditCall?.[1]?.[1]).toBe("payment.auto_approved");
+    expect(auditCall?.[1]?.join(" ")).toContain("reviewSource");
+  });
+
   it("cancels a duplicate guest payment without granting a second seat", async () => {
     configurePayment({ existing: [{ seat_number: "2001970" }] });
     await expect(reviewPaymentTransaction({ paymentId: "payment", actorUserId: "admin", action: "approve" })).resolves.toMatchObject({ status: "cancelled", alreadyUnlocked: true });

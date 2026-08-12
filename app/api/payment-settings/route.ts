@@ -77,5 +77,6 @@ export async function GET() {
     ].filter(Boolean),
     instructions: settings.paymentInstructions,
     supportContact: settings.supportContact,
+    receiptRequired: !settings.autoAcceptPayments,
   }, { headers: { "Cache-Control": "private, no-store" } });
 }

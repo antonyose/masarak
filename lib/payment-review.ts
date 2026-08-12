@@ -13,13 +13,15 @@ export async function reviewPaymentTransaction({
   actorUserId,
   action,
   allowMissingReceipt = false,
+  reviewSource = "manual",
   rejectionReason,
   requestId,
 }: {
   paymentId: string;
-  actorUserId: string;
+  actorUserId: string | null;
   action: "approve" | "reject";
   allowMissingReceipt?: boolean;
+  reviewSource?: "manual" | "auto";
   rejectionReason?: string;
   requestId?: string;
 }) {
@@ -168,13 +170,14 @@ export async function reviewPaymentTransaction({
        VALUES ($1, $2, 'payment_submission', $3, $4::jsonb, $5::jsonb, $6)`,
       [
         actorUserId,
-        `payment.${nextStatus}`,
+        reviewSource === "auto" && nextStatus === "approved" ? "payment.auto_approved" : `payment.${nextStatus}`,
         paymentId,
         JSON.stringify({ status: "pending", productType: payment.product_type, seatNumbers: seats.map((seat) => seat.seat_number) }),
         JSON.stringify({
           status: nextStatus,
           rejectionReason: rejectionReason ?? null,
           approvedWithoutReceipt: action === "approve" && !payment.receipt_blob_key,
+          reviewSource,
         }),
         requestId ?? null,
       ],

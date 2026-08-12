@@ -942,6 +942,7 @@ export const paymentSettings = pgTable("payment_settings", {
     .notNull()
     .default("69.00"),
   friends3Enabled: boolean("friends_3_enabled").notNull().default(true),
+  autoAcceptPayments: boolean("auto_accept_payments").notNull().default(false),
   offerEnabled: boolean("offer_enabled").notNull().default(true),
   offerTargetProduct: paymentProductTypeEnum("offer_target_product"),
   offerBadgeText: text("offer_badge_text").notNull().default("عرض لفترة محدودة"),

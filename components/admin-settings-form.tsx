@@ -8,6 +8,7 @@ type Settings = {
   singleReportOriginalPriceEgp: string;
   friends3PriceEgp: string;
   friends3Enabled: boolean;
+  autoAcceptPayments: boolean;
   offerEnabled: boolean;
   offerTargetProduct: "single" | "friends_3" | null;
   offerBadgeText: string;
@@ -71,6 +72,7 @@ export function AdminSettingsForm() {
       singleReportOriginalPriceEgp: Number(data.get("singleReportOriginalPriceEgp")),
       friends3PriceEgp: Number(data.get("friends3PriceEgp")),
       friends3Enabled: checked(data, "friends3Enabled"),
+      autoAcceptPayments: checked(data, "autoAcceptPayments"),
       offerEnabled: checked(data, "offerEnabled"),
       offerTargetProduct: String(data.get("offerTargetProduct") ?? "") || null,
       offerBadgeText: data.get("offerBadgeText"),
@@ -112,6 +114,16 @@ export function AdminSettingsForm() {
 
   return (
     <form key={String(settings.updatedAt ?? "settings")} onSubmit={submit} className="mt-4 grid gap-4">
+      <fieldset className={`admin-auto-accept-settings${settings.autoAcceptPayments ? " is-enabled" : ""}`}>
+        <legend>تشغيل القبول التلقائي</legend>
+        <label className="admin-auto-accept-toggle">
+          <input name="autoAcceptPayments" type="checkbox" defaultChecked={settings.autoAcceptPayments} />
+          <span>
+            <strong>قبول أي طلب دفع جديد فورًا</strong>
+            <small>عند التشغيل، يُفتح التقرير بمجرد إنشاء الطلب حتى بدون إيصال. كل عملية تُسجل كقبول تلقائي ويمكنك إيقافها من هنا عند عودتك.</small>
+          </span>
+        </label>
+      </fieldset>
       <fieldset className="admin-offer-settings">
         <legend>العرض النشط والعدّاد</legend>
         <div className="admin-offer-grid">

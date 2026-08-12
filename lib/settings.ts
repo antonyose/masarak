@@ -12,6 +12,7 @@ export const defaultPaymentSettings = {
   singleReportOriginalPriceEgp: "50.00",
   friends3PriceEgp: "69.00",
   friends3Enabled: true,
+  autoAcceptPayments: false,
   offerEnabled: true,
   offerTargetProduct: "single" as const,
   offerBadgeText: "عرض لفترة محدودة",
@@ -35,6 +36,8 @@ export const defaultPaymentSettings = {
   freeRecommendationCount: 1,
   homepageStageMessage:
     "توقعات تنسيق المرحلة الثانية 2026 — محدثة بعد ظهور نتيجة المرحلة الأولى رسميًا",
+  updatedBy: null,
+  updatedAt: new Date(0),
 } as const;
 
 export async function getPaymentSettings() {

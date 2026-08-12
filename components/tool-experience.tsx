@@ -125,6 +125,7 @@ type PaymentSettings = {
     deepLink?: string;
     logoSrc: string;
   }>;
+  receiptRequired: boolean;
 };
 type ProductType = "single" | "friends_3";
 
@@ -823,8 +824,8 @@ function GuestPaymentOffer({
 
   async function submitPayment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!settings || !selectedProduct || !method || !receipt) {
-      setError("اختار طريقة الدفع وارفع صورة الإيصال.");
+    if (!settings || !selectedProduct || !method || (settings.receiptRequired && !receipt)) {
+      setError(settings?.receiptRequired ? "اختار طريقة الدفع وارفع صورة الإيصال." : "اختار طريقة الدفع.");
       return;
     }
     const normalizedFriends = friendSeats.map((seat) => normalizeDigits(seat.trim()));
@@ -872,8 +873,21 @@ function GuestPaymentOffer({
       if (!response.ok) throw new Error(data.error);
       const id = String(data.payment.id);
       setPaymentId(id);
+      if (data.payment.status === "approved") {
+        const full = await fetch(`/api/predictions/${predictionId}/report`, { cache: "no-store" });
+        const fullData = await full.json();
+        if (!full.ok || !fullData.premium) throw new Error(fullData.error ?? "تم قبول الطلب، لكن تعذر فتح التقرير الآن. حدّث الصفحة.");
+        trackFunnel("payment_submitted", { product: productType, source: "locked_report" });
+        onUnlocked(normalizeReport(fullData));
+        return;
+      }
       if (data.payment.hasReceipt) {
         trackFunnel("payment_submitted", { product: productType, source: "locked_report" });
+        setMode("pending");
+        setPolling(true);
+        return;
+      }
+      if (!receipt) {
         setMode("pending");
         setPolling(true);
         return;
@@ -999,7 +1013,7 @@ function GuestPaymentOffer({
             );
           })}
         </div>
-        <label className="receipt-picker"><Upload size={17} /><span>{receipt ? receipt.name : "ارفع صورة الإيصال — حتى 5MB"}</span><input type="file" accept="image/jpeg,image/png,image/webp" required onChange={(event) => { const file = event.target.files?.[0] ?? null; setReceipt(file); if (file) trackFunnel("receipt_uploaded", { product: productType, source: "locked_report" }); }} /></label>
+        <label className="receipt-picker"><Upload size={17} /><span>{receipt ? receipt.name : settings.receiptRequired ? "ارفع صورة الإيصال — حتى 5MB" : "صورة الإيصال — اختيارية"}</span><input type="file" accept="image/jpeg,image/png,image/webp" required={settings.receiptRequired} onChange={(event) => { const file = event.target.files?.[0] ?? null; setReceipt(file); if (file) trackFunnel("receipt_uploaded", { product: productType, source: "locked_report" }); }} /></label>
         {mode === "rejected" ? <p className="payment-rejected">لم تتم الموافقة على الطلب السابق. يمكنك إرسال إيصال جديد.</p> : null}
         {error ? <p className="payment-inline-error" role="alert">{error}</p> : null}
         <button className="offer-cta" disabled={mode === "submitting"}>

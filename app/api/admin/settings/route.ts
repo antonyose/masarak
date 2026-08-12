@@ -13,6 +13,7 @@ const settingsSchema = z.object({
   singleReportOriginalPriceEgp: z.coerce.number().positive().max(10000),
   friends3PriceEgp: z.coerce.number().positive().max(10000),
   friends3Enabled: z.boolean(),
+  autoAcceptPayments: z.boolean(),
   offerEnabled: z.boolean(),
   offerTargetProduct: z.enum(["single", "friends_3"]).nullable(),
   offerBadgeText: z.string().trim().min(2).max(80),

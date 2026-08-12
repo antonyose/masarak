@@ -14,6 +14,7 @@ import { paymentCreateSchema } from "@/lib/schemas";
 import {
   validatePaymentSeats,
 } from "@/lib/payment-products";
+import { reviewPaymentTransaction } from "@/lib/payment-review";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,6 +46,26 @@ async function loadPaymentSeats(paymentId: string) {
     .from(paymentSubmissionSeats)
     .where(eq(paymentSubmissionSeats.paymentId, paymentId))
     .orderBy(paymentSubmissionSeats.position);
+}
+
+async function autoAcceptPaymentIfEnabled(
+  paymentId: string,
+  settings: { autoAcceptPayments: boolean; updatedBy: string | null },
+) {
+  if (!settings.autoAcceptPayments) return null;
+  await reviewPaymentTransaction({
+    paymentId,
+    actorUserId: settings.updatedBy,
+    action: "approve",
+    allowMissingReceipt: true,
+    reviewSource: "auto",
+  });
+  const [payment] = await getDatabase()
+    .select()
+    .from(paymentSubmissions)
+    .where(eq(paymentSubmissions.id, paymentId))
+    .limit(1);
+  return payment ?? null;
 }
 
 export async function GET() {
@@ -123,10 +144,14 @@ export async function POST(request: Request) {
       const sameSeats = existingSeats.length === validated.seatNumbers.length &&
         existingSeats.every((seat, index) => seat.seatNumber === validated.seatNumbers[index]);
       if (sameSeats) {
+        const automaticallyReviewed = await autoAcceptPaymentIfEnabled(
+          existingPending[0].id,
+          validated.settings,
+        );
         return NextResponse.json({
-          payment: publicPayment(existingPending[0], existingSeats.map((seat) => seat.seatNumber)),
+          payment: publicPayment(automaticallyReviewed ?? existingPending[0], existingSeats.map((seat) => seat.seatNumber)),
           existing: true,
-          pending: true,
+          pending: !automaticallyReviewed,
         });
       }
     }
@@ -219,6 +244,15 @@ export async function POST(request: Request) {
       return payment;
     });
     const seats = await loadPaymentSeats(created.id);
+    const automaticallyReviewed = created.status === "pending"
+      ? await autoAcceptPaymentIfEnabled(created.id, settings)
+      : null;
+    if (automaticallyReviewed) {
+      return NextResponse.json({
+        payment: publicPayment(automaticallyReviewed, seats.map((seat) => seat.seatNumber)),
+        autoAccepted: automaticallyReviewed.status === "approved",
+      });
+    }
     return NextResponse.json(
       { payment: publicPayment({
         id: created.id,

@@ -2075,6 +2075,43 @@ a {
   }
 }
 
+.admin-auto-accept-settings {
+  padding: 1rem;
+  border: 1px solid #f59e0b;
+  border-radius: var(--radius-sm);
+  background: #fffbeb;
+}
+
+.admin-auto-accept-settings.is-enabled {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.admin-auto-accept-settings legend {
+  padding-inline: 0.35rem;
+  color: var(--navy);
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.admin-auto-accept-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.admin-auto-accept-toggle input {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.2rem;
+  accent-color: var(--primary);
+}
+
+.admin-auto-accept-toggle span { display: grid; gap: 0.25rem; }
+.admin-auto-accept-toggle strong { color: var(--ink); font-size: 0.86rem; }
+.admin-auto-accept-toggle small { color: var(--muted); font-size: 0.7rem; line-height: 1.7; }
+
 .stage3-report-notice {
   margin-bottom: 1rem;
   padding: 0.9rem 1rem;

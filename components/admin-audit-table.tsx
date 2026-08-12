@@ -19,6 +19,7 @@ type AuditLog = {
 
 const ACTION_LABELS: Record<string, string> = {
   "payment.approve": "قبول دفعة",
+  "payment.auto_approved": "قبول تلقائي لدفعة",
   "payment.reject": "رفض دفعة",
   "payment.approve_duplicate": "دفعة مكررة",
   "entitlement.manual_grant": "تفعيل مباشر لرقم جلوس",
