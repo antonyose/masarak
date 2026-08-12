@@ -49,8 +49,8 @@ export function HeaderOffer() {
     <button type="button" className="header-offer" onClick={openOffer} aria-label={`${offer.title} — ${offer.ctaText}`}>
       <span className="header-offer-icon"><Clock3 size={15} aria-hidden="true" /></span>
       <span className="header-offer-copy">
-        <strong>{offer.badgeText || targetLabel}</strong>
-        <span>عرض {formatEgp(targetPrice)} جنيه</span>
+        <strong className="header-offer-badge">{offer.badgeText || targetLabel}</strong>
+        <span className="header-offer-price">عرض {formatEgp(targetPrice)} جنيه</span>
       </span>
       {offer.showCountdown ? <OfferCountdown endAt={offer.endAt} serverNow={settings.serverNow} receivedAt={settings.receivedAt} compact className="header-offer-countdown" /> : null}
       <ArrowLeft className="header-offer-arrow" size={15} aria-hidden="true" />

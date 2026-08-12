@@ -3758,7 +3758,7 @@ a {
   }
 
   .brand-copy small,
-  .header-offer-copy span {
+  .header-offer-copy .header-offer-badge {
     display: none;
   }
 
@@ -3779,6 +3779,15 @@ a {
   .header-offer-copy strong {
     max-width: 6.5rem;
     font-size: 0.62rem;
+  }
+
+  .header-offer-copy .header-offer-price {
+    display: block;
+    max-width: 6.5rem;
+    margin-top: 0;
+    color: var(--navy);
+    font-size: 0.62rem;
+    font-weight: 900;
   }
 
   .header-offer-arrow {
@@ -3814,6 +3823,11 @@ a {
   }
 
   .header-offer-copy strong {
+    max-width: 5.4rem;
+    font-size: 0.56rem;
+  }
+
+  .header-offer-copy .header-offer-price {
     max-width: 5.4rem;
     font-size: 0.56rem;
   }
