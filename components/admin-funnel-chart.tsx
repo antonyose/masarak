@@ -1,42 +1,35 @@
 "use client";
 
-type FunnelStep = { label: string; key: string; color: string };
-
-const FUNNEL_STEPS: FunnelStep[] = [
-  { label: "مشاهدات الصفحة", key: "page_view", color: "#0d9488" },
-  { label: "بحث عن نتيجة", key: "search_result", color: "#0891b2" },
-  { label: "عرض العرض", key: "offer_viewed", color: "#2563eb" },
-  { label: "ضغط على العرض", key: "offer_clicked", color: "#7c3aed" },
-  { label: "ضغط على التسعير", key: "pricing_cta_clicked", color: "#9333ea" },
-  { label: "اختيار المنتج", key: "product_selected", color: "#c026d3" },
-  { label: "رفع إيصال", key: "receipt_uploaded", color: "#e11d48" },
-  { label: "إرسال دفع", key: "payment_submitted", color: "#dc2626" },
-];
-
 type Props = {
-  data: Array<{ event_name: string; total: number }>;
+  data: Array<{ event_name: string; label: string; total: number; instrumented: boolean }>;
+  mode: "sessions" | "aggregate";
 };
 
-export function AdminFunnelChart({ data }: Props) {
-  const lookup = Object.fromEntries(data.map((d) => [d.event_name, d.total]));
-  const maxVal = Math.max(...FUNNEL_STEPS.map((s) => lookup[s.key] ?? 0), 1);
+const colors = ["#0d9488", "#0891b2", "#2563eb", "#4f46e5", "#7c3aed", "#c026d3", "#e11d48", "#dc2626"];
+
+export function AdminFunnelChart({ data, mode }: Props) {
+  const maxVal = Math.max(...data.map((step) => step.total), 1);
 
   return (
     <div className="admin-funnel">
       <h4 className="admin-section-title">مسار التحويل (آخر 30 يوم)</h4>
+      <p className="admin-funnel-help">
+        {mode === "sessions" ? "كل رقم يمثل جلسات مجهولة فريدة وصلت للخطوة." : "الأرقام القديمة تفاعلات مجمعة؛ تبدأ دقة الجلسات مع التتبع الجديد."}
+      </p>
       <div className="admin-funnel-steps">
-        {FUNNEL_STEPS.map((step, i) => {
-          const count = lookup[step.key] ?? 0;
-          const pct = maxVal > 0 ? (count / maxVal) * 100 : 0;
-          const prevCount = i > 0 ? (lookup[FUNNEL_STEPS[i - 1].key] ?? 0) : count;
-          const dropPct = prevCount > 0 ? Math.round(((prevCount - count) / prevCount) * 100) : 0;
+        {data.map((step, i) => {
+          const pct = maxVal > 0 ? (step.total / maxVal) * 100 : 0;
+          const previous = i > 0 ? data[i - 1] : null;
+          const dropPct = previous?.instrumented && step.instrumented && previous.total > 0 && step.total <= previous.total
+            ? Math.round(((previous.total - step.total) / previous.total) * 100)
+            : 0;
 
           return (
-            <div key={step.key} className="admin-funnel-step">
+            <div key={step.event_name} className={`admin-funnel-step${step.instrumented ? "" : " is-awaiting"}`}>
               <div className="admin-funnel-label">
                 <span>{step.label}</span>
                 <span className="admin-funnel-count">
-                  {count.toLocaleString("ar-EG")}
+                  {step.instrumented ? step.total.toLocaleString("ar-EG") : "يبدأ الآن"}
                   {i > 0 && dropPct > 0 ? (
                     <span className="admin-funnel-drop">−{dropPct}%</span>
                   ) : null}
@@ -45,7 +38,7 @@ export function AdminFunnelChart({ data }: Props) {
               <div className="admin-funnel-bar-bg">
                 <div
                   className="admin-funnel-bar"
-                  style={{ width: `${Math.max(pct, 2)}%`, background: step.color }}
+                  style={{ width: `${step.total > 0 ? Math.max(pct, 2) : 0}%`, background: colors[i % colors.length] }}
                 />
               </div>
             </div>

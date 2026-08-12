@@ -13,7 +13,7 @@ export function AdminDailyChart({ data }: Props) {
     return <div className="admin-chart-empty">لا توجد بيانات كافية للرسم البياني</div>;
   }
 
-  const maxVal = Math.max(...data.map((d) => d.views + d.searches + d.predictions), 1);
+  const maxVal = Math.max(...data.flatMap((d) => [d.views, d.searches, d.predictions]), 1);
   const W = 700;
   const H = 220;
   const padL = 40;
@@ -41,7 +41,7 @@ export function AdminDailyChart({ data }: Props) {
         <span className="admin-legend-dot" style={{ background: "var(--amber-500, #f59e0b)" }} />
         <span>بحث</span>
         <span className="admin-legend-dot" style={{ background: "var(--indigo-500, #6366f1)" }} />
-        <span>توقعات</span>
+        <span>طلبات تقرير</span>
       </div>
       <svg
         viewBox={`0 0 ${W} ${H}`}
@@ -77,7 +77,7 @@ export function AdminDailyChart({ data }: Props) {
                 setTooltip({
                   x: e.clientX - rect.left,
                   y: e.clientY - rect.top - 12,
-                  content: `${d.date}\nمشاهدات: ${d.views}\nبحث: ${d.searches}\nتوقعات: ${d.predictions}`,
+                  content: `${d.date}\nمشاهدات: ${d.views}\nبحث: ${d.searches}\nطلبات تقرير: ${d.predictions}`,
                 });
               }}
               onMouseLeave={() => setTooltip(null)}

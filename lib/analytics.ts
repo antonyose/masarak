@@ -1,6 +1,14 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
+import {
+  buildBehaviorFunnel,
+  buildBehaviorInsights,
+  buildBehaviorRates,
+  type AnalyticsMode,
+  type EventMetric,
+} from "@/lib/analytics-insights";
 
 export type AnalyticsData = {
   totalViews: number;
@@ -9,6 +17,39 @@ export type AnalyticsData = {
   searchCount: number;
   lastVisit: string;
 };
+
+export type BehaviorAnalytics = {
+  periodDays: number;
+  mode: AnalyticsMode;
+  instrumentedAt: string | null;
+  uniqueSessions: number;
+  engagedSessions: number;
+  totalInteractions: number;
+  funnel: ReturnType<typeof buildBehaviorFunnel>;
+  rates: ReturnType<typeof buildBehaviorRates>;
+  insights: ReturnType<typeof buildBehaviorInsights>;
+  busyHours: Array<{ hour: number; total: number }>;
+  devices: Array<{ device: string; total: number }>;
+  topPaths: Array<{ path: string; total: number }>;
+  trafficTrend: Array<{ event_type: string; current_total: number; previous_total: number }>;
+};
+
+function getCairoDate(now = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Cairo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}
+
+function deviceType(userAgent?: string) {
+  const agent = userAgent?.toLowerCase() ?? "";
+  if (/ipad|tablet|kindle|silk/.test(agent)) return "tablet";
+  if (/android|iphone|ipod|mobile/.test(agent)) return "mobile";
+  if (agent) return "desktop";
+  return "unknown";
+}
 
 /**
  * Ensures the analytics_events table exists (runs once per cold start).
@@ -44,7 +85,7 @@ export async function trackEvent(type: "view" | "predict" | "search") {
     if (!process.env.DATABASE_URL) return;
     await ready();
     const db = getDatabase();
-    const today = new Date().toISOString().split("T")[0];
+    const today = getCairoDate();
 
     await db.execute(sql`
       INSERT INTO analytics_events (event_type, event_date, count)
@@ -58,7 +99,7 @@ export async function trackEvent(type: "view" | "predict" | "search") {
 }
 
 export async function getAnalytics(): Promise<AnalyticsData> {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getCairoDate();
   const defaultAnalytics: AnalyticsData = {
     totalViews: 0,
     todayViews: 0,
@@ -114,12 +155,34 @@ export async function getAnalytics(): Promise<AnalyticsData> {
 
 /* ─── Funnel Event Tracking ─── */
 
-export async function trackFunnelEvent(name: string, metadata?: Record<string, unknown>) {
+let behaviorTableState: { available: boolean; checkedAt: number } | null = null;
+
+async function behaviorTableAvailable() {
+  const now = Date.now();
+  if (behaviorTableState && now - behaviorTableState.checkedAt < 5 * 60_000) {
+    return behaviorTableState.available;
+  }
+  const db = getDatabase();
+  const result = await db.execute(sql`SELECT to_regclass('public.behavior_events') IS NOT NULL AS available`);
+  const available = Boolean(result.rows[0]?.available);
+  behaviorTableState = { available, checkedAt: now };
+  return available;
+}
+
+function anonymousSessionId(sessionId: string) {
+  return createHash("sha256").update(`masarak-analytics:${sessionId}`).digest("hex");
+}
+
+export async function trackFunnelEvent(
+  name: string,
+  metadata?: Record<string, string>,
+  context?: { sessionId?: string; userAgent?: string },
+) {
   try {
     if (!process.env.DATABASE_URL) return;
     await ready();
     const db = getDatabase();
-    const today = new Date().toISOString().split("T")[0];
+    const today = getCairoDate();
     const hour = new Date().getUTCHours();
     await db.execute(sql`
       INSERT INTO funnel_events (event_name, event_date, event_hour, count, metadata_json)
@@ -127,6 +190,26 @@ export async function trackFunnelEvent(name: string, metadata?: Record<string, u
       ON CONFLICT (event_name, event_date, event_hour) DO UPDATE
       SET count = funnel_events.count + 1
     `);
+
+    if (context?.sessionId && await behaviorTableAvailable()) {
+      const path = metadata?.path?.startsWith("/") ? metadata.path.slice(0, 200) : null;
+      const product = metadata?.product === "single" || metadata?.product === "friends_3"
+        ? metadata.product
+        : null;
+      await db.execute(sql`
+        INSERT INTO behavior_events (
+          event_name, session_id, occurred_at, path, product, device_type, metadata_json
+        ) VALUES (
+          ${name},
+          ${anonymousSessionId(context.sessionId)},
+          NOW(),
+          ${path},
+          ${product},
+          ${deviceType(context.userAgent)},
+          ${JSON.stringify(metadata ?? {})}::jsonb
+        )
+      `);
+    }
   } catch (error) {
     console.error("Failed to track funnel event:", error);
   }
@@ -140,12 +223,13 @@ export async function getFunnelAnalytics(days = 30) {
     const rows = await db.execute(sql`
       SELECT event_name, SUM(count)::int AS total
       FROM funnel_events
-      WHERE event_date >= CURRENT_DATE - ${days}
+      WHERE event_date >= (NOW() AT TIME ZONE 'Africa/Cairo')::date - (${days}::int * INTERVAL '1 day')
       GROUP BY event_name
       ORDER BY total DESC
     `);
     return rows.rows as Array<{ event_name: string; total: number }>;
-  } catch {
+  } catch (error) {
+    console.error("Failed to fetch funnel analytics:", error);
     return [];
   }
 }
@@ -158,13 +242,196 @@ export async function getDailyTimeSeries(days = 14) {
     const rows = await db.execute(sql`
       SELECT event_date::text AS date, event_type, SUM(count)::int AS total
       FROM analytics_events
-      WHERE event_date >= (CURRENT_DATE - ${days})::text
+      WHERE event_date::date >= (NOW() AT TIME ZONE 'Africa/Cairo')::date - (${days - 1}::int * INTERVAL '1 day')
       GROUP BY event_date, event_type
       ORDER BY event_date ASC
     `);
     return rows.rows as Array<{ date: string; event_type: string; total: number }>;
-  } catch {
+  } catch (error) {
+    console.error("Failed to fetch daily analytics:", error);
     return [];
+  }
+}
+
+async function getApprovedPaymentsForPeriod(days: number) {
+  const db = getDatabase();
+  const result = await db.execute(sql`
+    SELECT COUNT(*)::int AS total
+    FROM payment_submissions
+    WHERE status = 'approved'
+      AND COALESCE(submitted_at, created_at) >= NOW() - (${days}::int * INTERVAL '1 day')
+  `);
+  return Number(result.rows[0]?.total ?? 0);
+}
+
+async function getApprovedPaymentsSince(instrumentedAt: string) {
+  const db = getDatabase();
+  const result = await db.execute(sql`
+    SELECT COUNT(*)::int AS total
+    FROM payment_submissions
+    WHERE status = 'approved'
+      AND COALESCE(submitted_at, created_at) >= ${instrumentedAt}::timestamptz
+  `);
+  return Number(result.rows[0]?.total ?? 0);
+}
+
+async function getTrafficTrend(days: number) {
+  const db = getDatabase();
+  const rows = await db.execute(sql`
+    SELECT
+      event_type,
+      COALESCE(SUM(count) FILTER (
+        WHERE event_date::date >= (NOW() AT TIME ZONE 'Africa/Cairo')::date - (${days - 1}::int * INTERVAL '1 day')
+      ), 0)::int AS current_total,
+      COALESCE(SUM(count) FILTER (
+        WHERE event_date::date < (NOW() AT TIME ZONE 'Africa/Cairo')::date - (${days - 1}::int * INTERVAL '1 day')
+          AND event_date::date >= (NOW() AT TIME ZONE 'Africa/Cairo')::date - (${days * 2 - 1}::int * INTERVAL '1 day')
+      ), 0)::int AS previous_total
+    FROM analytics_events
+    WHERE event_date::date >= (NOW() AT TIME ZONE 'Africa/Cairo')::date - (${days * 2 - 1}::int * INTERVAL '1 day')
+    GROUP BY event_type
+  `);
+  return rows.rows.map((row) => ({
+    event_type: String(row.event_type),
+    current_total: Number(row.current_total),
+    previous_total: Number(row.previous_total),
+  }));
+}
+
+export async function getBehaviorAnalytics(days = 30): Promise<BehaviorAnalytics> {
+  const empty: BehaviorAnalytics = {
+    periodDays: days,
+    mode: "aggregate",
+    instrumentedAt: null,
+    uniqueSessions: 0,
+    engagedSessions: 0,
+    totalInteractions: 0,
+    funnel: buildBehaviorFunnel([], 0, "aggregate"),
+    rates: buildBehaviorRates(buildBehaviorFunnel([], 0, "aggregate")),
+    insights: buildBehaviorInsights(buildBehaviorFunnel([], 0, "aggregate"), "aggregate", 0, 0),
+    busyHours: [],
+    devices: [],
+    topPaths: [],
+    trafficTrend: [],
+  };
+
+  try {
+    if (!process.env.DATABASE_URL) return empty;
+    await ready();
+    const db = getDatabase();
+    const [legacyMetrics, initialApprovedPayments, trafficTrend] = await Promise.all([
+      getFunnelAnalytics(days),
+      getApprovedPaymentsForPeriod(days),
+      getTrafficTrend(Math.min(7, days)),
+    ]);
+
+    let mode: AnalyticsMode = "aggregate";
+    let approvedPayments = initialApprovedPayments;
+    let metrics = legacyMetrics as EventMetric[];
+    let uniqueSessions = 0;
+    let engagedSessions = 0;
+    let totalInteractions = metrics.reduce((sum, metric) => sum + Number(metric.total), 0);
+    let instrumentedAt: string | null = null;
+    let busyHours: Array<{ hour: number; total: number }> = [];
+    let devices: Array<{ device: string; total: number }> = [];
+    let topPaths: Array<{ path: string; total: number }> = [];
+
+    if (await behaviorTableAvailable()) {
+      const [eventRows, sessionRows, hourRows, deviceRows, pathRows] = await Promise.all([
+        db.execute(sql`
+          WITH period AS (
+            SELECT event_name, session_id
+            FROM behavior_events
+            WHERE occurred_at >= NOW() - (${days}::int * INTERVAL '1 day')
+          ), grouped AS (
+            SELECT event_name, COUNT(DISTINCT session_id)::int AS total
+            FROM period
+            GROUP BY event_name
+          ), intent AS (
+            SELECT 'checkout_intent'::text AS event_name, COUNT(DISTINCT session_id)::int AS total
+            FROM period
+            WHERE event_name IN ('header_offer_clicked', 'pricing_cta_clicked', 'product_selected', 'payment_started')
+          )
+          SELECT event_name, total FROM grouped
+          UNION ALL
+          SELECT event_name, total FROM intent
+        `),
+        db.execute(sql`
+          SELECT
+            COUNT(DISTINCT session_id)::int AS unique_sessions,
+            COUNT(DISTINCT session_id) FILTER (WHERE event_name = 'engaged_view')::int AS engaged_sessions,
+            COUNT(*)::int AS interactions,
+            MIN(occurred_at)::text AS instrumented_at
+          FROM behavior_events
+          WHERE occurred_at >= NOW() - (${days}::int * INTERVAL '1 day')
+        `),
+        db.execute(sql`
+          SELECT EXTRACT(HOUR FROM occurred_at AT TIME ZONE 'Africa/Cairo')::int AS hour,
+                 COUNT(DISTINCT session_id)::int AS total
+          FROM behavior_events
+          WHERE event_name = 'page_view'
+            AND occurred_at >= NOW() - (${days}::int * INTERVAL '1 day')
+          GROUP BY hour ORDER BY total DESC LIMIT 4
+        `),
+        db.execute(sql`
+          SELECT device_type AS device, COUNT(DISTINCT session_id)::int AS total
+          FROM behavior_events
+          WHERE occurred_at >= NOW() - (${days}::int * INTERVAL '1 day')
+          GROUP BY device_type ORDER BY total DESC
+        `),
+        db.execute(sql`
+          SELECT path, COUNT(DISTINCT session_id)::int AS total
+          FROM behavior_events
+          WHERE event_name = 'page_view' AND path IS NOT NULL
+            AND occurred_at >= NOW() - (${days}::int * INTERVAL '1 day')
+          GROUP BY path ORDER BY total DESC LIMIT 5
+        `),
+      ]);
+      const sessionSummary = sessionRows.rows[0];
+      uniqueSessions = Number(sessionSummary?.unique_sessions ?? 0);
+      if (uniqueSessions > 0) {
+        mode = "sessions";
+        metrics = eventRows.rows.map((row) => ({ event_name: String(row.event_name), total: Number(row.total) }));
+        engagedSessions = Number(sessionSummary?.engaged_sessions ?? 0);
+        totalInteractions = Number(sessionSummary?.interactions ?? 0);
+        instrumentedAt = sessionSummary?.instrumented_at ? String(sessionSummary.instrumented_at) : null;
+        if (instrumentedAt) approvedPayments = await getApprovedPaymentsSince(instrumentedAt);
+        busyHours = hourRows.rows.map((row) => ({ hour: Number(row.hour), total: Number(row.total) }));
+        devices = deviceRows.rows.map((row) => ({ device: String(row.device), total: Number(row.total) }));
+        topPaths = pathRows.rows.map((row) => ({ path: String(row.path), total: Number(row.total) }));
+      }
+    }
+
+    if (mode === "aggregate") {
+      const hourRows = await db.execute(sql`
+        SELECT ((event_hour + 3) % 24)::int AS hour, SUM(count)::int AS total
+        FROM funnel_events
+        WHERE event_name = 'page_view'
+          AND event_date >= (NOW() AT TIME ZONE 'Africa/Cairo')::date - (${days}::int * INTERVAL '1 day')
+        GROUP BY event_hour ORDER BY total DESC LIMIT 4
+      `);
+      busyHours = hourRows.rows.map((row) => ({ hour: Number(row.hour), total: Number(row.total) }));
+    }
+
+    const funnel = buildBehaviorFunnel(metrics, approvedPayments, mode);
+    return {
+      periodDays: days,
+      mode,
+      instrumentedAt,
+      uniqueSessions,
+      engagedSessions,
+      totalInteractions,
+      funnel,
+      rates: buildBehaviorRates(funnel),
+      insights: buildBehaviorInsights(funnel, mode, engagedSessions, uniqueSessions),
+      busyHours,
+      devices,
+      topPaths,
+      trafficTrend,
+    };
+  } catch (error) {
+    console.error("Failed to build behavior analytics:", error);
+    return empty;
   }
 }
 
@@ -228,4 +495,3 @@ export async function getUserStats() {
     return { totalUsers: 0, todayUsers: 0, totalEntitlements: 0 };
   }
 }
-

@@ -52,8 +52,23 @@ export function PricingSection() {
 
   const trackFunnel = useTrackFunnel();
 
+  useEffect(() => {
+    const section = document.getElementById("pricing-section");
+    if (!section) return;
+    let tracked = false;
+    const observer = new IntersectionObserver((entries) => {
+      if (!tracked && entries.some((entry) => entry.isIntersecting)) {
+        tracked = true;
+        trackFunnel("pricing_opened", { source: "pricing_section" });
+        observer.disconnect();
+      }
+    }, { threshold: 0.35 });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [settings, trackFunnel]);
+
   function choose(product: ProductType) {
-    trackFunnel("pricing_cta_clicked", { product });
+    trackFunnel("pricing_cta_clicked", { product, source: "pricing_section" });
     window.dispatchEvent(new CustomEvent("masarak-product-select", { detail: product }));
     document.getElementById("prediction-tool")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }

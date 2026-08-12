@@ -254,6 +254,28 @@ export const analyticsEvents = pgTable("analytics_events", {
   count: integer("count").notNull().default(0),
 });
 
+export const behaviorEvents = pgTable(
+  "behavior_events",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    eventName: text("event_name").notNull(),
+    sessionId: text("session_id").notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+    path: text("path"),
+    product: text("product"),
+    deviceType: text("device_type").notNull().default("unknown"),
+    metadataJson: jsonb("metadata_json")
+      .$type<Record<string, string>>()
+      .notNull()
+      .default({}),
+  },
+  (table) => [
+    index("behavior_events_occurred_idx").on(table.occurredAt),
+    index("behavior_events_name_occurred_idx").on(table.eventName, table.occurredAt),
+    index("behavior_events_session_occurred_idx").on(table.sessionId, table.occurredAt),
+  ],
+);
+
 // Better Auth Schema
 export const user = pgTable(
   "user",

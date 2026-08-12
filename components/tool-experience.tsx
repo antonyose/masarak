@@ -244,6 +244,7 @@ export function ToolExperience() {
       const nextReport = await createReport(found, knownBranch, found.governorate ?? undefined);
       if (!nextReport.requiresBranch) {
         setReport(nextReport);
+        trackFunnel("report_viewed", { source: "seat_search" });
         if (nextReport.branch) setBranch(nextReport.branch);
       }
     } catch (caught) {
@@ -263,6 +264,7 @@ export function ToolExperience() {
     setError("");
     try {
       setReport(await createReport(result, branch, governorate));
+      trackFunnel("report_viewed", { source: "branch_selection" });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "تعذر تجهيز الترشيح.");
     } finally {
@@ -721,6 +723,7 @@ function GuestPaymentOffer({
   const [now, setNow] = useState(() => Date.now());
   const pollingRef = useRef(false);
   const copyResetRef = useRef<number | null>(null);
+  const offerTrackedRef = useRef<string | null>(null);
 
   useEffect(() => () => {
     if (copyResetRef.current) window.clearTimeout(copyResetRef.current);
@@ -729,6 +732,12 @@ function GuestPaymentOffer({
   useEffect(() => {
     setProductType(initialProduct);
   }, [initialProduct]);
+
+  useEffect(() => {
+    if (offerTrackedRef.current === predictionId) return;
+    offerTrackedRef.current = predictionId;
+    trackFunnel("offer_viewed", { product: initialProduct, source: "locked_report" });
+  }, [initialProduct, predictionId, trackFunnel]);
 
   useEffect(() => {
     if (!settings?.methods.length) return;
@@ -832,7 +841,7 @@ function GuestPaymentOffer({
       }
     }
     setMode("submitting");
-    trackFunnel("payment_submitted", { product: productType });
+    trackFunnel("payment_started", { product: productType, source: "locked_report" });
     setError("");
     setSeatError("");
     try {
@@ -863,6 +872,7 @@ function GuestPaymentOffer({
       const id = String(data.payment.id);
       setPaymentId(id);
       if (data.payment.hasReceipt) {
+        trackFunnel("payment_submitted", { product: productType, source: "locked_report" });
         setMode("pending");
         setPolling(true);
         return;
@@ -873,6 +883,7 @@ function GuestPaymentOffer({
       const upload = await fetch(`/api/payments/${id}/receipt`, { method: "POST", body: form });
       const uploadData = await upload.json();
       if (!upload.ok) throw new Error(uploadData.error);
+      trackFunnel("payment_submitted", { product: productType, source: "locked_report" });
       setMode("pending");
       setPolling(true);
     } catch (caught) {
@@ -913,7 +924,7 @@ function GuestPaymentOffer({
       </div>
       <div className="offer-action">
         <div className="offer-product-picker" role="radiogroup" aria-label="اختار العرض">
-          <button type="button" className={`offer-product-card${productType === "single" ? " is-selected" : ""}${selectedOffer?.targetProduct === "single" ? " has-offer" : ""}`} onClick={() => setProductType("single")} aria-pressed={productType === "single"}>
+          <button type="button" className={`offer-product-card${productType === "single" ? " is-selected" : ""}${selectedOffer?.targetProduct === "single" ? " has-offer" : ""}`} onClick={() => { setProductType("single"); trackFunnel("product_selected", { product: "single", source: "locked_report" }); }} aria-pressed={productType === "single"}>
             {productType === "single" ? <span className="offer-selected-badge"><Check size={12} aria-hidden="true" /> محدد الآن</span> : null}
             {selectedOffer?.targetProduct === "single" ? <span className="offer-product-badge"><Sparkles size={11} aria-hidden="true" />{selectedOffer.badgeText}</span> : null}
             <span className="offer-product-kicker">تقريرك</span>
@@ -924,7 +935,7 @@ function GuestPaymentOffer({
             {selectedOffer?.targetProduct === "single" && selectedOffer.showCountdown ? <OfferCountdown endAt={selectedOffer.endAt} serverNow={settings.serverNow} receivedAt={settings.receivedAt} className="offer-countdown" /> : null}
           </button>
           {settings.products.friends3.enabled ? (
-            <button type="button" className={`offer-product-card offer-product-card-featured${productType === "friends_3" ? " is-selected" : ""}${selectedOffer?.targetProduct === "friends_3" ? " has-offer" : ""}`} onClick={() => setProductType("friends_3")} aria-pressed={productType === "friends_3"}>
+            <button type="button" className={`offer-product-card offer-product-card-featured${productType === "friends_3" ? " is-selected" : ""}${selectedOffer?.targetProduct === "friends_3" ? " has-offer" : ""}`} onClick={() => { setProductType("friends_3"); trackFunnel("product_selected", { product: "friends_3", source: "locked_report" }); }} aria-pressed={productType === "friends_3"}>
               {productType === "friends_3" ? <span className="offer-selected-badge"><Check size={12} aria-hidden="true" /> محدد الآن</span> : null}
               <span className="offer-product-badge">الأوفر 🔥</span>
               <span className="offer-product-kicker">إنت و2 من صحابك</span>
@@ -977,7 +988,7 @@ function GuestPaymentOffer({
             );
           })}
         </div>
-        <label className="receipt-picker"><Upload size={17} /><span>{receipt ? receipt.name : "ارفع صورة الإيصال — حتى 5MB"}</span><input type="file" accept="image/jpeg,image/png,image/webp" required onChange={(event) => setReceipt(event.target.files?.[0] ?? null)} /></label>
+        <label className="receipt-picker"><Upload size={17} /><span>{receipt ? receipt.name : "ارفع صورة الإيصال — حتى 5MB"}</span><input type="file" accept="image/jpeg,image/png,image/webp" required onChange={(event) => { const file = event.target.files?.[0] ?? null; setReceipt(file); if (file) trackFunnel("receipt_uploaded", { product: productType, source: "locked_report" }); }} /></label>
         {mode === "rejected" ? <p className="payment-rejected">لم تتم الموافقة على الطلب السابق. يمكنك إرسال إيصال جديد.</p> : null}
         {error ? <p className="payment-inline-error" role="alert">{error}</p> : null}
         <button className="offer-cta" disabled={mode === "submitting"}>

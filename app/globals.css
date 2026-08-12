@@ -3708,7 +3708,60 @@ a {
 .admin-panel-links { display: flex; gap: 0.75rem; }
 .admin-link { font-size: 0.8rem; font-weight: 700; color: var(--primary); text-decoration: underline; }
 .admin-section-title { margin: 0 0 1rem; font-size: 1rem; font-weight: 800; color: #173a55; }
+.admin-section-title-compact { margin-bottom: 0; }
 .admin-empty-text { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.85rem; background: var(--surface-soft); border-radius: var(--radius-sm); }
+
+/* Behavior analytics */
+.admin-behavior-panel { padding: 0; overflow: hidden; }
+.admin-behavior-panel > .admin-panel-header { padding: 1.25rem 1.35rem 0; }
+.admin-data-mode {
+  display: inline-flex; align-items: center; min-height: 1.8rem; padding: 0.25rem 0.6rem;
+  border: 1px solid var(--line); border-radius: 999px; color: var(--muted);
+  background: var(--surface-soft); font-size: 0.68rem; font-weight: 800;
+}
+.admin-data-mode.is-live { color: #065f46; background: #ecfdf5; border-color: #a7f3d0; }
+.admin-data-mode.is-legacy { color: #854d0e; background: #fffbeb; border-color: #fde68a; }
+.admin-behavior-summary {
+  display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 1rem;
+  border-block: 1px solid var(--line); background: var(--surface-soft);
+}
+.admin-behavior-stat {
+  min-width: 0; padding: 1rem 1.15rem; display: grid;
+  grid-template-columns: auto 1fr; align-items: center; column-gap: 0.55rem;
+  border-inline-start: 1px solid var(--line);
+}
+.admin-behavior-stat:last-child { border-inline-start: 0; }
+.admin-behavior-stat-icon { grid-row: 1 / 3; color: var(--primary); }
+.admin-behavior-stat > span:not(.admin-behavior-stat-icon) { color: var(--muted); font-size: 0.68rem; font-weight: 700; }
+.admin-behavior-stat strong { color: var(--ink); font-size: 1.25rem; font-weight: 850; font-variant-numeric: tabular-nums; }
+.admin-behavior-content { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(230px, 0.65fr); gap: 1.5rem; padding: 1.25rem 1.35rem; }
+.admin-insight-list h4, .admin-behavior-details h4 { margin: 0 0 0.65rem; color: var(--ink); font-size: 0.78rem; font-weight: 800; }
+.admin-insight-list { display: grid; align-content: start; gap: 0.55rem; }
+.admin-insight-list > h4 { margin-bottom: 0.1rem; }
+.admin-insight {
+  display: grid; grid-template-columns: auto 1fr; gap: 0.65rem; padding: 0.7rem 0.75rem;
+  border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface);
+}
+.admin-insight-icon { display: grid; place-items: center; width: 1.8rem; height: 1.8rem; border-radius: 50%; color: var(--primary); background: var(--primary-soft); }
+.admin-insight-warning .admin-insight-icon { color: #92400e; background: #fef3c7; }
+.admin-insight-positive .admin-insight-icon { color: #065f46; background: #d1fae5; }
+.admin-insight strong { display: block; color: var(--ink); font-size: 0.75rem; line-height: 1.5; }
+.admin-insight p { max-width: 72ch; margin: 0.12rem 0 0; color: var(--muted); font-size: 0.69rem; line-height: 1.65; text-wrap: pretty; }
+.admin-behavior-details { display: grid; align-content: start; gap: 1rem; }
+.admin-behavior-details > div { padding-bottom: 0.85rem; border-bottom: 1px solid var(--line); }
+.admin-behavior-details > div:last-child { padding-bottom: 0; border-bottom: 0; }
+.admin-hour-list, .admin-device-list, .admin-path-list { display: grid; gap: 0.35rem; }
+.admin-hour-list span, .admin-device-list span, .admin-path-list span {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  color: var(--muted); font-size: 0.7rem;
+}
+.admin-hour-list strong, .admin-device-list strong, .admin-path-list strong { color: var(--ink); font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+.admin-path-list bdi { direction: ltr; text-align: left; overflow-wrap: anywhere; }
+.admin-muted-value { color: var(--muted); font-size: 0.7rem; }
+.admin-privacy-note { margin: 0; padding: 0.7rem 1.35rem; border-top: 1px solid var(--line); color: var(--muted); background: var(--surface-soft); font-size: 0.66rem; }
+.admin-trend-note { display: inline-flex; padding: 0.3rem 0.55rem; border-radius: 999px; background: var(--surface-soft); color: var(--muted); font-size: 0.68rem; font-weight: 800; }
+.admin-trend-note.is-up { background: #ecfdf5; color: #065f46; }
+.admin-trend-note.is-down { background: #fef2f2; color: #991b1b; }
 
 /* Insights Grid (funnel + revenue) */
 .admin-insights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
@@ -3736,7 +3789,9 @@ a {
 
 /* Funnel Chart */
 .admin-funnel-steps { display: flex; flex-direction: column; gap: 0.55rem; }
+.admin-funnel-help { margin: -0.45rem 0 0.85rem; color: var(--muted); font-size: 0.68rem; line-height: 1.6; }
 .admin-funnel-step { display: flex; flex-direction: column; gap: 0.2rem; }
+.admin-funnel-step.is-awaiting { opacity: 0.68; }
 .admin-funnel-label { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: var(--ink); }
 .admin-funnel-count { display: flex; align-items: center; gap: 0.4rem; font-variant-numeric: tabular-nums; }
 .admin-funnel-drop { font-size: 0.68rem; color: #dc2626; font-weight: 700; }
@@ -3870,6 +3925,7 @@ a {
   .admin-revenue-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-revenue-breakdown { grid-template-columns: 1fr; }
   .admin-coord-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-behavior-content { grid-template-columns: 1fr; }
   .admin-payment-toolbar { grid-template-columns: 1fr 1fr; }
   .admin-filter-search { grid-column: 1 / -1; }
 }
@@ -3879,6 +3935,12 @@ a {
   .admin-tab { padding: 0.65rem 0.85rem; font-size: 0.8rem; }
   .admin-kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 0.55rem; }
   .admin-kpi-value { font-size: 1.2rem; }
+  .admin-behavior-summary { grid-template-columns: 1fr 1fr; }
+  .admin-behavior-stat:nth-child(2) { border-inline-start: 0; }
+  .admin-behavior-stat:nth-child(n + 3) { border-top: 1px solid var(--line); }
+  .admin-behavior-content { padding: 1rem; gap: 1rem; }
+  .admin-behavior-panel > .admin-panel-header { padding: 1rem 1rem 0; }
+  .admin-privacy-note { padding-inline: 1rem; }
   .admin-panel { padding: 1rem; }
   .admin-payment-card { flex-direction: column; }
   .admin-payment-actions { width: 100%; }

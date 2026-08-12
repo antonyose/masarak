@@ -43,7 +43,7 @@ export function HeaderOffer() {
   const targetProduct = offer.targetProduct;
 
   function openOffer() {
-    trackFunnel("header_offer_clicked");
+    trackFunnel("header_offer_clicked", { product: targetProduct, source: "header" });
     if (targetProduct) window.dispatchEvent(new CustomEvent("masarak-product-select", { detail: targetProduct }));
     document.getElementById("pricing-section")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }

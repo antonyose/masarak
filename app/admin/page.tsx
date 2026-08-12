@@ -10,6 +10,7 @@ import { useSession } from "@/lib/auth-client";
 import { AdminSettingsForm } from "@/components/admin-settings-form";
 import { AdminDailyChart } from "@/components/admin-daily-chart";
 import { AdminFunnelChart } from "@/components/admin-funnel-chart";
+import { AdminBehaviorOverview, type AdminBehaviorData } from "@/components/admin-behavior-overview";
 import { AdminRevenueCards } from "@/components/admin-revenue-cards";
 import { AdminAuditTable } from "@/components/admin-audit-table";
 import { AdminPaymentsTable, type AdminPayment } from "@/components/admin-payments-table";
@@ -23,6 +24,10 @@ type Stats = {
   searchCount: number; lastVisit: string;
   timeSeries: Array<{ date: string; event_type: string; total: number }>;
   funnel: Array<{ event_name: string; total: number }>;
+  behavior: AdminBehaviorData & {
+    funnel: Array<{ event_name: string; label: string; total: number; instrumented: boolean }>;
+    trafficTrend: Array<{ event_type: string; current_total: number; previous_total: number }>;
+  };
   revenue: {
     totalRevenue: number; todayRevenue: number; weekRevenue: number; monthRevenue: number;
     totalApproved: number; totalPending: number; totalRejected: number;
@@ -176,22 +181,30 @@ export default function AdminPage() {
           <div className="admin-kpi-grid">
             <KpiCard icon={<Eye size={20} />} label="المشاهدات" value={stats?.totalViews ?? 0} sub={`اليوم: ${stats?.todayViews ?? 0}`} color="#0d9488" />
             <KpiCard icon={<Search size={20} />} label="عمليات البحث" value={stats?.searchCount ?? 0} color="#0891b2" />
-            <KpiCard icon={<TrendingUp size={20} />} label="التوقعات" value={stats?.predictCount ?? 0} color="#6366f1" />
+            <KpiCard icon={<TrendingUp size={20} />} label="طلبات التقرير" value={stats?.predictCount ?? 0} color="#6366f1" />
             <KpiCard icon={<Wallet size={20} />} label="الإيرادات" value={stats?.revenue.totalRevenue ?? 0} isCurrency color="#059669" />
-            <KpiCard icon={<Users size={20} />} label="المستخدمين" value={stats?.users.totalUsers ?? 0} sub={`اليوم: ${stats?.users.todayUsers ?? 0}`} color="#7c3aed" />
+            <KpiCard icon={<Users size={20} />} label="حسابات مسجلة" value={stats?.users.totalUsers ?? 0} sub={`جديد اليوم: ${stats?.users.todayUsers ?? 0}`} color="#7c3aed" />
             <KpiCard icon={<Ticket size={20} />} label="الحقوق النشطة" value={stats?.users.totalEntitlements ?? 0} color="#e11d48" />
           </div>
 
+          {stats?.behavior ? <AdminBehaviorOverview data={stats.behavior} /> : null}
+
           {/* Daily Traffic Chart */}
           <section className="admin-panel">
-            <h4 className="admin-section-title">حركة الموقع (آخر 14 يوم)</h4>
+            <div className="admin-panel-header">
+              <div>
+                <h4 className="admin-section-title admin-section-title-compact">حركة الموقع (آخر 14 يوم)</h4>
+                <p className="admin-panel-sub">المشاهدات وعمليات البحث والتقارير لكل يوم بتوقيت القاهرة.</p>
+              </div>
+              {stats?.behavior ? <TrafficTrend data={stats.behavior.trafficTrend} /> : null}
+            </div>
             <AdminDailyChart data={chartData} />
           </section>
 
           {/* Funnel + Revenue side by side on desktop */}
           <div className="admin-insights-grid">
             <section className="admin-panel">
-              {stats ? <AdminFunnelChart data={stats.funnel} /> : <p className="admin-empty-text">جارٍ التحميل…</p>}
+              {stats ? <AdminFunnelChart data={stats.behavior.funnel} mode={stats.behavior.mode} /> : <p className="admin-empty-text">جارٍ التحميل…</p>}
             </section>
             <section className="admin-panel">
               {stats ? <AdminRevenueCards data={stats.revenue} /> : <p className="admin-empty-text">جارٍ التحميل…</p>}
@@ -297,6 +310,17 @@ function CoordCard({ label, value }: { label: string; value: number }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
+  );
+}
+
+function TrafficTrend({ data }: { data: Array<{ event_type: string; current_total: number; previous_total: number }> }) {
+  const views = data.find((row) => row.event_type === "view");
+  if (!views || views.previous_total <= 0) return <span className="admin-trend-note">أول فترة قياس</span>;
+  const change = Math.round(((views.current_total - views.previous_total) / views.previous_total) * 100);
+  return (
+    <span className={`admin-trend-note ${change >= 0 ? "is-up" : "is-down"}`}>
+      {change >= 0 ? "+" : ""}{change}% عن الـ7 أيام السابقة
+    </span>
   );
 }
 
