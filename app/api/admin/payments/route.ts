@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, desc, eq, isNotNull } from "drizzle-orm";
+import { and, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
 import { paymentSubmissionSeats, paymentSubmissions, predictionRuns, savedStudents, user } from "@/db/schema";
 import { AuthorizationError, requireAdmin } from "@/lib/authz";
@@ -9,8 +9,32 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
     await requireAdmin();
-    const requested = new URL(request.url).searchParams.get("status");
-    const status = requested === "approved" || requested === "rejected" ? requested : "pending";
+    const params = new URL(request.url).searchParams;
+    const requested = params.get("status");
+    const status = requested === "all" || requested === "approved" || requested === "rejected" || requested === "cancelled" ? requested : "pending";
+    const query = params.get("q")?.trim() ?? "";
+    const method = params.get("method");
+    const productType = params.get("productType");
+    const limit = Math.min(Math.max(Number(params.get("limit")) || 500, 1), 1000);
+    const filters = [];
+    if (status !== "all") filters.push(eq(paymentSubmissions.status, status));
+    if (status === "pending") filters.push(isNotNull(paymentSubmissions.submittedAt));
+    if (method === "vodafone_cash" || method === "orange_cash" || method === "instapay") {
+      filters.push(eq(paymentSubmissions.method, method));
+    }
+    if (productType === "single" || productType === "friends_3") {
+      filters.push(eq(paymentSubmissions.productType, productType));
+    }
+    if (query) {
+      filters.push(or(
+        ilike(paymentSubmissions.seatNumber, `%${query}%`),
+        ilike(paymentSubmissions.senderIdentifier, `%${query}%`),
+        ilike(paymentSubmissions.transactionReference, `%${query}%`),
+        ilike(user.name, `%${query}%`),
+        ilike(user.email, `%${query}%`),
+      ));
+    }
+    const where = filters.length ? and(...filters) : undefined;
     const rows = await getDatabase()
       .select({
         id: paymentSubmissions.id,
@@ -20,6 +44,8 @@ export async function GET(request: Request) {
         expectedAmount: paymentSubmissions.expectedAmount,
         senderIdentifier: paymentSubmissions.senderIdentifier,
         transactionReference: paymentSubmissions.transactionReference,
+        rejectionReason: paymentSubmissions.rejectionReason,
+        createdAt: paymentSubmissions.createdAt,
         submittedAt: paymentSubmissions.submittedAt,
         reviewedAt: paymentSubmissions.reviewedAt,
         hasReceipt: paymentSubmissions.receiptBlobKey,
@@ -32,12 +58,9 @@ export async function GET(request: Request) {
       .innerJoin(predictionRuns, eq(predictionRuns.id, paymentSubmissions.predictionId))
       .leftJoin(user, eq(user.id, paymentSubmissions.userId))
       .leftJoin(savedStudents, eq(savedStudents.id, paymentSubmissions.savedStudentId))
-      .where(
-        status === "pending"
-          ? and(eq(paymentSubmissions.status, status), isNotNull(paymentSubmissions.submittedAt))
-          : eq(paymentSubmissions.status, status),
-      )
-      .orderBy(desc(paymentSubmissions.submittedAt));
+      .where(where)
+      .orderBy(desc(paymentSubmissions.submittedAt))
+      .limit(limit);
     const payments = await Promise.all(rows.map(async ({ hasReceipt, ...row }) => {
       const seats = await getDatabase()
         .select({ seatNumber: paymentSubmissionSeats.seatNumber, position: paymentSubmissionSeats.position })

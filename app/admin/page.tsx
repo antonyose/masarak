@@ -3,22 +3,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  BarChart3, Check, ExternalLink, Eye, RefreshCw, Search,
-  TrendingUp, Users, Wallet, X, Ticket,
+  BarChart3, Eye, History, RefreshCw, Search, Settings2,
+  TrendingUp, Users, Wallet, Ticket,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { AdminSettingsForm } from "@/components/admin-settings-form";
 import { AdminDailyChart } from "@/components/admin-daily-chart";
 import { AdminFunnelChart } from "@/components/admin-funnel-chart";
 import { AdminRevenueCards } from "@/components/admin-revenue-cards";
+import { AdminAuditTable } from "@/components/admin-audit-table";
+import { AdminPaymentsTable, type AdminPayment } from "@/components/admin-payments-table";
 
-type Payment = {
-  id: string; userName: string | null; userEmail: string | null;
-  studentName: string | null; seatNumber: string; seatNumbers: string[];
-  productType: "single" | "friends_3"; method: string; expectedAmount: string;
-  senderIdentifier: string; transactionReference: string | null;
-  submittedAt: string; hasReceipt: boolean;
-};
 type Coordination = {
   counts: { sources: number; officialCutoffs2026: number; stageVacancies2026: number };
   models: Array<{ id: string; version: string; year: number; stage: number; activatedAt: string | null }>;
@@ -37,12 +32,12 @@ type Stats = {
   users: { totalUsers: number; todayUsers: number; totalEntitlements: number };
 };
 
-type Tab = "overview" | "payments" | "settings";
+type Tab = "overview" | "payments" | "audit" | "settings";
 
 export default function AdminPage() {
   const { data: session, isPending } = useSession();
   const [tab, setTab] = useState<Tab>("overview");
-  const [payments, setPayments] = useState<Payment[]>([]);
+  const [payments, setPayments] = useState<AdminPayment[]>([]);
   const [coordination, setCoordination] = useState<Coordination | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState("");
@@ -53,7 +48,7 @@ export default function AdminPage() {
     setError("");
     try {
       const [queue, data, statsRes] = await Promise.all([
-        fetch("/api/admin/payments?status=pending"),
+        fetch("/api/admin/payments?status=all&limit=500"),
         fetch("/api/admin/coordination"),
         fetch("/api/admin/stats?days=14"),
       ]);
@@ -85,18 +80,23 @@ export default function AdminPage() {
     const reason = action === "reject" ? window.prompt("سبب الرفض الظاهر للمستخدم:") : undefined;
     if (action === "reject" && (!reason || reason.trim().length < 3)) return;
     setLoading(true);
-    const response = await fetch(`/api/admin/payments/${id}/review`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(action === "approve" ? { action } : { action, reason }),
-    });
-    const result = await response.json();
-    if (!response.ok) setError(result.error);
-    else await load();
-    setLoading(false);
+    try {
+      const response = await fetch(`/api/admin/payments/${id}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(action === "approve" ? { action } : { action, reason }),
+      });
+      const result = await response.json();
+      if (!response.ok) setError(result.error ?? "تعذر تنفيذ الإجراء.");
+      else await load();
+    } catch {
+      setError("تعذر الاتصال بالخادم. لم يتغير وضع الطلب.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const pendingCount = payments.length;
+  const pendingCount = payments.filter((payment) => payment.status === "pending").length;
   const chartData = stats ? buildChartData(stats.timeSeries) : [];
 
   if (isPending) return <div className="admin-container"><div className="admin-card">جارٍ التحقق…</div></div>;
@@ -134,8 +134,11 @@ export default function AdminPage() {
           <Wallet size={16} /> المدفوعات
           {pendingCount > 0 ? <span className="admin-tab-badge">{pendingCount}</span> : null}
         </button>
+        <button role="tab" aria-selected={tab === "audit"} className={`admin-tab${tab === "audit" ? " active" : ""}`} onClick={() => setTab("audit")}>
+          <History size={16} /> سجل التدقيق
+        </button>
         <button role="tab" aria-selected={tab === "settings"} className={`admin-tab${tab === "settings" ? " active" : ""}`} onClick={() => setTab("settings")}>
-          الإعدادات
+          <Settings2 size={16} /> الإعدادات
         </button>
       </nav>
 
@@ -183,71 +186,11 @@ export default function AdminPage() {
       {/* Payments Tab */}
       {tab === "payments" && (
         <div className="admin-tab-panel">
-          {/* Revenue summary */}
-          {stats ? (
-            <div className="admin-payment-summary">
-              <div className="admin-summary-item">
-                <span>مُقبول</span>
-                <strong className="text-emerald-700">{stats.revenue.totalApproved}</strong>
-              </div>
-              <div className="admin-summary-item">
-                <span>منتظر</span>
-                <strong className="text-amber-600">{stats.revenue.totalPending}</strong>
-              </div>
-              <div className="admin-summary-item">
-                <span>مرفوض</span>
-                <strong className="text-red-600">{stats.revenue.totalRejected}</strong>
-              </div>
-            </div>
-          ) : null}
-
-          <section className="admin-panel">
-            <div className="admin-panel-header">
-              <div>
-                <h3 className="admin-panel-title">طلبات الدفع المنتظرة</h3>
-                <p className="admin-panel-sub">لا توافق قبل مطابقة الإيصال والمرجع يدويًا.</p>
-              </div>
-              <div className="admin-panel-links">
-                <Link href="/api/admin/settings" className="admin-link">إعدادات JSON</Link>
-                <Link href="/api/admin/audit-log" className="admin-link">سجل التدقيق</Link>
-              </div>
-            </div>
-
-            <div className="admin-payment-list">
-              {payments.map((payment) => (
-                <article key={payment.id} className="admin-payment-card">
-                  <div className="admin-payment-info">
-                    <strong>{payment.productType === "friends_3" ? "3 تقارير — عرض الصحاب" : "تقرير واحد"}</strong>
-                    <p className="admin-payment-seats">أرقام الجلوس: {payment.seatNumbers.join(" · ")}</p>
-                    <p className="admin-payment-user">
-                      {payment.studentName ?? "طلب زائر"}
-                      {payment.userName ? ` · ${payment.userName} · ${payment.userEmail ?? ""}` : " · شراء بدون حساب"}
-                    </p>
-                    <p className="admin-payment-detail">
-                      {payment.expectedAmount} جنيه · {payment.method}
-                      {payment.transactionReference ? ` · المرجع ${payment.transactionReference}` : ""}
-                    </p>
-                  </div>
-                  <div className="admin-payment-actions">
-                    {payment.hasReceipt ? (
-                      <a href={`/api/admin/payments/${payment.id}/receipt`} target="_blank" rel="noreferrer" className="admin-btn admin-btn-outline">
-                        الإيصال <ExternalLink size={14} />
-                      </a>
-                    ) : null}
-                    <button disabled={loading || !payment.hasReceipt} onClick={() => review(payment.id, "approve")} className="admin-btn admin-btn-approve">
-                      <Check size={15} /> موافقة
-                    </button>
-                    <button disabled={loading} onClick={() => review(payment.id, "reject")} className="admin-btn admin-btn-reject">
-                      <X size={15} /> رفض
-                    </button>
-                  </div>
-                </article>
-              ))}
-              {!payments.length ? <p className="admin-empty-text">لا توجد طلبات مكتملة الإرسال في الانتظار.</p> : null}
-            </div>
-          </section>
+          <AdminPaymentsTable payments={payments} loading={loading} onRefresh={() => void load()} onReview={(id, action) => void review(id, action)} />
         </div>
       )}
+
+      {tab === "audit" ? <div className="admin-tab-panel"><AdminAuditTable /></div> : null}
 
       {/* Settings Tab */}
       {tab === "settings" && (
