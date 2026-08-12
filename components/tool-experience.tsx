@@ -18,6 +18,7 @@ import { egyptianGovernorates } from "@/lib/governorates";
 import { normalizeDigits } from "@/lib/normalize-arabic";
 import { formatEgp, getServerBasedNow, isOfferActive, type PublicOffer } from "@/lib/offer-config";
 import { OfferCountdown } from "@/components/offer-countdown";
+import { useTrackFunnel } from "@/components/analytics-tracker";
 
 type Branch = "science" | "mathematics" | "literary";
 type System = "new" | "old";
@@ -134,6 +135,7 @@ export function ToolExperience() {
   const [requestedProduct, setRequestedProduct] = useState<ProductType>("single");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const trackFunnel = useTrackFunnel();
 
   async function findResult(value: string) {
     const response = await fetch("/api/result-search", {
@@ -184,6 +186,7 @@ export function ToolExperience() {
     try {
       const found = await findResult(seatNumber);
       setResult(found);
+      trackFunnel("search_result");
       setGovernorate(found.governorate ?? "");
       const knownBranch = found.branch === "unknown" ? undefined : found.branch;
       setBranch(knownBranch ?? "");
@@ -499,6 +502,7 @@ function GuestPaymentOffer({
   );
   const [error, setError] = useState("");
   const [polling, setPolling] = useState(paymentState?.status === "pending" && paymentState.hasReceipt);
+  const trackFunnel = useTrackFunnel();
   const [now, setNow] = useState(() => Date.now());
   const pollingRef = useRef(false);
   const copyResetRef = useRef<number | null>(null);
@@ -613,6 +617,7 @@ function GuestPaymentOffer({
       }
     }
     setMode("submitting");
+    trackFunnel("payment_submitted", { product: productType });
     setError("");
     setSeatError("");
     try {

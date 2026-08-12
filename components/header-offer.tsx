@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Clock3 } from "lucide-react";
 import { formatEgp, getServerBasedNow, isOfferActive, type PublicOffer } from "@/lib/offer-config";
 import { OfferCountdown } from "@/components/offer-countdown";
+import { useTrackFunnel } from "@/components/analytics-tracker";
 
 type HeaderOfferSettings = {
   serverNow: string;
@@ -40,7 +41,10 @@ export function HeaderOffer() {
   const targetLabel = offer.targetProduct === "friends_3" ? "عرض الصحاب" : "عرض التقرير";
   const targetProduct = offer.targetProduct;
 
+  const trackFunnel = useTrackFunnel();
+
   function openOffer() {
+    trackFunnel("header_offer_clicked");
     if (targetProduct) window.dispatchEvent(new CustomEvent("masarak-product-select", { detail: targetProduct }));
     document.getElementById("pricing-section")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }

@@ -1,0 +1,9 @@
+data/
+sheets/
+scratch/
+reports/
+node_modules/
+.next/
+*.sqlite
+*.dump
+*.zip

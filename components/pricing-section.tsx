@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, FileCheck2, Sparkles, UsersRound } from "lucide-react";
 import { OfferCountdown } from "@/components/offer-countdown";
+import { useTrackFunnel } from "@/components/analytics-tracker";
 import { formatEgp, getServerBasedNow, isOfferActive, type PublicOffer } from "@/lib/offer-config";
 
 type ProductType = "single" | "friends_3";
@@ -49,7 +50,10 @@ export function PricingSection() {
     return () => window.clearInterval(timer);
   }, [activeOffer, settings?.offer.endAt, settings?.offer.showCountdown]);
 
+  const trackFunnel = useTrackFunnel();
+
   function choose(product: ProductType) {
+    trackFunnel("pricing_cta_clicked", { product });
     window.dispatchEvent(new CustomEvent("masarak-product-select", { detail: product }));
     document.getElementById("prediction-tool")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }

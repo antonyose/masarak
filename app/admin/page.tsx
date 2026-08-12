@@ -2,42 +2,307 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, ExternalLink, RefreshCw, X } from "lucide-react";
+import {
+  BarChart3, Check, ExternalLink, Eye, RefreshCw, Search,
+  TrendingUp, Users, Wallet, X, Ticket,
+} from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { AdminSettingsForm } from "@/components/admin-settings-form";
+import { AdminDailyChart } from "@/components/admin-daily-chart";
+import { AdminFunnelChart } from "@/components/admin-funnel-chart";
+import { AdminRevenueCards } from "@/components/admin-revenue-cards";
 
-type Payment = { id: string; userName: string | null; userEmail: string | null; studentName: string | null; seatNumber: string; seatNumbers: string[]; productType: "single" | "friends_3"; method: string; expectedAmount: string; senderIdentifier: string; transactionReference: string | null; submittedAt: string; hasReceipt: boolean };
-type Coordination = { counts: { sources: number; officialCutoffs2026: number; stageVacancies2026: number }; models: Array<{ id: string; version: string; year: number; stage: number; activatedAt: string | null }> };
+type Payment = {
+  id: string; userName: string | null; userEmail: string | null;
+  studentName: string | null; seatNumber: string; seatNumbers: string[];
+  productType: "single" | "friends_3"; method: string; expectedAmount: string;
+  senderIdentifier: string; transactionReference: string | null;
+  submittedAt: string; hasReceipt: boolean;
+};
+type Coordination = {
+  counts: { sources: number; officialCutoffs2026: number; stageVacancies2026: number };
+  models: Array<{ id: string; version: string; year: number; stage: number; activatedAt: string | null }>;
+};
+type Stats = {
+  totalViews: number; todayViews: number; predictCount: number;
+  searchCount: number; lastVisit: string;
+  timeSeries: Array<{ date: string; event_type: string; total: number }>;
+  funnel: Array<{ event_name: string; total: number }>;
+  revenue: {
+    totalRevenue: number; todayRevenue: number; weekRevenue: number; monthRevenue: number;
+    totalApproved: number; totalPending: number; totalRejected: number;
+    byProduct: Array<{ product_type: string; count: number; revenue: number }>;
+    byMethod: Array<{ method: string; count: number; revenue: number }>;
+  };
+  users: { totalUsers: number; todayUsers: number; totalEntitlements: number };
+};
+
+type Tab = "overview" | "payments" | "settings";
 
 export default function AdminPage() {
   const { data: session, isPending } = useSession();
+  const [tab, setTab] = useState<Tab>("overview");
   const [payments, setPayments] = useState<Payment[]>([]);
   const [coordination, setCoordination] = useState<Coordination | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
   async function load() {
-    setLoading(true); setError("");
-    const [queue, data] = await Promise.all([fetch("/api/admin/payments?status=pending"), fetch("/api/admin/coordination")]);
-    if (!queue.ok || !data.ok) setError(queue.status === 403 || data.status === 403 ? "هذا الحساب لا يملك صلاحية الأدمن." : "تعذر تحميل لوحة الإدارة.");
-    else { setPayments((await queue.json()).payments); setCoordination(await data.json()); }
+    setLoading(true);
+    setError("");
+    try {
+      const [queue, data, statsRes] = await Promise.all([
+        fetch("/api/admin/payments?status=pending"),
+        fetch("/api/admin/coordination"),
+        fetch("/api/admin/stats?days=14"),
+      ]);
+      if (!queue.ok || !data.ok) {
+        setError(queue.status === 403 || data.status === 403 ? "هذا الحساب لا يملك صلاحية الأدمن." : "تعذر تحميل لوحة الإدارة.");
+      } else {
+        setPayments((await queue.json()).payments);
+        setCoordination(await data.json());
+        if (statsRes.ok) setStats(await statsRes.json());
+      }
+    } catch {
+      setError("تعذر الاتصال بالخادم.");
+    }
     setLoading(false);
   }
-  useEffect(() => { if (session?.user) void load(); }, [session?.user]);
+
+  useEffect(() => {
+    if (session?.user) void load();
+  }, [session?.user]);
+
+  // Auto-refresh overview every 60s
+  useEffect(() => {
+    if (tab !== "overview" || !session?.user) return;
+    const timer = window.setInterval(() => void load(), 60_000);
+    return () => window.clearInterval(timer);
+  }, [tab, session?.user]);
+
   async function review(id: string, action: "approve" | "reject") {
     const reason = action === "reject" ? window.prompt("سبب الرفض الظاهر للمستخدم:") : undefined;
     if (action === "reject" && (!reason || reason.trim().length < 3)) return;
-    setLoading(true); const response = await fetch(`/api/admin/payments/${id}/review`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action === "approve" ? { action } : { action, reason }) }); const result = await response.json();
-    if (!response.ok) setError(result.error); else await load(); setLoading(false);
+    setLoading(true);
+    const response = await fetch(`/api/admin/payments/${id}/review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(action === "approve" ? { action } : { action, reason }),
+    });
+    const result = await response.json();
+    if (!response.ok) setError(result.error);
+    else await load();
+    setLoading(false);
   }
+
+  const pendingCount = payments.length;
+  const chartData = stats ? buildChartData(stats.timeSeries) : [];
+
   if (isPending) return <div className="admin-container"><div className="admin-card">جارٍ التحقق…</div></div>;
-  if (!session?.user) return <div className="admin-container"><div className="admin-card text-center"><p>استخدم حساب Better Auth المرقّى للوصول.</p><Link href="/login" className="mt-4 inline-flex bg-teal-700 px-5 py-3 font-bold text-white">تسجيل الدخول</Link></div></div>;
-  return <div className="admin-container">
-    <div className="admin-header-row"><div><h2>لوحة تشغيل مسارك 2026</h2><p>المراجعة المالية، حالة بيانات التنسيق، والنموذج النشط.</p></div><button onClick={load} disabled={loading} className="secondary-button"><RefreshCw size={16} className={loading ? "animate-spin" : ""} />تحديث</button></div>
-    {error ? <p className="form-error">{error}</p> : null}
-    {coordination ? <div className="stats-grid"><div className="stat-card"><div className="stat-content"><span>المصادر</span><strong>{coordination.counts.sources}</strong></div></div><div className="stat-card"><div className="stat-content"><span>حقائق المرحلة الأولى</span><strong>{coordination.counts.officialCutoffs2026}</strong></div></div><div className="stat-card"><div className="stat-content"><span>شواغر المرحلة الثانية</span><strong>{coordination.counts.stageVacancies2026}</strong></div></div><div className="stat-card"><div className="stat-content"><span>النماذج النشطة</span><strong>{coordination.models.filter((model) => model.activatedAt).length}</strong></div></div></div> : null}
-    <section className="mt-6 border border-slate-200 bg-white p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="text-xl font-extrabold text-[#173a55]">طلبات الدفع المنتظرة</h3><p className="text-sm text-slate-500">لا توافق قبل مطابقة الإيصال والمرجع يدويًا.</p></div><div className="flex gap-3 text-sm font-bold"><Link href="/api/admin/settings" className="text-teal-800 underline">إعدادات JSON</Link><Link href="/api/admin/audit-log" className="text-teal-800 underline">سجل التدقيق</Link></div></div>
-      <div className="mt-4 grid gap-3">{payments.map((payment) => <article key={payment.id} className="border border-slate-200 p-4"><div className="flex flex-wrap justify-between gap-4"><div><strong>{payment.productType === "friends_3" ? "3 تقارير — عرض الصحاب" : "تقرير واحد"}</strong><p className="text-sm font-bold text-slate-700">أرقام الجلوس: {payment.seatNumbers.join(" · ")}</p><p className="text-sm text-slate-500">{payment.studentName ?? "طلب زائر"}{payment.userName ? ` · ${payment.userName} · ${payment.userEmail ?? ""}` : " · شراء بدون حساب"}</p><p className="mt-2 text-sm">{payment.expectedAmount} جنيه · {payment.method} · بيانات المرسل في الإيصال{payment.transactionReference ? ` · المرجع ${payment.transactionReference}` : ""}</p></div><div className="flex items-start gap-2">{payment.hasReceipt ? <a href={`/api/admin/payments/${payment.id}/receipt`} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-1 border border-slate-300 px-3 text-sm font-bold">الإيصال <ExternalLink size={14} /></a> : null}<button disabled={loading || !payment.hasReceipt} onClick={() => review(payment.id, "approve")} className="inline-flex min-h-10 items-center gap-1 bg-teal-700 px-3 text-sm font-bold text-white disabled:opacity-40"><Check size={15} />موافقة</button><button disabled={loading} onClick={() => review(payment.id, "reject")} className="inline-flex min-h-10 items-center gap-1 border border-red-300 px-3 text-sm font-bold text-red-700"><X size={15} />رفض</button></div></div></article>)}{!payments.length ? <p className="bg-slate-50 p-5 text-center text-slate-500">لا توجد طلبات مكتملة الإرسال في الانتظار.</p> : null}</div>
-    </section>
-    <section className="mt-6 border border-slate-200 bg-white p-5"><h3 className="text-xl font-extrabold text-[#173a55]">إعدادات الدفع والعروض</h3><p className="text-sm text-slate-500">تُقرأ هذه القيم من Neon عند إنشاء الطلب والعرض العام، ولا تُحفظ داخل مكونات العرض.</p><AdminSettingsForm /></section>
-  </div>;
+  if (!session?.user) return (
+    <div className="admin-container">
+      <div className="admin-card" style={{ textAlign: "center" }}>
+        <p>استخدم حساب Better Auth المرقّى للوصول.</p>
+        <Link href="/login" className="mt-4 inline-flex bg-teal-700 px-5 py-3 font-bold text-white">تسجيل الدخول</Link>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="admin-container">
+      {/* Header */}
+      <div className="admin-header-row">
+        <div>
+          <h2>لوحة تحكم مسارك 2026</h2>
+          <p className="admin-subtitle">تحليلات · مدفوعات · إعدادات</p>
+        </div>
+        <button onClick={load} disabled={loading} className="admin-refresh-btn">
+          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+          تحديث
+        </button>
+      </div>
+
+      {error ? <p className="admin-error">{error}</p> : null}
+
+      {/* Tab Navigation */}
+      <nav className="admin-tabs" role="tablist">
+        <button role="tab" aria-selected={tab === "overview"} className={`admin-tab${tab === "overview" ? " active" : ""}`} onClick={() => setTab("overview")}>
+          <BarChart3 size={16} /> نظرة عامة
+        </button>
+        <button role="tab" aria-selected={tab === "payments"} className={`admin-tab${tab === "payments" ? " active" : ""}`} onClick={() => setTab("payments")}>
+          <Wallet size={16} /> المدفوعات
+          {pendingCount > 0 ? <span className="admin-tab-badge">{pendingCount}</span> : null}
+        </button>
+        <button role="tab" aria-selected={tab === "settings"} className={`admin-tab${tab === "settings" ? " active" : ""}`} onClick={() => setTab("settings")}>
+          الإعدادات
+        </button>
+      </nav>
+
+      {/* Overview Tab */}
+      {tab === "overview" && (
+        <div className="admin-tab-panel">
+          {/* KPI Cards */}
+          <div className="admin-kpi-grid">
+            <KpiCard icon={<Eye size={20} />} label="المشاهدات" value={stats?.totalViews ?? 0} sub={`اليوم: ${stats?.todayViews ?? 0}`} color="#0d9488" />
+            <KpiCard icon={<Search size={20} />} label="عمليات البحث" value={stats?.searchCount ?? 0} color="#0891b2" />
+            <KpiCard icon={<TrendingUp size={20} />} label="التوقعات" value={stats?.predictCount ?? 0} color="#6366f1" />
+            <KpiCard icon={<Wallet size={20} />} label="الإيرادات" value={stats?.revenue.totalRevenue ?? 0} isCurrency color="#059669" />
+            <KpiCard icon={<Users size={20} />} label="المستخدمين" value={stats?.users.totalUsers ?? 0} sub={`اليوم: ${stats?.users.todayUsers ?? 0}`} color="#7c3aed" />
+            <KpiCard icon={<Ticket size={20} />} label="الحقوق النشطة" value={stats?.users.totalEntitlements ?? 0} color="#e11d48" />
+          </div>
+
+          {/* Daily Traffic Chart */}
+          <section className="admin-panel">
+            <h4 className="admin-section-title">حركة الموقع (آخر 14 يوم)</h4>
+            <AdminDailyChart data={chartData} />
+          </section>
+
+          {/* Funnel + Revenue side by side on desktop */}
+          <div className="admin-insights-grid">
+            <section className="admin-panel">
+              {stats ? <AdminFunnelChart data={stats.funnel} /> : <p className="admin-empty-text">جارٍ التحميل…</p>}
+            </section>
+            <section className="admin-panel">
+              {stats ? <AdminRevenueCards data={stats.revenue} /> : <p className="admin-empty-text">جارٍ التحميل…</p>}
+            </section>
+          </div>
+
+          {/* Coordination Summary */}
+          {coordination ? (
+            <div className="admin-coord-grid">
+              <CoordCard label="المصادر" value={coordination.counts.sources} />
+              <CoordCard label="حقائق المرحلة الأولى" value={coordination.counts.officialCutoffs2026} />
+              <CoordCard label="شواغر المرحلة الثانية" value={coordination.counts.stageVacancies2026} />
+              <CoordCard label="النماذج النشطة" value={coordination.models.filter((m) => m.activatedAt).length} />
+            </div>
+          ) : null}
+        </div>
+      )}
+
+      {/* Payments Tab */}
+      {tab === "payments" && (
+        <div className="admin-tab-panel">
+          {/* Revenue summary */}
+          {stats ? (
+            <div className="admin-payment-summary">
+              <div className="admin-summary-item">
+                <span>مُقبول</span>
+                <strong className="text-emerald-700">{stats.revenue.totalApproved}</strong>
+              </div>
+              <div className="admin-summary-item">
+                <span>منتظر</span>
+                <strong className="text-amber-600">{stats.revenue.totalPending}</strong>
+              </div>
+              <div className="admin-summary-item">
+                <span>مرفوض</span>
+                <strong className="text-red-600">{stats.revenue.totalRejected}</strong>
+              </div>
+            </div>
+          ) : null}
+
+          <section className="admin-panel">
+            <div className="admin-panel-header">
+              <div>
+                <h3 className="admin-panel-title">طلبات الدفع المنتظرة</h3>
+                <p className="admin-panel-sub">لا توافق قبل مطابقة الإيصال والمرجع يدويًا.</p>
+              </div>
+              <div className="admin-panel-links">
+                <Link href="/api/admin/settings" className="admin-link">إعدادات JSON</Link>
+                <Link href="/api/admin/audit-log" className="admin-link">سجل التدقيق</Link>
+              </div>
+            </div>
+
+            <div className="admin-payment-list">
+              {payments.map((payment) => (
+                <article key={payment.id} className="admin-payment-card">
+                  <div className="admin-payment-info">
+                    <strong>{payment.productType === "friends_3" ? "3 تقارير — عرض الصحاب" : "تقرير واحد"}</strong>
+                    <p className="admin-payment-seats">أرقام الجلوس: {payment.seatNumbers.join(" · ")}</p>
+                    <p className="admin-payment-user">
+                      {payment.studentName ?? "طلب زائر"}
+                      {payment.userName ? ` · ${payment.userName} · ${payment.userEmail ?? ""}` : " · شراء بدون حساب"}
+                    </p>
+                    <p className="admin-payment-detail">
+                      {payment.expectedAmount} جنيه · {payment.method}
+                      {payment.transactionReference ? ` · المرجع ${payment.transactionReference}` : ""}
+                    </p>
+                  </div>
+                  <div className="admin-payment-actions">
+                    {payment.hasReceipt ? (
+                      <a href={`/api/admin/payments/${payment.id}/receipt`} target="_blank" rel="noreferrer" className="admin-btn admin-btn-outline">
+                        الإيصال <ExternalLink size={14} />
+                      </a>
+                    ) : null}
+                    <button disabled={loading || !payment.hasReceipt} onClick={() => review(payment.id, "approve")} className="admin-btn admin-btn-approve">
+                      <Check size={15} /> موافقة
+                    </button>
+                    <button disabled={loading} onClick={() => review(payment.id, "reject")} className="admin-btn admin-btn-reject">
+                      <X size={15} /> رفض
+                    </button>
+                  </div>
+                </article>
+              ))}
+              {!payments.length ? <p className="admin-empty-text">لا توجد طلبات مكتملة الإرسال في الانتظار.</p> : null}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* Settings Tab */}
+      {tab === "settings" && (
+        <div className="admin-tab-panel">
+          <section className="admin-panel">
+            <h3 className="admin-panel-title">إعدادات الدفع والعروض</h3>
+            <p className="admin-panel-sub">تُقرأ هذه القيم من Neon عند إنشاء الطلب والعرض العام.</p>
+            <AdminSettingsForm />
+          </section>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Helper Components ─── */
+
+function KpiCard({ icon, label, value, sub, isCurrency, color }: {
+  icon: React.ReactNode; label: string; value: number;
+  sub?: string; isCurrency?: boolean; color: string;
+}) {
+  const formatted = isCurrency
+    ? `${value.toLocaleString("ar-EG", { minimumFractionDigits: 0 })} جنيه`
+    : value.toLocaleString("ar-EG");
+  return (
+    <div className="admin-kpi-card" style={{ borderTopColor: color }}>
+      <div className="admin-kpi-icon" style={{ color }}>{icon}</div>
+      <div className="admin-kpi-body">
+        <span className="admin-kpi-label">{label}</span>
+        <strong className="admin-kpi-value">{formatted}</strong>
+        {sub ? <span className="admin-kpi-sub">{sub}</span> : null}
+      </div>
+    </div>
+  );
+}
+
+function CoordCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="admin-coord-card">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function buildChartData(timeSeries: Array<{ date: string; event_type: string; total: number }>) {
+  const byDate = new Map<string, { views: number; searches: number; predictions: number }>();
+  for (const row of timeSeries) {
+    const entry = byDate.get(row.date) ?? { views: 0, searches: 0, predictions: 0 };
+    if (row.event_type === "view") entry.views += row.total;
+    else if (row.event_type === "search") entry.searches += row.total;
+    else if (row.event_type === "predict") entry.predictions += row.total;
+    byDate.set(row.date, entry);
+  }
+  return Array.from(byDate.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, data]) => ({ date, ...data }));
 }
