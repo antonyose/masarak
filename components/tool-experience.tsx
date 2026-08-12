@@ -629,10 +629,12 @@ function GuestPaymentOffer({
               <div key={item.id} className={`payment-method-option${isSelected ? " is-selected" : ""}`}>
                 <input id={inputId} type="radio" name="payment-method" value={item.id} checked={isSelected} onChange={() => setMethod(item.id)} />
                 <label htmlFor={inputId} className="payment-method-select">
-                  <span className="payment-logo-tile">
-                    <Image src={item.logoSrc} alt={`${item.label} logo`} width={88} height={48} sizes="(max-width: 480px) 25vw, 110px" />
+                  <span className="payment-method-heading">
+                    <span className="payment-logo-tile">
+                      <Image src={item.logoSrc} alt={`${item.label} logo`} width={32} height={32} sizes="32px" />
+                    </span>
+                    <span className="payment-method-name">{item.label}</span>
                   </span>
-                  <span className="payment-method-name">{item.label}</span>
                 </label>
                 <div className="payment-recipient-row">
                   <bdi>{item.recipient}</bdi>
