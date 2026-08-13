@@ -98,7 +98,19 @@ export async function getSeatEntitlement({
   seatNumber: string;
 }) {
   const [record] = await getDatabase()
-    .select()
+    // The public prediction path only needs baseline entitlement fields. Keep
+    // this query compatible while an environment is catching up with the
+    // additive admin-grants migration (which adds manual_grant_id).
+    .select({
+      id: seatEntitlements.id,
+      year: seatEntitlements.year,
+      seatNumber: seatEntitlements.seatNumber,
+      originPredictionId: seatEntitlements.originPredictionId,
+      paymentId: seatEntitlements.paymentId,
+      scope: seatEntitlements.scope,
+      unlockedAt: seatEntitlements.unlockedAt,
+      createdAt: seatEntitlements.createdAt,
+    })
     .from(seatEntitlements)
     .where(
       and(
