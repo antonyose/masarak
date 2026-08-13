@@ -19,6 +19,8 @@ import { normalizeDigits } from "@/lib/normalize-arabic";
 import { formatEgp, getServerBasedNow, isOfferActive, type PublicOffer } from "@/lib/offer-config";
 import { OfferCountdown } from "@/components/offer-countdown";
 import { useTrackFunnel } from "@/components/analytics-tracker";
+import { SignalIndicator } from "@/components/signal-indicator";
+import { generateSmartLockedTeasers } from "@/lib/smart-locked-teasers";
 
 type Branch = "science" | "mathematics" | "literary";
 type System = "new" | "old";
@@ -138,23 +140,8 @@ const branchLabels: Record<Branch, string> = {
   literary: "أدبي",
 };
 
-const categoryLabels: Record<Recommendation["category"], string> = {
-  safe: "مناسب جدًا",
-  target: "مناسب ليك",
-  reach: "اختيار طموح",
-  unlikely: "بعيد عن مجموعك",
-  insufficient_data: "لسه بنحدّثه",
-};
-
-const offerLines = [
-  "اعرف أنسب الكليات لمجموعك",
-  "شوف فرصك في المرحلة التانية",
-  "والمتوقع ليك في المرحلة التالتة",
-  "كل ده برقم الجلوس فقط",
-  "بـ35 جنيه بس",
-];
-
 function simpleProximity(label: string) {
+  if (!label || label === "محافظة أخرى" || label === "other") return null;
   return label === "نطاق قريب استرشادي" ? "قريبة منك" : label;
 }
 
@@ -647,9 +634,9 @@ function Report({
           <article key={item.id} className="free-recommendation">
             <div className="recommendation-number">{index + 1}</div>
             <div className="recommendation-copy">
-              <span>{categoryLabels[item.category]}</span>
+              <SignalIndicator fit={item.category} />
               <h4>{item.officialNameArabic}</h4>
-              <p>{simpleProximity(item.proximityLabel)}</p>
+              {simpleProximity(item.proximityLabel) ? <p>{simpleProximity(item.proximityLabel)}</p> : null}
               {item.requiresAptitudeTest ? <small>محتاج اختبار قدرات</small> : null}
             </div>
             <GraduationCap size={30} aria-hidden="true" />
@@ -658,19 +645,12 @@ function Report({
       </div>
 
       {!report.premium && report.lockedRecommendationCount ? (
-        <section className="locked-recommendations" aria-label="ترشيحات مقفولة">
-          <div className="locked-title">
-            <LockKeyhole size={19} aria-hidden="true" />
-            <div>
-              <strong>باقي الترشيحات متاحة بعد التفعيل</strong>
-              <span>شوف كل الاختيارات المناسبة لمجموعك ومحافظتك</span>
-            </div>
-          </div>
-
-          <div className="locked-card-stack" aria-hidden="true">
-            {[0, 1, 2].map((item) => <LockedSampleCard key={item} index={item} />)}
-          </div>
-
+        <section className="locked-recommendations" aria-label="تحليلات وترشيحات مقفولة">
+          <SmartLockedTeaserCards
+            result={result}
+            report={report}
+            isStage3Report={false}
+          />
           <GuestPaymentOffer
             predictionId={report.predictionId ?? ""}
             seatNumber={result.seatNumber}
@@ -769,13 +749,13 @@ function PredictionV2StudentReport({
                 <article key={item.id} className={`free-recommendation v2-recommendation fit-${item.fit}`}>
                   <div className="recommendation-number">{index + 1}</div>
                   <div className="recommendation-copy">
-                    <span>{item.fitLabel}</span>
+                    <SignalIndicator fit={item.fit} />
                     <h4>{item.officialNameArabic}</h4>
                     <p>
                       {item.availability === "forecast_stage_3" ? "متوقع يظهر في المرحلة الثالثة · " : "متاح في قائمة المرحلة الثانية · "}
                       نطاق متوقع <bdi className="ltr-number">{item.expectedRange[0]}%–{item.expectedRange[1]}%</bdi>
                     </p>
-                    <small>{simpleProximity(item.proximityLabel)}</small>
+                    {simpleProximity(item.proximityLabel) ? <small>{simpleProximity(item.proximityLabel)}</small> : null}
                     {item.requiresAptitudeTest ? <small className="recommendation-warning">يتطلب اجتياز اختبار قدرات</small> : null}
                     {item.limitedDataWarning ? <small className="recommendation-warning">{item.limitedDataWarning}</small> : null}
                   </div>
@@ -788,21 +768,12 @@ function PredictionV2StudentReport({
       </div>
 
       {!report.premium && report.lockedRecommendationCount ? (
-        <section className="locked-recommendations" aria-label="ترشيحات مقفولة">
-          <div className="locked-title">
-            <LockKeyhole size={19} aria-hidden="true" />
-            <div>
-              <strong>باقي التقرير متاح بعد التفعيل</strong>
-              <span>
-                {isStage3Report
-                  ? `${report.lockedRecommendationCount} توقعات إضافية مرتبة حسب قربها من مجموعك`
-                  : "شوف كل الاختيارات المناسبة لمجموعك ومحافظتك"}
-              </span>
-            </div>
-          </div>
-          <div className="locked-card-stack" aria-hidden="true">
-            {[0, 1, 2].map((item) => <LockedSampleCard key={item} index={item} />)}
-          </div>
+        <section className="locked-recommendations" aria-label="تحليلات وترشيحات مقفولة">
+          <SmartLockedTeaserCards
+            result={result}
+            report={report}
+            isStage3Report={isStage3Report}
+          />
           <GuestPaymentOffer
             predictionId={report.predictionId ?? ""}
             seatNumber={result.seatNumber}
@@ -819,15 +790,58 @@ function PredictionV2StudentReport({
   );
 }
 
-function LockedSampleCard({ index }: { index: number }) {
+function SmartLockedTeaserCards({
+  result,
+  report,
+  isStage3Report,
+}: {
+  result: StudentResult;
+  report: PredictionResponse;
+  isStage3Report: boolean;
+}) {
+  const teasers = generateSmartLockedTeasers({
+    branch: result.branch !== "unknown" ? result.branch : report.branch,
+    score: result.totalScore,
+    percentage: result.percentage,
+    governorate: result.governorate,
+    isStage3: isStage3Report,
+  });
+
   return (
-    <div className={`locked-sample locked-sample-${index + 1}`}>
-      <div className="locked-sample-content">
-        <span>اختيار مناسب</span>
-        <strong>كلية وجامعة مناسبة لمجموعك</strong>
-        <small>المحافظة · فرصة القبول</small>
+    <div className="smart-locked-container">
+      <div className="smart-locked-header">
+        <div className="smart-locked-badge-pill">
+          <Sparkles size={14} aria-hidden="true" />
+          <span>تحليلات ذكية مقفولة لنتيجتك</span>
+        </div>
+        <div className="smart-locked-title-wrap">
+          <h4>
+            {result.studentName
+              ? `أهم التساؤلات والتحليلات لنتيجة ${result.studentName}`
+              : `أهم التساؤلات والتحليلات لمجموع ${formatScore(result.totalScore)}`}
+          </h4>
+          <p>إجابات حاسمة ومحسوبة بالدرجات لأهم الأسئلة اللي بتدور في بالك دلوقتي</p>
+        </div>
       </div>
-      <span className="locked-icon"><LockKeyhole size={16} /></span>
+
+      <div className="smart-locked-grid">
+        {teasers.map((teaser) => (
+          <article key={teaser.id} className="smart-locked-card">
+            <div className="smart-locked-card-header">
+              <span className="smart-locked-tag">{teaser.categoryTag}</span>
+              <span className="smart-locked-lock-badge">
+                <LockKeyhole size={13} aria-hidden="true" />
+                <span>متاح في التقرير</span>
+              </span>
+            </div>
+            <p className="smart-locked-question">{teaser.question}</p>
+            <div className="smart-locked-card-footer">
+              <span className="smart-locked-blur-preview" aria-hidden="true" />
+              <small>عرض التحليل والفرصة المؤكدة بعد فتح التقرير</small>
+            </div>
+          </article>
+        ))}
+      </div>
     </div>
   );
 }
@@ -847,7 +861,6 @@ function GuestPaymentOffer({
   paymentState?: PaymentState;
   onUnlocked: (report: PredictionResponse) => void;
 }) {
-  const [lineIndex, setLineIndex] = useState(0);
   const [productType, setProductType] = useState<ProductType>(initialProduct);
   const [friendSeats, setFriendSeats] = useState<[string, string]>(["", ""]);
   const [seatError, setSeatError] = useState("");
@@ -906,11 +919,7 @@ function GuestPaymentOffer({
     return () => window.clearInterval(timer);
   }, [activeOffer, settings?.offer.endAt, settings?.offer.showCountdown]);
 
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = window.setInterval(() => setLineIndex((current) => (current + 1) % offerLines.length), 2600);
-    return () => window.clearInterval(timer);
-  }, []);
+
 
   useEffect(() => {
     if (!polling || pollingRef.current) return;
@@ -1089,26 +1098,6 @@ function GuestPaymentOffer({
 
   return (
     <form className="unlock-offer guest-payment-offer" onSubmit={submitPayment}>
-      <div className="offer-main">
-        <div className="offer-main-copy">
-          <h4>افتح التقرير الكامل</h4>
-          <div className="offer-rotator-wrap" aria-live="polite" aria-atomic="true">
-            <p className="offer-rotator" key={lineIndex}>{offerLines[lineIndex]}</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          className="offer-main-cta"
-          aria-controls={`locked-report-options-${predictionId}`}
-          onClick={() => {
-            trackFunnel("offer_clicked", { product: productType, source: "locked_report_promo" });
-            document.getElementById(`locked-report-options-${predictionId}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-          }}
-        >
-          افتح تقريري الآن
-          <ChevronLeft size={18} aria-hidden="true" />
-        </button>
-      </div>
       <div className="offer-action" id={`locked-report-options-${predictionId}`}>
         <div className="offer-product-picker" role="radiogroup" aria-label="اختار العرض">
           <button type="button" className={`offer-product-card${productType === "single" ? " is-selected" : ""}${selectedOffer?.targetProduct === "single" ? " has-offer" : ""}`} onClick={() => { setProductType("single"); trackFunnel("product_selected", { product: "single", source: "locked_report" }); }} aria-pressed={productType === "single"}>

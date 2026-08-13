@@ -19,6 +19,11 @@ type Report = {
   disclaimer: string;
 };
 
+function simpleProximity(label: string) {
+  if (!label || label === "محافظة أخرى" || label === "other") return null;
+  return label === "نطاق قريب استرشادي" ? "قريبة منك" : label;
+}
+
 const categoryLabels: Record<string, string> = {
   safe: "مناسب جدًا",
   target: "مناسب ليك",
@@ -26,10 +31,6 @@ const categoryLabels: Record<string, string> = {
   unlikely: "بعيد عن مجموعك",
   insufficient_data: "لسه بنحدّثه",
 };
-
-function simpleProximity(label: string) {
-  return label === "نطاق قريب استرشادي" ? "قريبة منك" : label;
-}
 
 export function PremiumReport({ predictionId }: { predictionId: string }) {
   const [report, setReport] = useState<Report | null>(null);
@@ -87,7 +88,7 @@ export function PremiumReport({ predictionId }: { predictionId: string }) {
             <div className="recommendation-copy">
               <span>{categoryLabels[item.category] ?? "اختيار مقترح"}</span>
               <h2>{item.officialNameArabic}</h2>
-              <p>{simpleProximity(item.proximityLabel)}</p>
+              {simpleProximity(item.proximityLabel) ? <p>{simpleProximity(item.proximityLabel)}</p> : null}
             </div>
             <GraduationCap size={28} aria-hidden="true" />
           </article>
