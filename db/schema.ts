@@ -16,6 +16,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const educationSystemEnum = pgEnum("education_system", [
   "new",
@@ -43,7 +44,9 @@ export const paymentMethodEnum = pgEnum("payment_method", [
   "vodafone_cash",
   "orange_cash",
   "instapay",
+  "discount_code",
 ]);
+export const discountTypeEnum = pgEnum("discount_type", ["percentage", "fixed"]);
 export const paymentProductTypeEnum = pgEnum("payment_product_type", [
   "single",
   "friends_3",
@@ -989,6 +992,26 @@ export const paymentSettings = pgTable("payment_settings", {
     .defaultNow(),
 });
 
+export const discountCodes = pgTable(
+  "discount_codes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    code: text("code").notNull(),
+    discountType: discountTypeEnum("discount_type").notNull(),
+    discountValue: numeric("discount_value", { precision: 10, scale: 2 }).notNull(),
+    maxRedemptions: integer("max_redemptions").notNull(),
+    active: boolean("active").notNull().default(true),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("discount_codes_code_idx").on(table.code),
+    index("discount_codes_active_expiry_idx").on(table.active, table.expiresAt),
+  ],
+);
+
 export const paymentSubmissions = pgTable(
   "payment_submissions",
   {
@@ -1007,6 +1030,9 @@ export const paymentSubmissions = pgTable(
     method: paymentMethodEnum("method").notNull(),
     expectedAmount: numeric("expected_amount", { precision: 10, scale: 2 })
       .notNull(),
+    originalAmount: numeric("original_amount", { precision: 10, scale: 2 }),
+    discountAmount: numeric("discount_amount", { precision: 10, scale: 2 }).notNull().default("0.00"),
+    discountCodeId: uuid("discount_code_id").references(() => discountCodes.id, { onDelete: "set null" }),
     currency: text("currency").notNull().default("EGP"),
     priceSnapshotJson: jsonb("price_snapshot_json")
       .$type<Record<string, unknown>>()
@@ -1056,6 +1082,29 @@ export const paymentSubmissions = pgTable(
       table.status,
       table.createdAt,
     ),
+  ],
+);
+
+export const discountRedemptions = pgTable(
+  "discount_redemptions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    discountCodeId: uuid("discount_code_id").notNull().references(() => discountCodes.id),
+    paymentId: uuid("payment_id").notNull().references(() => paymentSubmissions.id, { onDelete: "cascade" }),
+    year: integer("year").notNull(),
+    seatNumber: text("seat_number").notNull(),
+    originalAmount: numeric("original_amount", { precision: 10, scale: 2 }).notNull(),
+    discountAmount: numeric("discount_amount", { precision: 10, scale: 2 }).notNull(),
+    finalAmount: numeric("final_amount", { precision: 10, scale: 2 }).notNull(),
+    status: text("status").notNull().default("reserved"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    redeemedAt: timestamp("redeemed_at", { withTimezone: true }),
+    releasedAt: timestamp("released_at", { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex("discount_redemptions_payment_idx").on(table.paymentId),
+    uniqueIndex("discount_redemptions_code_seat_idx").on(table.discountCodeId, table.year, table.seatNumber).where(sql`${table.status} IN ('reserved', 'redeemed')`),
+    index("discount_redemptions_code_status_idx").on(table.discountCodeId, table.status),
   ],
 );
 

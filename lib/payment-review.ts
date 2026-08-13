@@ -21,7 +21,7 @@ export async function reviewPaymentTransaction({
   actorUserId: string | null;
   action: "approve" | "reject";
   allowMissingReceipt?: boolean;
-  reviewSource?: "manual" | "auto";
+  reviewSource?: "manual" | "auto" | "discount";
   rejectionReason?: string;
   requestId?: string;
 }) {
@@ -93,6 +93,7 @@ export async function reviewPaymentTransaction({
           [paymentId, actorUserId, "واحد من أرقام الجلوس مفتوح بالفعل."],
         );
         if (cancelled.rowCount !== 1) throw new Error("PAYMENT_REVIEW_RACE");
+        await client.query(`UPDATE discount_redemptions SET status = 'released', released_at = now() WHERE payment_id = $1 AND status = 'reserved'`, [paymentId]);
         await client.query(
           `INSERT INTO admin_audit_logs
             (actor_user_id, action, target_type, target_id, before_json, after_json, request_id)
@@ -118,6 +119,12 @@ export async function reviewPaymentTransaction({
       [paymentId, nextStatus, actorUserId, rejectionReason ?? null],
     );
     if (updated.rowCount !== 1) throw new Error("PAYMENT_REVIEW_RACE");
+    await client.query(
+      `UPDATE discount_redemptions SET status = $2, redeemed_at = CASE WHEN $2 = 'redeemed' THEN now() ELSE redeemed_at END,
+              released_at = CASE WHEN $2 = 'released' THEN now() ELSE released_at END
+       WHERE payment_id = $1 AND status = 'reserved'`,
+      [paymentId, action === "approve" ? "redeemed" : "released"],
+    );
 
     if (action === "approve") {
       const seatNumbers = seats.map((seat) => seat.seat_number);
@@ -170,7 +177,7 @@ export async function reviewPaymentTransaction({
        VALUES ($1, $2, 'payment_submission', $3, $4::jsonb, $5::jsonb, $6)`,
       [
         actorUserId,
-        reviewSource === "auto" && nextStatus === "approved" ? "payment.auto_approved" : `payment.${nextStatus}`,
+        reviewSource === "auto" && nextStatus === "approved" ? "payment.auto_approved" : reviewSource === "discount" && nextStatus === "approved" ? "payment.discount_approved" : `payment.${nextStatus}`,
         paymentId,
         JSON.stringify({ status: "pending", productType: payment.product_type, seatNumbers: seats.map((seat) => seat.seat_number) }),
         JSON.stringify({

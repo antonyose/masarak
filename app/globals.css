@@ -582,6 +582,31 @@ a {
   font-size: 0.72rem;
 }
 
+.discount-entry { display: grid; gap: 0.45rem; margin-top: 1rem; }
+.discount-entry > label { color: var(--ink); font-size: 0.82rem; font-weight: 800; }
+.discount-entry > div { display: flex; gap: 0.5rem; }
+.discount-entry input { min-width: 0; flex: 1; min-height: 44px; padding: 0 0.8rem; color: var(--ink); background: white; border: 1px solid var(--line); border-radius: 0.6rem; font-weight: 800; letter-spacing: 0.12em; }
+.discount-entry button { min-width: 5.5rem; color: white; background: var(--primary); border: 0; border-radius: 0.6rem; font-weight: 800; cursor: pointer; }
+.discount-entry button:disabled { opacity: 0.55; cursor: not-allowed; }
+.discount-success { margin: 0; color: oklch(0.42 0.11 154); font-size: 0.76rem; font-weight: 800; }
+.offer-price-line.has-discount strong { display: flex; align-items: baseline; gap: 0.45rem; }
+.offer-price-line.has-discount s { color: oklch(0.48 0.02 226); font-size: 0.82rem; font-weight: 600; }
+.discount-free-note { display: flex; align-items: center; gap: 0.65rem; padding: 0.85rem; color: oklch(0.3 0.08 154); background: oklch(0.96 0.035 154); border-radius: 0.7rem; }
+.discount-free-note span { display: grid; gap: 0.1rem; }
+.discount-free-note small { font-size: 0.72rem; }
+
+.admin-discount-form { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: 0.7rem; align-items: end; margin-top: 1rem; }
+.admin-discount-form label { display: grid; gap: 0.35rem; font-size: 0.76rem; font-weight: 800; }
+.admin-discount-form label span small { color: #64748b; font-weight: 500; }
+.admin-discount-form input, .admin-discount-form select { min-width: 0; min-height: 42px; padding-inline: 0.65rem; border: 1px solid #cbd5e1; }
+.admin-discount-list { display: grid; gap: 0.45rem; margin-top: 1rem; }
+.admin-discount-row { display: grid; grid-template-columns: 8rem 1fr 1fr 1.4fr auto; align-items: center; gap: 0.75rem; padding: 0.7rem; background: #f8fafc; font-size: 0.76rem; }
+.admin-code-copy { display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; min-height: 36px; color: #0f766e; background: #fff; border: 1px solid #99f6e4; font-weight: 900; letter-spacing: 0.1em; cursor: pointer; }
+.admin-status-toggle { min-height: 34px; padding-inline: 0.7rem; color: #64748b; background: #e2e8f0; border: 0; font-weight: 800; cursor: pointer; }
+.admin-status-toggle.is-active { color: #065f46; background: #d1fae5; }
+
+@media (max-width: 900px) { .admin-discount-form { grid-template-columns: repeat(2, minmax(0, 1fr)); } .admin-discount-row { grid-template-columns: 1fr 1fr; } }
+
 .name-search-status {
   margin: 0;
   padding: 0.85rem;

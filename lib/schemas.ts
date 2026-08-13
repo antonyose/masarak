@@ -85,6 +85,30 @@ export const paymentCreateSchema = z.object({
   senderIdentifier: z.string().trim().max(80).optional(),
   transactionReference: z.string().trim().max(120).optional(),
   idempotencyKey: z.string().uuid(),
+  discountCode: z.string().trim().max(12).optional(),
+});
+
+export const discountCodeSchema = z.string().trim().toUpperCase().regex(/^[A-Z0-9]{4}$/, "اكتب كود الخصم المكوّن من 4 حروف أو أرقام.");
+
+export const discountValidationSchema = z.object({
+  code: discountCodeSchema,
+  productType: z.enum(["single", "friends_3"]),
+});
+
+export const adminDiscountCodeCreateSchema = z.object({
+  code: discountCodeSchema.optional(),
+  discountType: z.enum(["percentage", "fixed"]),
+  discountValue: z.number().finite().positive().max(10000),
+  maxRedemptions: z.number().int().min(1).max(100000),
+  expiresAt: z.coerce.date().nullable().optional(),
+}).superRefine((value, context) => {
+  if (value.discountType === "percentage" && value.discountValue > 100) {
+    context.addIssue({ code: "custom", path: ["discountValue"], message: "نسبة الخصم لا يمكن أن تتجاوز 100%." });
+  }
+});
+
+export const adminDiscountCodeUpdateSchema = z.object({
+  active: z.boolean(),
 });
 
 export const paymentReviewSchema = z.discriminatedUnion("action", [

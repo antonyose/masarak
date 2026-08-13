@@ -15,6 +15,7 @@ import { AdminRevenueCards } from "@/components/admin-revenue-cards";
 import { AdminAuditTable } from "@/components/admin-audit-table";
 import { AdminPaymentsTable, type AdminPayment } from "@/components/admin-payments-table";
 import { AdminQuickEntitlement } from "@/components/admin-quick-entitlement";
+import { AdminDiscountCodes } from "@/components/admin-discount-codes";
 
 type Coordination = {
   counts: { sources: number; officialCutoffs2026: number; stageVacancies2026: number };
@@ -274,6 +275,7 @@ export default function AdminPage() {
       {/* Settings Tab */}
       {tab === "settings" && (
         <div className="admin-tab-panel">
+          <AdminDiscountCodes />
           <section className="admin-panel">
             <h3 className="admin-panel-title">إعدادات الدفع والعروض</h3>
             <p className="admin-panel-sub">تُقرأ هذه القيم من Neon عند إنشاء الطلب والعرض العام.</p>

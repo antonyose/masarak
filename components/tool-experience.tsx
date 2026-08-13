@@ -130,6 +130,7 @@ type PaymentSettings = {
   receiptRequired: boolean;
 };
 type ProductType = "single" | "friends_3";
+type DiscountQuote = { code: string; originalAmount: number; discountAmount: number; finalAmount: number; discountType: "percentage" | "fixed"; discountValue: number };
 
 const branchLabels: Record<Branch, string> = {
   science: "علمي علوم",
@@ -852,6 +853,10 @@ function GuestPaymentOffer({
   const [seatError, setSeatError] = useState("");
   const [method, setMethod] = useState("");
   const [receipt, setReceipt] = useState<File | null>(null);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountQuote, setDiscountQuote] = useState<DiscountQuote | null>(null);
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [discountError, setDiscountError] = useState("");
   const [copiedMethod, setCopiedMethod] = useState<string | null>(null);
   const [paymentId, setPaymentId] = useState(paymentState?.status === "pending" ? paymentState.paymentId : "");
   const [mode, setMode] = useState<"form" | "submitting" | "pending" | "rejected">(
@@ -872,6 +877,11 @@ function GuestPaymentOffer({
   useEffect(() => {
     setProductType(initialProduct);
   }, [initialProduct]);
+
+  useEffect(() => {
+    setDiscountQuote(null);
+    setDiscountError("");
+  }, [productType]);
 
   useEffect(() => {
     if (offerTrackedRef.current === predictionId) return;
@@ -962,7 +972,8 @@ function GuestPaymentOffer({
 
   async function submitPayment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!settings || !selectedProduct || !method || (settings.receiptRequired && !receipt)) {
+    const isFreeWithCode = discountQuote?.finalAmount === 0;
+    if (!settings || !selectedProduct || (!isFreeWithCode && !method) || (!isFreeWithCode && settings.receiptRequired && !receipt)) {
       setError(settings?.receiptRequired ? "اختار طريقة الدفع وارفع صورة الإيصال." : "اختار طريقة الدفع.");
       return;
     }
@@ -993,8 +1004,9 @@ function GuestPaymentOffer({
           year: 2026,
           productType,
           seatNumbers,
-          method,
+          method: method || "vodafone_cash",
           idempotencyKey: crypto.randomUUID(),
+          discountCode: discountQuote?.code,
         }),
       });
       const data = await response.json();
@@ -1045,6 +1057,18 @@ function GuestPaymentOffer({
         setError(caught instanceof Error ? caught.message : "تعذر إرسال الدفع.");
       }
     }
+  }
+
+  async function applyDiscount() {
+    setDiscountLoading(true); setDiscountError(""); setDiscountQuote(null);
+    try {
+      const response = await fetch("/api/discounts/validate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: discountCode, productType }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      setDiscountCode(data.quote.code);
+      setDiscountQuote(data.quote);
+    } catch (caught) { setDiscountError(caught instanceof Error ? caught.message : "تعذر تطبيق الكود."); }
+    finally { setDiscountLoading(false); }
   }
 
   if (!settings) {
@@ -1117,9 +1141,16 @@ function GuestPaymentOffer({
             <small>كل واحد يختار شعبته بعد ما يبحث برقم جلوسه.</small>
           </div>
         ) : null}
-        <div className="offer-price-line"><span>السعر</span><strong><bdi>{selectedProduct?.priceEgp}</bdi> جنيه</strong></div>
+        <div className="discount-entry">
+          <label htmlFor={`discount-${predictionId}`}>معاك كود خصم؟</label>
+          <div><input id={`discount-${predictionId}`} value={discountCode} onChange={(event) => { setDiscountCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4)); setDiscountQuote(null); setDiscountError(""); }} placeholder="AB12" maxLength={4} dir="ltr" />
+          <button type="button" onClick={() => void applyDiscount()} disabled={discountLoading || discountCode.length !== 4}>{discountLoading ? "بنتحقق…" : "تطبيق"}</button></div>
+          {discountQuote ? <p className="discount-success">تم تطبيق الكود — وفّرت {formatEgp(discountQuote.discountAmount)} جنيه</p> : null}
+          {discountError ? <p className="payment-inline-error" role="alert">{discountError}</p> : null}
+        </div>
+        <div className={`offer-price-line${discountQuote ? " has-discount" : ""}`}><span>{discountQuote ? "المطلوب بعد الخصم" : "السعر"}</span><strong>{discountQuote ? <s><bdi>{formatEgp(discountQuote.originalAmount)}</bdi></s> : null} <bdi>{formatEgp(discountQuote?.finalAmount ?? selectedProduct?.priceEgp ?? 0)}</bdi> جنيه</strong></div>
         {seatError ? <p className="payment-inline-error" role="alert">{seatError}</p> : null}
-        <div className="payment-method-grid" role="radiogroup" aria-label="طرق الدفع">
+        {discountQuote?.finalAmount === 0 ? <div className="discount-free-note"><Check size={18}/><span><strong>الكود فتح التقرير مجانًا</strong><small>اضغط الزر تحت ومش محتاج تحويل أو إيصال.</small></span></div> : <><div className="payment-method-grid" role="radiogroup" aria-label="طرق الدفع">
           {settings.methods.map((item) => {
             const inputId = `payment-method-${item.id}`;
             const isSelected = method === item.id;
@@ -1151,11 +1182,11 @@ function GuestPaymentOffer({
             );
           })}
         </div>
-        <label className="receipt-picker"><Upload size={17} /><span>{receipt ? receipt.name : settings.receiptRequired ? "ارفع صورة الإيصال — حتى 5MB" : "صورة الإيصال — اختيارية"}</span><input type="file" accept="image/jpeg,image/png,image/webp" required={settings.receiptRequired} onChange={(event) => { const file = event.target.files?.[0] ?? null; setReceipt(file); if (file) trackFunnel("receipt_uploaded", { product: productType, source: "locked_report" }); }} /></label>
+        <label className="receipt-picker"><Upload size={17} /><span>{receipt ? receipt.name : settings.receiptRequired ? "ارفع صورة الإيصال — حتى 5MB" : "صورة الإيصال — اختيارية"}</span><input type="file" accept="image/jpeg,image/png,image/webp" required={settings.receiptRequired} onChange={(event) => { const file = event.target.files?.[0] ?? null; setReceipt(file); if (file) trackFunnel("receipt_uploaded", { product: productType, source: "locked_report" }); }} /></label></>}
         {mode === "rejected" ? <p className="payment-rejected">لم تتم الموافقة على الطلب السابق. يمكنك إرسال إيصال جديد.</p> : null}
         {error ? <p className="payment-inline-error" role="alert">{error}</p> : null}
         <button className="offer-cta" disabled={mode === "submitting"}>
-          {mode === "submitting" ? "جارٍ إرسال الإيصال…" : selectedOffer?.ctaText ?? (productType === "friends_3" ? "ادفع وافتح التقارير" : "افتح تقريري")}
+          {mode === "submitting" ? (discountQuote?.finalAmount === 0 ? "جارٍ فتح التقرير…" : "جارٍ إرسال الإيصال…") : discountQuote?.finalAmount === 0 ? "افتح التقرير مجانًا" : selectedOffer?.ctaText ?? (productType === "friends_3" ? "ادفع وافتح التقارير" : "افتح تقريري")}
           <ChevronLeft size={19} aria-hidden="true" />
         </button>
       </div>

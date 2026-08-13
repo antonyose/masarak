@@ -21,7 +21,7 @@ export type AdminPayment = {
   seatNumber: string;
   seatNumbers: string[];
   productType: "single" | "friends_3";
-  method: "vodafone_cash" | "orange_cash" | "instapay";
+  method: "vodafone_cash" | "orange_cash" | "instapay" | "discount_code";
   expectedAmount: string;
   senderIdentifier: string;
   transactionReference: string | null;
@@ -48,6 +48,7 @@ const METHOD_LABELS: Record<AdminPayment["method"], string> = {
   vodafone_cash: "فودافون كاش",
   orange_cash: "أورنج كاش",
   instapay: "إنستا باي",
+  discount_code: "كود خصم",
 };
 
 const ACTION_LABELS: Record<AdminPayment["status"], string> = {
