@@ -3,6 +3,7 @@ sheets/
 scratch/
 reports/
 tmp/
+scripts/
 node_modules/
 .next/
 *.sqlite
