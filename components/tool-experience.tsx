@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -21,6 +21,16 @@ import { OfferCountdown } from "@/components/offer-countdown";
 import { useTrackFunnel } from "@/components/analytics-tracker";
 import { SignalIndicator } from "@/components/signal-indicator";
 import { generateSmartLockedTeasers } from "@/lib/smart-locked-teasers";
+import {
+  DISCIPLINE_GROUPS,
+  getDisciplineGroup,
+  extractReportInsights,
+  buildTansikBlueprint,
+  type DisciplineId,
+} from "@/lib/report-sectors";
+import { ReportFiltersBar, type ReportFilterState } from "@/components/report-filters";
+import { ReportInsightsSummary } from "@/components/report-insights-summary";
+import { TansikBlueprintGuide } from "@/components/tansik-blueprint-guide";
 
 type Branch = "science" | "mathematics" | "literary";
 type System = "new" | "old";
@@ -690,6 +700,84 @@ function PredictionV2StudentReport({
       ];
   const visibleCount = sections.reduce((count, section) => count + section.items.length, 0);
 
+  const [filterState, setFilterState] = useState<ReportFilterState>({
+    selectedSector: "all",
+    proximityFilter: "all",
+    searchQuery: "",
+  });
+
+  const allItems = useMemo(() => sections.flatMap((s) => s.items), [sections]);
+
+  const availableSectors = useMemo(() => {
+    const counts = new Map<DisciplineId, number>();
+    for (const item of allItems) {
+      const grp = getDisciplineGroup(item.officialNameArabic);
+      counts.set(grp.id, (counts.get(grp.id) ?? 0) + 1);
+    }
+    return (Object.keys(DISCIPLINE_GROUPS) as Array<keyof typeof DISCIPLINE_GROUPS>)
+      .map((key) => ({
+        ...DISCIPLINE_GROUPS[key],
+        count: counts.get(key) ?? 0,
+      }))
+      .filter((s) => s.count > 0);
+  }, [allItems]);
+
+  const localCount = useMemo(() => {
+    return allItems.filter((item) => {
+      return (
+        item.proximityLabel === "في محافظتك" ||
+        item.proximityLabel === "قريبة منك" ||
+        (item.proximityLabel && item.proximityLabel !== "محافظة أخرى" && item.proximityLabel !== "other")
+      );
+    }).length;
+  }, [allItems]);
+
+  const insights = useMemo(() => {
+    return extractReportInsights({
+      items: allItems,
+      studentName: result.studentName,
+      score: result.totalScore,
+      percentage: result.percentage,
+      branch: result.branch !== "unknown" ? result.branch : report.branch,
+      governorate: result.governorate,
+      isForecast: isStage3Report,
+    });
+  }, [allItems, result.studentName, result.totalScore, result.percentage, result.branch, result.governorate, report.branch]);
+
+  const blueprintStages = useMemo(() => {
+    return buildTansikBlueprint(allItems);
+  }, [allItems]);
+
+  const filteredSections = useMemo(() => {
+    if (!report.premium) return sections;
+    return sections.map((section) => {
+      const items = section.items.filter((item) => {
+        if (filterState.selectedSector !== "all") {
+          const grp = getDisciplineGroup(item.officialNameArabic);
+          if (grp.id !== filterState.selectedSector) return false;
+        }
+        if (filterState.proximityFilter === "local_only") {
+          const isLocal =
+            item.proximityLabel === "في محافظتك" ||
+            item.proximityLabel === "قريبة منك" ||
+            (item.proximityLabel && item.proximityLabel !== "محافظة أخرى" && item.proximityLabel !== "other");
+          if (!isLocal) return false;
+        }
+        if (filterState.searchQuery.trim()) {
+          const query = filterState.searchQuery.trim().toLowerCase();
+          if (!item.officialNameArabic.toLowerCase().includes(query)) return false;
+        }
+        return true;
+      });
+      return { ...section, items };
+    });
+  }, [sections, filterState, report.premium]);
+
+  const totalFilteredCount = useMemo(
+    () => filteredSections.reduce((count, section) => count + section.items.length, 0),
+    [filteredSections],
+  );
+
   if (!visibleCount) {
     return (
       <div className="simple-result-state">
@@ -700,6 +788,10 @@ function PredictionV2StudentReport({
       </div>
     );
   }
+
+  const handlePrint = () => {
+    if (typeof window !== "undefined") window.print();
+  };
 
   return (
     <div className="report-conversion" aria-live="polite">
@@ -714,7 +806,14 @@ function PredictionV2StudentReport({
               : report.premium ? "كل اختياراتك المناسبة" : "بداية مبشّرة ليك"}
           </h3>
         </div>
-        <button type="button" onClick={onReset}>ابدأ من جديد</button>
+        <div className="report-heading-actions">
+          {report.premium ? (
+            <button type="button" className="report-print-quick-btn" onClick={handlePrint}>
+              طباعة التقرير
+            </button>
+          ) : null}
+          <button type="button" onClick={onReset}>ابدأ من جديد</button>
+        </div>
       </div>
 
       <div className="report-student-summary" aria-label="بيانات نتيجتك">
@@ -740,32 +839,67 @@ function PredictionV2StudentReport({
         </div>
       ) : null}
 
+      {report.premium ? (
+        <>
+          <ReportInsightsSummary
+            insights={insights}
+            studentName={result.studentName}
+            score={result.totalScore}
+            governorate={result.governorate}
+            isStage3Report={isStage3Report}
+          />
+          <ReportFiltersBar
+            filterState={filterState}
+            onFilterChange={setFilterState}
+            availableSectors={availableSectors}
+            totalCount={allItems.length}
+            localCount={localCount}
+          />
+        </>
+      ) : null}
+
       <div className="v2-report-sections">
-        {sections.map((section) => section.items.length ? (
-          <section key={section.key} className="v2-report-section" aria-labelledby={`section-${section.key}`}>
-            <h4 id={`section-${section.key}`}>{section.title}</h4>
-            <div className="v2-recommendation-grid">
-              {section.items.map((item, index) => (
-                <article key={item.id} className={`free-recommendation v2-recommendation fit-${item.fit}`}>
-                  <div className="recommendation-number">{index + 1}</div>
-                  <div className="recommendation-copy">
-                    <SignalIndicator fit={item.fit} />
-                    <h4>{item.officialNameArabic}</h4>
-                    <p>
-                      {item.availability === "forecast_stage_3" ? "متوقع يظهر في المرحلة الثالثة · " : "متاح في قائمة المرحلة الثانية · "}
-                      نطاق متوقع <bdi className="ltr-number">{item.expectedRange[0]}%–{item.expectedRange[1]}%</bdi>
-                    </p>
-                    {simpleProximity(item.proximityLabel) ? <small>{simpleProximity(item.proximityLabel)}</small> : null}
-                    {item.requiresAptitudeTest ? <small className="recommendation-warning">يتطلب اجتياز اختبار قدرات</small> : null}
-                    {item.limitedDataWarning ? <small className="recommendation-warning">{item.limitedDataWarning}</small> : null}
-                  </div>
-                  <GraduationCap size={28} aria-hidden="true" />
-                </article>
-              ))}
-            </div>
-          </section>
-        ) : null)}
+        {report.premium && totalFilteredCount === 0 ? (
+          <div className="report-empty-filter-state">
+            <p>لا توجد كليات مطابقة للفلاتر المحددة</p>
+            <button
+              type="button"
+              onClick={() => setFilterState({ selectedSector: "all", proximityFilter: "all", searchQuery: "" })}
+            >
+              عرض كل الكليات
+            </button>
+          </div>
+        ) : (
+          filteredSections.map((section) => section.items.length ? (
+            <section key={section.key} className="v2-report-section" aria-labelledby={`section-${section.key}`}>
+              <h4 id={`section-${section.key}`}>{section.title}</h4>
+              <div className="v2-recommendation-grid">
+                {section.items.map((item, index) => (
+                  <article key={item.id} className={`free-recommendation v2-recommendation fit-${item.fit}`}>
+                    <div className="recommendation-number">{index + 1}</div>
+                    <div className="recommendation-copy">
+                      <SignalIndicator fit={item.fit} />
+                      <h4>{item.officialNameArabic}</h4>
+                      <p>
+                        {item.availability === "forecast_stage_3" ? "متوقع يظهر في المرحلة الثالثة · " : "متاح في قائمة المرحلة الثانية · "}
+                        نطاق متوقع <bdi className="ltr-number">{item.expectedRange[0]}%–{item.expectedRange[1]}%</bdi>
+                      </p>
+                      {simpleProximity(item.proximityLabel) ? <small>{simpleProximity(item.proximityLabel)}</small> : null}
+                      {item.requiresAptitudeTest ? <small className="recommendation-warning">يتطلب اجتياز اختبار قدرات</small> : null}
+                      {item.limitedDataWarning ? <small className="recommendation-warning">{item.limitedDataWarning}</small> : null}
+                    </div>
+                    <GraduationCap size={28} aria-hidden="true" />
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null)
+        )}
       </div>
+
+      {report.premium && !isStage3Report ? (
+        <TansikBlueprintGuide stages={blueprintStages} onPrint={handlePrint} />
+      ) : null}
 
       {!report.premium && report.lockedRecommendationCount ? (
         <section className="locked-recommendations" aria-label="تحليلات وترشيحات مقفولة">

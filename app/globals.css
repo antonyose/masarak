@@ -2310,9 +2310,580 @@ a {
   text-align: center;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .conversion-primary {
-    transition: none;
+/* Report Header Actions */
+.report-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.report-print-quick-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.8rem;
+  color: var(--navy);
+  background: oklch(0.95 0.02 220);
+  border: 1px solid oklch(0.85 0.03 220);
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.report-print-quick-btn:hover {
+  background: oklch(0.9 0.04 220);
+  color: var(--primary);
+}
+
+/* Strategic Insights Summary */
+.report-insights-summary {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1rem 0;
+  padding: 1.15rem;
+  background: linear-gradient(135deg, oklch(0.97 0.02 225), oklch(0.99 0.01 220));
+  border: 1px solid oklch(0.86 0.04 230);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+}
+
+.insights-header {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.insights-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  background: oklch(0.92 0.05 220);
+  border: 1px solid oklch(0.82 0.08 220);
+  color: var(--navy);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.insights-header h4 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 1.06rem;
+  font-weight: 850;
+}
+
+.insights-advice {
+  margin: 0;
+  color: oklch(0.35 0.06 240);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.insights-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.65rem;
+}
+
+.insight-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  background: white;
+  border: 1px solid oklch(0.89 0.02 220);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.02);
+}
+
+.insight-card-icon {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: oklch(0.94 0.04 220);
+  color: var(--navy);
+}
+
+.insight-card-local .insight-card-icon {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.insight-card-ambitious .insight-card-icon {
+  background: var(--warning-soft);
+  color: oklch(0.55 0.16 50);
+}
+
+.insight-card-content {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.insight-card-kicker {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.insight-card-content strong {
+  color: var(--navy);
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.insight-card-content small {
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.insight-sector-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
+}
+
+.insight-sector-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  background: oklch(0.95 0.02 220);
+  border: 1px solid oklch(0.88 0.03 220);
+  border-radius: 4px;
+  color: var(--navy);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* Interactive Filter Chips Bar */
+.report-filters-container {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0.9rem 0 1.1rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.report-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.report-filters-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--navy);
+  font-size: 0.76rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.report-sector-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.report-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.65rem;
+  min-height: 44px;
+  background: white;
+  border: 1px solid oklch(0.86 0.02 220);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.74rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.report-chip:hover {
+  background: oklch(0.96 0.03 220);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.report-chip.is-active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: white;
+}
+
+.report-chip small {
+  font-size: 0.66rem;
+  opacity: 0.85;
+}
+
+.report-subfilters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed oklch(0.88 0.02 220);
+}
+
+.report-proximity-toggles {
+  display: inline-flex;
+  background: oklch(0.92 0.02 220);
+  padding: 0.2rem;
+  border-radius: var(--radius-sm);
+  gap: 0.2rem;
+}
+
+.proximity-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  min-height: 44px;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.proximity-toggle-btn:hover {
+  color: var(--ink);
+}
+
+.proximity-toggle-btn.is-active {
+  background: white;
+  color: var(--navy);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.report-search-inline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: min(220px, 100%);
+}
+
+.report-search-inline svg {
+  position: absolute;
+  inset-inline-start: 0.65rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.report-search-inline input {
+  width: 100%;
+  padding: 0.35rem 0.65rem 0.35rem 2rem;
+  background: white;
+  border: 1px solid oklch(0.86 0.02 220);
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 160ms ease;
+}
+
+@media (max-width: 640px) {
+  .report-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .report-heading-actions {
+    justify-content: space-between;
+  }
+
+  .report-heading-actions > button {
+    min-height: 44px;
+  }
+
+  .report-filters-row,
+  .report-subfilters-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .report-sector-chips {
+    flex-direction: column;
+  }
+
+  .report-chip,
+  .report-proximity-toggles,
+  .proximity-toggle-btn,
+  .report-search-inline {
+    width: 100%;
+  }
+
+  .report-proximity-toggles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .report-search-inline input {
+    min-height: 44px;
+  }
+}
+
+.report-search-inline input:focus {
+  border-color: var(--primary);
+}
+
+.report-empty-filter-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  background: var(--surface-soft);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.report-empty-filter-state p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.report-empty-filter-state button {
+  padding: 0.45rem 1rem;
+  background: var(--navy);
+  color: white;
+  border: 0;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+/* Tansik 75 Blueprint Guide */
+.tansik-blueprint-section {
+  margin-top: 1.8rem;
+  padding: 1.25rem;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+}
+
+.blueprint-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.blueprint-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: oklch(0.93 0.05 240);
+  color: oklch(0.4 0.12 240);
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.blueprint-header h4 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 1.1rem;
+  font-weight: 850;
+}
+
+.blueprint-header p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.blueprint-print-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.1rem;
+  background: var(--navy);
+  color: white;
+  border: 0;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 180ms ease;
+  flex-shrink: 0;
+}
+
+.blueprint-print-button:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.blueprint-stages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.85rem;
+}
+
+.blueprint-stage-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
+.blueprint-stage-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.blueprint-range-badge {
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.blueprint-badge-ambitious .blueprint-range-badge {
+  background: var(--warning-soft);
+  color: oklch(0.5 0.16 50);
+}
+
+.blueprint-badge-closest .blueprint-range-badge {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.blueprint-badge-safety .blueprint-range-badge {
+  background: oklch(0.92 0.04 220);
+  color: var(--navy);
+}
+
+.blueprint-stage-number {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.blueprint-stage-card h5 {
+  margin: 0 0 0.35rem;
+  color: var(--navy);
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.blueprint-stage-card p {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.blueprint-samples {
+  margin-top: auto;
+  padding-top: 0.65rem;
+  border-top: 1px dashed oklch(0.88 0.02 220);
+}
+
+.blueprint-samples-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--ink);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.blueprint-samples ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.blueprint-samples li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--navy);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.blueprint-samples li svg {
+  color: var(--success);
+  flex-shrink: 0;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .site-header,
+  .site-footer,
+  .tool-switcher,
+  .report-filters-container,
+  .report-heading-actions,
+  .blueprint-print-button,
+  .report-heading button {
+    display: none !important;
+  }
+
+  .report-conversion {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .v2-recommendation-grid,
+  .blueprint-stages-grid {
+    grid-template-columns: 1fr 1fr !important;
+    page-break-inside: avoid;
+  }
+
+  .free-recommendation,
+  .blueprint-stage-card,
+  .report-insights-summary {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
   }
 }
 

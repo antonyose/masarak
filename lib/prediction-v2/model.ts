@@ -299,10 +299,10 @@ function sortRecommendations(
     const bBucket = Math.floor(Math.abs(b.difference) / relevanceBucketWidth);
     return (
       aBucket - bBucket ||
+      proximityRank(a.proximityTier) - proximityRank(b.proximityTier) ||
       Math.abs(a.difference) - Math.abs(b.difference) ||
       fitRank[a.fit] - fitRank[b.fit] ||
       confidenceRank[a.internalConfidence] - confidenceRank[b.internalConfidence] ||
-      proximityRank(a.proximityTier) - proximityRank(b.proximityTier) ||
       b.predictedCutoffPercentage - a.predictedCutoffPercentage ||
       a.admissionOptionId.localeCompare(b.admissionOptionId)
     );
