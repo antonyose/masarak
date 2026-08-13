@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -33,7 +33,9 @@ type StudentResult = {
   percentage: number | null;
   resultStatus: string;
   governorate: string | null;
+  schoolName: string | null;
 };
+type SearchMode = "seat" | "name";
 type Recommendation = {
   id: string;
   officialNameArabic: string;
@@ -179,7 +181,14 @@ function isV2Report(report: PredictionResponse): report is V2PredictionResponse 
 }
 
 export function ToolExperience() {
+  const [searchMode, setSearchMode] = useState<SearchMode>("seat");
   const [seatNumber, setSeatNumber] = useState("");
+  const [nameQuery, setNameQuery] = useState("");
+  const [nameResults, setNameResults] = useState<StudentResult[]>([]);
+  const [selectedNameResult, setSelectedNameResult] = useState<StudentResult | null>(null);
+  const [nameSearchLoading, setNameSearchLoading] = useState(false);
+  const [nameMenuOpen, setNameMenuOpen] = useState(false);
+  const [activeNameIndex, setActiveNameIndex] = useState(-1);
   const [result, setResult] = useState<StudentResult | null>(null);
   const [branch, setBranch] = useState<Branch | "">("");
   const [governorate, setGovernorate] = useState("");
@@ -188,18 +197,23 @@ export function ToolExperience() {
   const [requestedProduct, setRequestedProduct] = useState<ProductType>("single");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const nameSearchAbortRef = useRef<AbortController | null>(null);
   const trackFunnel = useTrackFunnel();
 
-  async function findResult(value: string) {
+  async function findResult(value: string, method: SearchMode = "seat", signal?: AbortSignal) {
     const response = await fetch("/api/result-search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ year: 2026, method: "seat", query: value }),
+      body: JSON.stringify({ year: 2026, method, query: value }),
+      signal,
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
-    const found = data.results?.[0] as StudentResult | undefined;
-    if (!found) throw new Error("راجع رقم الجلوس وحاول تاني.");
+    return (data.results ?? []) as StudentResult[];
+  }
+
+  function assertCompleteResult(found: StudentResult | undefined) {
+    if (!found) throw new Error("راجع بيانات البحث وحاول تاني.");
     if (
       found.totalScore == null ||
       found.maxScore == null ||
@@ -210,6 +224,40 @@ export function ToolExperience() {
     }
     return found;
   }
+
+  useEffect(() => {
+    if (searchMode !== "name" || selectedNameResult?.studentName === nameQuery.trim()) return;
+    const usefulLength = nameQuery.replace(/[^\p{L}\p{N}]/gu, "").length;
+    nameSearchAbortRef.current?.abort();
+    setActiveNameIndex(-1);
+    if (usefulLength < 3) {
+      setNameResults([]);
+      setNameMenuOpen(false);
+      setNameSearchLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    nameSearchAbortRef.current = controller;
+    const timer = window.setTimeout(() => {
+      setNameSearchLoading(true);
+      setNameMenuOpen(true);
+      void findResult(nameQuery.trim(), "name", controller.signal)
+        .then((matches) => setNameResults(matches.slice(0, 8)))
+        .catch((caught) => {
+          if (caught instanceof DOMException && caught.name === "AbortError") return;
+          setNameResults([]);
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setNameSearchLoading(false);
+        });
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [nameQuery, searchMode, selectedNameResult]);
 
   async function createReport(
     student: StudentResult,
@@ -231,13 +279,15 @@ export function ToolExperience() {
     return normalizeReport(data);
   }
 
-  async function submitSeat(event: FormEvent) {
+  async function submitSearch(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError("");
     setReport(null);
     try {
-      const found = await findResult(seatNumber);
+      const found = searchMode === "seat"
+        ? assertCompleteResult((await findResult(normalizeDigits(seatNumber)))[0])
+        : assertCompleteResult(selectedNameResult ?? undefined);
       setResult(found);
       trackFunnel("search_result");
       setGovernorate(found.governorate ?? "");
@@ -246,7 +296,7 @@ export function ToolExperience() {
       const nextReport = await createReport(found, knownBranch, found.governorate ?? undefined);
       if (!nextReport.requiresBranch) {
         setReport(nextReport);
-        trackFunnel("report_viewed", { source: "seat_search" });
+        trackFunnel("report_viewed", { source: searchMode === "name" ? "name_search" : "seat_search" });
         if (nextReport.branch) setBranch(nextReport.branch);
       }
     } catch (caught) {
@@ -302,6 +352,36 @@ export function ToolExperience() {
     setError("");
   }
 
+  function changeSearchMode(mode: SearchMode) {
+    setSearchMode(mode);
+    setError("");
+    setNameMenuOpen(false);
+  }
+
+  function chooseName(match: StudentResult) {
+    setSelectedNameResult(match);
+    setNameQuery(match.studentName);
+    setSeatNumber(match.seatNumber);
+    setNameMenuOpen(false);
+    setError("");
+  }
+
+  function handleNameKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (!nameMenuOpen || nameResults.length === 0) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveNameIndex((current) => (current + 1) % nameResults.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveNameIndex((current) => (current <= 0 ? nameResults.length - 1 : current - 1));
+    } else if (event.key === "Enter" && activeNameIndex >= 0) {
+      event.preventDefault();
+      chooseName(nameResults[activeNameIndex]);
+    } else if (event.key === "Escape") {
+      setNameMenuOpen(false);
+    }
+  }
+
   return (
     <div className="conversion-shell bg-white shadow-[0_6px_8px_rgba(15,42,61,.08)]">
       <div className="conversion-intro">
@@ -313,10 +393,10 @@ export function ToolExperience() {
               <small>بعد نتيجة المرحلة الأولى — التوقعات أدق بكتير</small>
             </span>
           </span>
-          <h2>اعرف أقرب كلياتك برقم الجلوس</h2>
+          <h2>اعرف أقرب كلياتك بالاسم أو رقم الجلوس</h2>
         </div>
         <ol className="journey-steps" aria-label="خطوات التقرير">
-          <li className="is-current"><b>1</b><span>رقم الجلوس</span></li>
+          <li className="is-current"><b>1</b><span>بياناتك</span></li>
           <li className={result ? "is-current" : ""}><b>2</b><span>الشعبة</span></li>
           <li className={report ? "is-current" : ""}><b>3</b><span>الترشيحات</span></li>
         </ol>
@@ -324,28 +404,86 @@ export function ToolExperience() {
 
       <div className="conversion-body">
         {!result ? (
-          <form onSubmit={submitSeat} className="seat-form">
-            <label htmlFor="seat-number">رقم الجلوس</label>
+          <form onSubmit={submitSearch} className="seat-form">
+            <div className="search-mode-tabs" role="tablist" aria-label="طريقة البحث">
+              <button type="button" role="tab" aria-selected={searchMode === "seat"} className={searchMode === "seat" ? "is-active" : ""} onClick={() => changeSearchMode("seat")}>رقم الجلوس</button>
+              <button type="button" role="tab" aria-selected={searchMode === "name"} className={searchMode === "name" ? "is-active" : ""} onClick={() => changeSearchMode("name")}>الاسم</button>
+            </div>
             <div className="seat-entry-row">
-              <div className="seat-input-wrap">
-                <Search size={20} aria-hidden="true" />
-                <input
-                  id="seat-number"
-                  value={seatNumber}
-                  onChange={(event) => setSeatNumber(event.target.value)}
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder="اكتب رقم جلوسك"
-                  minLength={4}
-                  maxLength={14}
-                  required
-                />
+              <div className="name-search-area">
+                <label htmlFor={searchMode === "seat" ? "seat-number" : "student-name"} className="sr-only">
+                  {searchMode === "seat" ? "رقم الجلوس" : "اسم الطالب"}
+                </label>
+                <div className="seat-input-wrap">
+                  <Search size={20} aria-hidden="true" />
+                  {searchMode === "seat" ? (
+                    <input
+                      id="seat-number"
+                      value={seatNumber}
+                      onChange={(event) => setSeatNumber(event.target.value)}
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="اكتب رقم جلوسك"
+                      minLength={4}
+                      maxLength={14}
+                      required
+                    />
+                  ) : (
+                    <input
+                      id="student-name"
+                      value={nameQuery}
+                      onChange={(event) => {
+                        setNameQuery(event.target.value);
+                        setSelectedNameResult(null);
+                      }}
+                      onFocus={() => nameResults.length > 0 && setNameMenuOpen(true)}
+                      onKeyDown={handleNameKeyDown}
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-expanded={nameMenuOpen}
+                      aria-controls="student-name-options"
+                      aria-activedescendant={activeNameIndex >= 0 ? `student-name-option-${activeNameIndex}` : undefined}
+                      autoComplete="off"
+                      placeholder="اكتب 3 حروف أو أكتر من اسمك"
+                      maxLength={120}
+                      required
+                    />
+                  )}
+                </div>
+                {searchMode === "name" && nameMenuOpen ? (
+                  <div className="name-search-menu" id="student-name-options" role="listbox">
+                    {nameSearchLoading ? <p className="name-search-status">بندور على الاسم…</p> : null}
+                    {!nameSearchLoading && nameResults.length === 0 ? <p className="name-search-status">ملقيناش اسم مطابق. جرّب تكتب اسم أكتر.</p> : null}
+                    {!nameSearchLoading ? nameResults.map((match, index) => (
+                      <button
+                        id={`student-name-option-${index}`}
+                        key={`${match.year}-${match.seatNumber}`}
+                        type="button"
+                        role="option"
+                        aria-selected={activeNameIndex === index}
+                        className={activeNameIndex === index ? "is-active" : ""}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => chooseName(match)}
+                      >
+                        <span>{match.studentName}</span>
+                        <small>
+                          {[match.governorate, match.schoolName].filter(Boolean).join(" · ") || `المجموع ${formatScore(match.percentage)}%`}
+                        </small>
+                      </button>
+                    )) : null}
+                  </div>
+                ) : null}
               </div>
-              <button type="submit" className="conversion-primary" disabled={loading}>
+              <button type="submit" className="conversion-primary" disabled={loading || (searchMode === "name" && !selectedNameResult)}>
                 {loading ? "بندور على نتيجتك…" : "شوف أقرب كلياتك"}
                 {!loading ? <ArrowLeft size={18} aria-hidden="true" /> : null}
               </button>
             </div>
+            <p className="search-method-helper">
+              {searchMode === "name"
+                ? selectedNameResult ? `تم اختيار ${selectedNameResult.studentName}` : "اختار اسمك من النتائج علشان نستخدم رقم جلوسك تلقائيًا."
+                : "رقم الجلوس هو أسرع طريقة للوصول لنتيجتك."}
+            </p>
           </form>
         ) : !report ? (
           <form onSubmit={submitDetails} className="details-step">
@@ -362,7 +500,7 @@ export function ToolExperience() {
                   رقم الجلوس <b className="ltr-number">{result.seatNumber}</b>
                 </p>
               </div>
-              <button type="button" onClick={resetJourney}>تغيير الرقم</button>
+              <button type="button" onClick={resetJourney}>تغيير البحث</button>
             </div>
 
             <fieldset className="branch-choice">

@@ -17,12 +17,12 @@ export const resultSearchSchema = z
     }
     if (
       value.method === "name" &&
-      value.query.replace(/[^\p{L}\p{N}]/gu, "").length < 4
+      value.query.replace(/[^\p{L}\p{N}]/gu, "").length < 3
     ) {
       context.addIssue({
         code: "custom",
         path: ["query"],
-        message: "اكتب أربعة أحرف مفيدة على الأقل.",
+        message: "اكتب ثلاثة أحرف مفيدة على الأقل.",
       });
     }
   });

@@ -452,6 +452,36 @@ a {
   margin-inline: auto;
 }
 
+.search-mode-tabs {
+  width: fit-content;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(7rem, 1fr));
+  gap: 0.25rem;
+  margin: 0 auto 1rem;
+  padding: 0.25rem;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.search-mode-tabs button {
+  min-height: 38px;
+  padding: 0.4rem 1rem;
+  color: oklch(0.42 0.03 226);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.search-mode-tabs button.is-active {
+  color: white;
+  background: var(--primary);
+  box-shadow: 0 2px 7px oklch(0.25 0.055 220 / 0.16);
+}
+
 .seat-form > label,
 .governorate-field {
   display: block;
@@ -465,6 +495,11 @@ a {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 0.7rem;
+}
+
+.name-search-area {
+  position: relative;
+  min-width: 0;
 }
 
 .seat-input-wrap {
@@ -502,6 +537,61 @@ a {
 .seat-input-wrap input::placeholder {
   color: oklch(0.48 0.02 226);
   opacity: 1;
+}
+
+.name-search-menu {
+  position: absolute;
+  z-index: 30;
+  inset: calc(100% + 0.4rem) 0 auto;
+  max-height: 19rem;
+  overflow-y: auto;
+  padding: 0.35rem;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 14px 32px oklch(0.22 0.035 226 / 0.16);
+}
+
+.name-search-menu button {
+  width: 100%;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.72rem 0.8rem;
+  text-align: start;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-radius: 0.55rem;
+  cursor: pointer;
+}
+
+.name-search-menu button:hover,
+.name-search-menu button.is-active {
+  background: var(--surface-soft);
+}
+
+.name-search-menu button span {
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.name-search-menu button small,
+.name-search-status,
+.search-method-helper {
+  color: oklch(0.45 0.025 226);
+  font-size: 0.72rem;
+}
+
+.name-search-status {
+  margin: 0;
+  padding: 0.85rem;
+  text-align: center;
+}
+
+.search-method-helper {
+  min-height: 1.15rem;
+  margin: 0.55rem 0 0;
+  text-align: start;
 }
 
 .conversion-primary {
@@ -1866,6 +1956,10 @@ a {
 
   .seat-entry-row {
     grid-template-columns: 1fr;
+  }
+
+  .search-mode-tabs {
+    width: 100%;
   }
 
   .branch-choice > div {
