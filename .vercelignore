@@ -2,6 +2,7 @@ data/
 sheets/
 scratch/
 reports/
+tmp/
 node_modules/
 .next/
 *.sqlite
