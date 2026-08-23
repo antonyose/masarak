@@ -80,7 +80,7 @@ export const aliasResolutionStatusEnum = pgEnum("alias_resolution_status", [
 ]);
 export const coordinationAvailabilityStateEnum = pgEnum(
   "coordination_availability_state",
-  ["listed_stage_2", "forecast_stage_3", "officially_closed", "unknown"],
+  ["listed_stage_2", "listed_stage_3", "forecast_stage_3", "officially_closed", "unknown"],
 );
 
 export const importSources = pgTable(
@@ -715,6 +715,38 @@ export const coordinationHistoricalObservationsV2 = pgTable(
       table.year,
     ),
     index("coordination_historical_observations_v2_resolution_idx").on(table.resolutionStatus),
+  ],
+);
+
+export const coordinationCutoffObservationsV2 = pgTable(
+  "coordination_cutoff_observations_v2",
+  {
+    id: text("id").primaryKey(),
+    year: integer("year").notNull(),
+    stage: integer("stage").notNull(),
+    educationSystem: educationSystemEnum("education_system").notNull(),
+    branch: branchEnum("branch").notNull(),
+    admissionOptionId: text("admission_option_id").references(
+      () => coordinationAdmissionOptionsV2.id,
+      { onDelete: "set null" },
+    ),
+    officialNameArabic: text("official_name_arabic").notNull(),
+    minimumScore: doublePrecision("minimum_score").notNull(),
+    maximumScore: doublePrecision("maximum_score").notNull(),
+    minimumPercentage: doublePrecision("minimum_percentage").notNull(),
+    sourceKey: text("source_key").notNull(),
+    institutionClass: coordinationInstitutionClassEnum("institution_class").notNull(),
+    resolutionStatus: aliasResolutionStatusEnum("resolution_status").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("coordination_cutoff_observations_v2_lookup_idx").on(
+      table.year,
+      table.stage,
+      table.educationSystem,
+      table.branch,
+    ),
+    index("coordination_cutoff_observations_v2_option_idx").on(table.admissionOptionId),
   ],
 );
 

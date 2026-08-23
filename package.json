@@ -22,6 +22,8 @@
     "backtest:prediction-v2": "node --import tsx scripts/backtest-prediction-v2.ts",
     "seed:stage2": "node --import tsx scripts/seed-stage2.ts",
     "seed:prediction-v2-shadow": "node --import tsx scripts/seed-prediction-v2-shadow.ts",
+    "build:stage3-data": "node --import tsx scripts/build-stage3-2026-data.ts",
+    "seed:stage3": "node --import tsx scripts/seed-stage3-2026.ts",
     "admin:promote-owner": "node --import tsx scripts/promote-owner-admin.ts"
   },
   "dependencies": {

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import { PredictionV2ReportView } from "@/components/prediction-v2-report-view";
 import type { PredictionV2Report } from "@/lib/prediction-v2/types";
+import { Stage3ReportView } from "@/components/stage3-report-view";
+import type { Stage3Report } from "@/lib/prediction-stage3/types";
 
 type Recommendation = {
   id: string;
@@ -68,6 +70,9 @@ export function PremiumReport({ predictionId }: { predictionId: string }) {
   if (report.schemaVersion === "prediction-v2-report@1") {
     return <PredictionV2ReportView report={report as unknown as PredictionV2Report} />;
   }
+  if (report.schemaVersion === "stage3-report@1") {
+    return <Stage3ReportView report={report as unknown as Stage3Report} />;
+  }
 
   return (
     <div className="grid gap-5">
@@ -77,7 +82,7 @@ export function PremiumReport({ predictionId }: { predictionId: string }) {
           كل الترشيحات المناسبة ليك
         </h1>
         <p className="mt-1 text-sm text-slate-600">
-          توقعات تنسيق 2026 للمرحلة الثانية والثالثة
+          تقرير محفوظ من مرحلة سابقة في تنسيق 2026
         </p>
       </div>
 

@@ -3,7 +3,7 @@ import { ToolPage } from "@/components/tool-page";
 
 export const metadata: Metadata = {
   title: "توقعات تنسيق 2026",
-  description: "اعرف أقرب كلياتك بالاسم أو رقم الجلوس للمرحلة الثانية والثالثة.",
+  description: "اعرف أقرب اختيارات المرحلة الثالثة المتاحة رسميًا بالاسم أو رقم الجلوس.",
 };
 
 export default function PredictPage() {

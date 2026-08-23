@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     template: "%s | مسارك",
   },
   description:
-    "اكتب رقم جلوسك واعرف أقرب اختياراتك في المرحلة الثانية والثالثة لتنسيق 2026.",
+    "اكتب رقم جلوسك واعرف أقرب اختيارات المرحلة الثالثة المتاحة رسميًا في تنسيق 2026.",
   applicationName: "مسارك",
   manifest: "/manifest.webmanifest",
   robots: {
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "مسارك | توقعات تنسيق 2026",
     description:
-      "اعرف أقرب كلياتك برقم الجلوس في المرحلة الثانية والثالثة.",
+      "اعرف أقرب اختيارات المرحلة الثالثة المتاحة رسميًا برقم الجلوس.",
     url: "https://masarak.live",
     siteName: "مسارك",
     locale: "ar_EG",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "مسارك | توقعات تنسيق 2026",
     description:
-      "اعرف أقرب كلياتك برقم الجلوس في المرحلة الثانية والثالثة.",
+      "اعرف أقرب اختيارات المرحلة الثالثة المتاحة رسميًا برقم الجلوس.",
     images: ["/images/masarak-hero-v2.webp"],
   },
 };

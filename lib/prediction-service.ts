@@ -16,18 +16,30 @@ import {
   toFreePredictionV2Report,
 } from "@/lib/prediction-v2/model";
 import type { PredictionV2Report } from "@/lib/prediction-v2/types";
+import { calculateStage3Prediction, isStage3Report, toFreeStage3Report } from "@/lib/prediction-stage3/model";
+import type { Stage3Report } from "@/lib/prediction-stage3/types";
 
 type Stage2Input = Parameters<typeof calculateStage2Report>[0];
-type ActivePredictionReport = ReturnType<typeof calculateStage2Report> | PredictionV2Report;
+type ActivePredictionReport = ReturnType<typeof calculateStage2Report> | PredictionV2Report | Stage3Report;
 
 function usesPredictionV2(model: { version: string }) {
   return model.version === "stage2-2026-v2-shadow" || model.version.startsWith("stage2-2026-v2");
 }
 
 async function calculateReportForModel(
-  model: Awaited<ReturnType<typeof getActiveStage2Model>>,
+  model: Awaited<ReturnType<typeof getActivePredictionModel>>,
   input: Stage2Input,
 ): Promise<ActivePredictionReport> {
+  if (model.stage === 3 || model.version.startsWith("stage3-2026")) {
+    return calculateStage3Prediction({
+      score: input.score,
+      maxScore: input.maxScore,
+      percentage: input.percentage,
+      educationSystem: input.educationSystem,
+      branch: input.branch,
+      governorate: input.governorate,
+    });
+  }
   if (usesPredictionV2(model)) {
     return calculatePredictionV2({
       score: input.score,
@@ -80,6 +92,18 @@ export async function getActiveStage2Model() {
   return model.model_versions;
 }
 
+export async function getActivePredictionModel() {
+  const [model] = await getDatabase()
+    .select()
+    .from(modelVersions)
+    .innerJoin(coordinationCycles, eq(coordinationCycles.activeModelVersionId, modelVersions.id))
+    .where(and(eq(modelVersions.year, 2026), eq(coordinationCycles.year, 2026)))
+    .orderBy(desc(modelVersions.activatedAt))
+    .limit(1);
+  if (!model) throw new Error("NO_ACTIVE_PREDICTION_MODEL");
+  return model.model_versions;
+}
+
 export async function createImmutablePrediction({
   userId,
   student,
@@ -89,7 +113,7 @@ export async function createImmutablePrediction({
   student: typeof savedStudents.$inferSelect;
   governorate?: string;
 }) {
-  const model = await getActiveStage2Model();
+  const model = await getActivePredictionModel();
   const settings = await getPaymentSettings();
   if (
     (student.educationSystem !== "new" && student.educationSystem !== "old") ||
@@ -108,7 +132,7 @@ export async function createImmutablePrediction({
   });
   const inputHash = deterministicInputHash({
     year: 2026,
-    stage: 2,
+    stage: model.stage,
     modelVersionId: model.id,
     studentSnapshot: student.resultSnapshotJson,
     branch: student.branch,
@@ -121,7 +145,7 @@ export async function createImmutablePrediction({
       savedStudentId: student.id,
       year: 2026,
       seatNumber: student.seatNumber,
-      coordinationStage: 2,
+      coordinationStage: model.stage,
       modelVersionId: model.id,
       modelMode: report.modelMode,
       score: report.score,
@@ -134,7 +158,7 @@ export async function createImmutablePrediction({
     })
     .onConflictDoNothing()
     .returning();
-  if (created && !usesPredictionV2(model)) {
+  if (created && model.stage === 2 && !usesPredictionV2(model)) {
     await safelyRecordV2Shadow({
       productionPredictionRunId: created.id,
       score: report.score,
@@ -159,7 +183,7 @@ export async function createImmutablePrediction({
     )
     .limit(1);
   if (!existing) throw new Error("PREDICTION_CREATE_FAILED");
-  if (!usesPredictionV2(model)) {
+  if (model.stage === 2 && !usesPredictionV2(model)) {
     await safelyRecordV2Shadow({
       productionPredictionRunId: existing.id,
       score: existing.score,
@@ -190,7 +214,7 @@ export async function createPublicImmutablePrediction({
     throw new Error("UNSUPPORTED_RESULT_SYSTEM");
   }
 
-  const model = await getActiveStage2Model();
+  const model = await getActivePredictionModel();
   const settings = await getPaymentSettings();
   const report = await calculateReportForModel(model, {
     score: result.totalScore,
@@ -203,7 +227,7 @@ export async function createPublicImmutablePrediction({
   });
   const inputHash = deterministicInputHash({
     year: 2026,
-    stage: 2,
+    stage: model.stage,
     modelVersionId: model.id,
     seatNumber: result.seatNumber,
     resultSnapshot: result,
@@ -217,7 +241,7 @@ export async function createPublicImmutablePrediction({
       savedStudentId: null,
       year: 2026,
       seatNumber: result.seatNumber,
-      coordinationStage: 2,
+      coordinationStage: model.stage,
       modelVersionId: model.id,
       modelMode: report.modelMode,
       score: report.score,
@@ -230,7 +254,7 @@ export async function createPublicImmutablePrediction({
     })
     .onConflictDoNothing()
     .returning();
-  if (created && !usesPredictionV2(model)) {
+  if (created && model.stage === 2 && !usesPredictionV2(model)) {
     await safelyRecordV2Shadow({
       productionPredictionRunId: created.id,
       score: report.score,
@@ -258,7 +282,7 @@ export async function createPublicImmutablePrediction({
     )
     .limit(1);
   if (!existing) throw new Error("PREDICTION_CREATE_FAILED");
-  if (!usesPredictionV2(model)) {
+  if (model.stage === 2 && !usesPredictionV2(model)) {
     await safelyRecordV2Shadow({
       productionPredictionRunId: existing.id,
       score: existing.score,
@@ -276,15 +300,21 @@ export async function createPublicImmutablePrediction({
   };
 }
 
-export async function calculateActiveStage2Report(input: Stage2Input) {
-  const model = await getActiveStage2Model();
+export async function calculateActivePredictionReport(input: Stage2Input) {
+  const model = await getActivePredictionModel();
   return calculateReportForModel(model, input);
 }
+
+/** @deprecated Kept for server-call compatibility; the active cycle now selects the stage. */
+export const calculateActiveStage2Report = calculateActivePredictionReport;
 
 export function publicPredictionPayload(
   report: ActivePredictionReport,
   freeRecommendationCount: number,
 ) {
+  if (isStage3Report(report)) {
+    return toFreeStage3Report(report, freeRecommendationCount);
+  }
   if (isPredictionV2Report(report)) {
     return toFreePredictionV2Report(report, freeRecommendationCount);
   }

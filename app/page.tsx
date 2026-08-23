@@ -18,14 +18,14 @@ export default function HomePage() {
         <div className="shell hero-inner">
           <div className="hero-content">
             <span className="hero-stage-note">
-              السيستم اتحدّث بعد نتيجة المرحلة الأولى · التوقعات أدق بكتير
+              شواغر المرحلة الثالثة منشورة رسميًا · التوقع الآن للحد النهائي فقط
             </span>
             <h1>
               اعرف
               <span> أقرب كلياتك</span>
             </h1>
             <p className="hero-copy">
-              اكتب رقم جلوسك وشوف أقرب اختياراتك في المرحلة الثانية والثالثة.
+              اكتب رقم جلوسك وشوف أقرب اختيارات المرحلة الثالثة المتاحة رسميًا لمجموعك.
             </p>
           </div>
         </div>

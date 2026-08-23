@@ -35,7 +35,7 @@ export const defaultPaymentSettings = {
   supportContact: "+201276101944",
   freeRecommendationCount: 1,
   homepageStageMessage:
-    "توقعات تنسيق المرحلة الثانية 2026 — محدثة بعد ظهور نتيجة المرحلة الأولى رسميًا",
+    "المرحلة الثالثة 2026 — الشواغر الرسمية منشورة والاختيارات مرتبة حسب مجموعك",
   updatedBy: null,
   updatedAt: new Date(0),
 } as const;

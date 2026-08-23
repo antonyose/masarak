@@ -113,7 +113,34 @@ type V2PredictionResponse = {
   paymentState?: PaymentState;
   branch?: Branch;
 };
-type PredictionResponse = LegacyPredictionResponse | V2PredictionResponse;
+type Stage3PredictionResponse = {
+  schemaVersion: "stage3-report@1";
+  predictionId?: string;
+  coordinationStage: 3;
+  availabilityStatus: "official" | "official_list_unavailable_for_old_system";
+  availabilityLabel: string;
+  registration: { minimumScore: number; minimumPercentage: number; eligible: boolean };
+  groups: {
+    closest: { items: Stage3ReportItem[]; hiddenCount: number };
+    ambitious: { items: Stage3ReportItem[]; hiddenCount: number };
+    higherThanScore: { items: Stage3ReportItem[]; hiddenCount: number; collapsed: true };
+    conditional: { items: Stage3ReportItem[]; hiddenCount: number };
+  };
+  recommendations: Stage3ReportItem[];
+  conditionalRecommendations: Stage3ReportItem[];
+  disclaimers: string[];
+  lockedRecommendationCount: number;
+  premium: boolean;
+  paymentState?: PaymentState;
+  requiresBranch?: boolean;
+  branch?: Branch;
+};
+type Stage3ReportItem = Omit<V2ReportItem, "availability" | "availabilityLabel"> & {
+  availability: "listed_stage_3";
+  availabilityLabel: "متاح في المرحلة الثالثة";
+  eligibilityCondition: string | null;
+};
+type PredictionResponse = LegacyPredictionResponse | V2PredictionResponse | Stage3PredictionResponse;
 type PaymentSettings = {
   priceEgp: string;
   serverNow: string;
@@ -176,6 +203,10 @@ function normalizeReport(data: Record<string, unknown>): PredictionResponse {
 
 function isV2Report(report: PredictionResponse): report is V2PredictionResponse {
   return "schemaVersion" in report && report.schemaVersion === "prediction-v2-report@1";
+}
+
+function isStage3Report(report: PredictionResponse): report is Stage3PredictionResponse {
+  return "schemaVersion" in report && report.schemaVersion === "stage3-report@1";
 }
 
 export function ToolExperience() {
@@ -573,6 +604,18 @@ function Report({
   onReset: () => void;
   onUnlocked: (report: PredictionResponse) => void;
 }) {
+  if (isStage3Report(report)) {
+    return (
+      <Stage3StudentReport
+        report={report}
+        result={result}
+        settings={settings}
+        initialProduct={initialProduct}
+        onReset={onReset}
+        onUnlocked={onUnlocked}
+      />
+    );
+  }
   if (isV2Report(report)) {
     return (
       <PredictionV2StudentReport
@@ -671,6 +714,97 @@ function Report({
           />
         </section>
       ) : null}
+    </div>
+  );
+}
+
+function Stage3StudentReport({
+  report,
+  result,
+  settings,
+  initialProduct,
+  onReset,
+  onUnlocked,
+}: {
+  report: Stage3PredictionResponse;
+  result: StudentResult;
+  settings: PaymentSettings | null;
+  initialProduct: ProductType;
+  onReset: () => void;
+  onUnlocked: (report: PredictionResponse) => void;
+}) {
+  const sections = [
+    { key: "closest", title: "أقرب اختيارات المرحلة الثالثة لمجموعك", items: report.groups.closest.items },
+    { key: "ambitious", title: "اختيارات طموحة", items: report.groups.ambitious.items },
+    { key: "conditional", title: "اختيارات بشروط إضافية", items: report.groups.conditional.items },
+  ];
+  const hasItems = sections.some((section) => section.items.length) || report.groups.higherThanScore.items.length;
+
+  return (
+    <div className="report-conversion" aria-live="polite">
+      <div className="report-heading">
+        <div>
+          {report.premium ? <span className="premium-open-badge">تقرير المرحلة الثالثة الكامل مفتوح ✓</span> : <span>تقرير المرحلة الثالثة المجاني</span>}
+          <h3>اختيارات متاحة رسميًا ومرتبة حسب مجموعك</h3>
+        </div>
+        <button type="button" onClick={onReset}>ابدأ من جديد</button>
+      </div>
+
+      <div className="report-student-summary" aria-label="بيانات نتيجتك">
+        <div className="report-student-identity">
+          <div className="report-student-avatar" aria-hidden="true"><GraduationCap size={22} /></div>
+          <div><span>نتيجتك</span><strong>{result.studentName}</strong><small>رقم الجلوس <bdi className="ltr-number">{result.seatNumber}</bdi></small></div>
+        </div>
+        <div className="report-score-block"><span>المجموع</span><strong><bdi className="ltr-number">{formatScore(result.totalScore)}</bdi></strong><small>من <bdi className="ltr-number">{formatScore(result.maxScore)}</bdi></small></div>
+      </div>
+
+      <div className="stage3-report-notice" role="note">
+        <strong>{report.availabilityLabel}</strong>
+        <p>الإتاحة مؤكدة من القائمة الرسمية؛ المتوقع فقط هو الحد النهائي وترتيب الملاءمة.</p>
+      </div>
+
+      {!report.registration.eligible ? (
+        <div className="simple-result-state"><h3>مجموعك أقل من الحد الرسمي للتسجيل</h3><p>الحد الأدنى هو {report.registration.minimumScore} درجة ({report.registration.minimumPercentage}%).</p></div>
+      ) : null}
+
+      {hasItems ? sections.map((section) => section.items.length ? (
+        <section key={section.key} className="v2-report-section">
+          <h3>{section.title}</h3>
+          <div className="full-recommendations">
+            {section.items.map((item) => (
+              <article key={item.id} className="free-recommendation">
+                <div className="recommendation-copy">
+                  <SignalIndicator fit={item.fit} />
+                  <small className="font-bold text-teal-800">{item.availabilityLabel}</small>
+                  <h4>{item.officialNameArabic}</h4>
+                  <p>{item.fitLabel} · الحد المتوقع {item.expectedRange[0]}–{item.expectedRange[1]}%</p>
+                  {simpleProximity(item.proximityLabel) ? <p>{simpleProximity(item.proximityLabel)}</p> : null}
+                  {item.eligibilityCondition ? <small>{item.eligibilityCondition}</small> : null}
+                </div>
+                <GraduationCap size={30} aria-hidden="true" />
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null) : (
+        <div className="simple-result-state"><h3>لا توجد اختيارات موثقة يمكن عرضها لهذا النظام</h3><p>{report.availabilityLabel}</p></div>
+      )}
+
+      {report.groups.higherThanScore.items.length ? (
+        <details className="rounded-2xl border border-slate-200 bg-white p-4">
+          <summary className="cursor-pointer font-extrabold text-[#173a55]">اختيارات أعلى من مجموعك</summary>
+          <div className="mt-3 full-recommendations">{report.groups.higherThanScore.items.map((item) => <article key={item.id} className="free-recommendation"><div className="recommendation-copy"><SignalIndicator fit={item.fit} /><h4>{item.officialNameArabic}</h4><p>{item.fitLabel}</p></div></article>)}</div>
+        </details>
+      ) : null}
+
+      {!report.premium && report.lockedRecommendationCount ? (
+        <section className="locked-recommendations">
+          <SmartLockedTeaserCards result={result} report={report} isStage3Report />
+          <GuestPaymentOffer predictionId={report.predictionId ?? ""} seatNumber={result.seatNumber} settings={settings} initialProduct={initialProduct} paymentState={report.paymentState} onUnlocked={onUnlocked} />
+        </section>
+      ) : null}
+
+      <div className="v2-report-disclaimer">{report.disclaimers.map((item) => <p key={item}>{item}</p>)}</div>
     </div>
   );
 }
@@ -834,8 +968,8 @@ function PredictionV2StudentReport({
 
       {isStage3Report ? (
         <div className="stage3-report-notice" role="note">
-          <strong>التقرير مفتوح — لكنه توقع، مش إتاحة رسمية</strong>
-          <p>{report.eligibility.message}</p>
+          <strong>ده تقرير مرحلة ثانية محفوظ كما صدر وقتها</strong>
+          <p>قد تكون حالة الإتاحة اتغيّرت بعد إعلان شواغر المرحلة الثالثة؛ استخدم تقرير المرحلة الثالثة الجديد للحالة الحالية.</p>
         </div>
       ) : null}
 
@@ -881,7 +1015,7 @@ function PredictionV2StudentReport({
                       <SignalIndicator fit={item.fit} />
                       <h4>{item.officialNameArabic}</h4>
                       <p>
-                        {item.availability === "forecast_stage_3" ? "متوقع يظهر في المرحلة الثالثة · " : "متاح في قائمة المرحلة الثانية · "}
+                        {item.availability === "forecast_stage_3" ? "توقع محفوظ من وقت المرحلة الثانية · " : "كان متاحًا في قائمة المرحلة الثانية · "}
                         نطاق متوقع <bdi className="ltr-number">{item.expectedRange[0]}%–{item.expectedRange[1]}%</bdi>
                       </p>
                       {simpleProximity(item.proximityLabel) ? <small>{simpleProximity(item.proximityLabel)}</small> : null}

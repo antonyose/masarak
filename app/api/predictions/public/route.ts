@@ -102,7 +102,7 @@ export async function POST(request: Request) {
     if (error instanceof Error && error.message === "INVALID_ORIGIN") {
       return NextResponse.json({ error: "طلب غير صالح." }, { status: 403 });
     }
-    if (error instanceof Error && error.message === "NO_ACTIVE_STAGE2_MODEL") {
+    if (error instanceof Error && (error.message === "NO_ACTIVE_STAGE2_MODEL" || error.message === "NO_ACTIVE_PREDICTION_MODEL")) {
       return NextResponse.json({ error: "التوقعات غير متاحة حاليًا." }, { status: 503 });
     }
     if (error instanceof Error && error.message === "RESULT_NOT_FOUND") {

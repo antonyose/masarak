@@ -218,7 +218,7 @@ export default function AdminPage() {
             <div className="admin-coord-grid">
               <CoordCard label="المصادر" value={coordination.counts.sources} />
               <CoordCard label="حقائق المرحلة الأولى" value={coordination.counts.officialCutoffs2026} />
-              <CoordCard label="شواغر المرحلة الثانية" value={coordination.counts.stageVacancies2026} />
+              <CoordCard label="شواغر المرحلة الثانية المحفوظة" value={coordination.counts.stageVacancies2026} />
               <CoordCard label="النماذج النشطة" value={coordination.models.filter((m) => m.activatedAt).length} />
             </div>
           ) : null}

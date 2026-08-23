@@ -4,7 +4,7 @@ import { getMaxScore } from "@/lib/grade-scales";
 import { enforceRateLimit } from "@/lib/request-security";
 import { predictionPreviewSchema } from "@/lib/schemas";
 import { getPaymentSettings } from "@/lib/settings";
-import { calculateActiveStage2Report, publicPredictionPayload } from "@/lib/prediction-service";
+import { calculateActivePredictionReport, publicPredictionPayload } from "@/lib/prediction-service";
 
 export const runtime = "nodejs";
 
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "المجموع يتجاوز النهاية العظمى للنظام المختار." }, { status: 400 });
     }
     const percentage = Math.round((parsed.data.score / maxScore) * 10_000) / 100;
-    const report = await calculateActiveStage2Report({
+    const report = await calculateActivePredictionReport({
       score: parsed.data.score,
       maxScore,
       percentage,
