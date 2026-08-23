@@ -419,7 +419,7 @@ export function ToolExperience() {
             <Sparkles size={15} aria-hidden="true" />
             <span>
               <b>السيستم اتحدّث</b>
-              <small>بعد نتيجة المرحلة الأولى — التوقعات أدق بكتير</small>
+              <small>شواغر المرحلة الثالثة منشورة رسميًا</small>
             </span>
           </span>
           <h2>اعرف أقرب كلياتك بالاسم أو رقم الجلوس</h2>
