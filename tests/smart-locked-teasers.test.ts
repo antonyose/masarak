@@ -52,7 +52,7 @@ describe("generateSmartLockedTeasers", () => {
     expect(teasers[1].question).toContain("الإسكندرية");
   });
 
-  it("generates appropriate questions for Stage 3 forecast reports", () => {
+  it("describes official Stage 3 availability without forecasting vacancies", () => {
     const teasers = generateSmartLockedTeasers({
       branch: "science",
       score: 205,
@@ -62,6 +62,9 @@ describe("generateSmartLockedTeasers", () => {
     });
 
     expect(teasers[0].question).toContain("المرحلة الثالثة");
+    expect(teasers[0].question).toContain("متاحة رسميًا");
+    expect(teasers[0].question).not.toContain("المتوقع نزولها");
+    expect(teasers[2].question).not.toContain("ضمان القبول");
     expect(teasers[1].question).toContain("المعاهد العليا المعتمدة");
   });
 });

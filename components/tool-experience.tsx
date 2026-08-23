@@ -1088,7 +1088,7 @@ function SmartLockedTeaserCards({
               ? `أهم التساؤلات والتحليلات لنتيجة ${result.studentName}`
               : `أهم التساؤلات والتحليلات لمجموع ${formatScore(result.totalScore)}`}
           </h4>
-          <p>إجابات حاسمة ومحسوبة بالدرجات لأهم الأسئلة اللي بتدور في بالك دلوقتي</p>
+          <p>إجابات واضحة ومحسوبة بالدرجات لأهم الأسئلة اللي بتدور في بالك دلوقتي</p>
         </div>
       </div>
 
@@ -1105,7 +1105,7 @@ function SmartLockedTeaserCards({
             <p className="smart-locked-question">{teaser.question}</p>
             <div className="smart-locked-card-footer">
               <span className="smart-locked-blur-preview" aria-hidden="true" />
-              <small>عرض التحليل والفرصة المؤكدة بعد فتح التقرير</small>
+              <small>عرض التحليل الكامل بعد فتح التقرير</small>
             </div>
           </article>
         ))}

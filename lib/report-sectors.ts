@@ -198,11 +198,11 @@ export function extractReportInsights({
 
   const hasNearbyGuaranteed = topLocal.length > 0;
 
-  let strategicAdvice = "رتب رغباتك باختيار كليات محافظتك ونطاقك القريب أولاً لضمان أفضل كلية وتفادي الاغتراب.";
+  let strategicAdvice = "رتب رغباتك باختيار كليات محافظتك ونطاقك القريب أولاً لتحسين فرص الاختيار وتفادي الاغتراب.";
   if (hasNearbyGuaranteed && governorate) {
     strategicAdvice = isForecast
       ? `لديك توقعات أقرب في كليات داخل أو بالقرب من محافظة ${governorate}؛ تابع إعلان المرحلة الثالثة قبل التقديم.`
-      : `لديك فرص قوية ومؤكدة في كليات داخل أو بالقرب من محافظة ${governorate}؛ ابدأ بها في الترتيب.`;
+      : `لديك اختيارات قوية داخل أو بالقرب من محافظة ${governorate}؛ ابدأ بها في الترتيب.`;
   } else if (!hasNearbyGuaranteed) {
     strategicAdvice = isForecast
       ? "دي توقعات إرشادية فقط؛ راجع قائمة المرحلة الثالثة الرسمية عند صدورها قبل ترتيب الرغبات."
@@ -243,7 +243,7 @@ export function buildTansikBlueprint(items: ReportItemSummary[]): TansikBlueprin
       sampleColleges: ambitiousNames.length ? ambitiousNames : ["الكليات الطموحة الأعلى في نطاقك"],
     },
     {
-      bracketTitle: "الرغبات 16 إلى 50 (الفرص الحقيقية والمضمونة)",
+      bracketTitle: "الرغبات 16 إلى 50 (اختيارات أقرب لمجموعك)",
       rangeText: "رغبات 16 – 50",
       description: "الكليات الأكثر ملاءمة لمجموعك في محافظتك ونطاقك الإقليمي (أ) و (ب).",
       badgeClass: "blueprint-badge-closest",
@@ -252,9 +252,9 @@ export function buildTansikBlueprint(items: ReportItemSummary[]): TansikBlueprin
     {
       bracketTitle: "الرغبات 51 إلى 75 (شبكة الأمان وتفادي الاستنفاد)",
       rangeText: "رغبات 51 – 75",
-      description: "كليات ومعاهد حكومية مضمونة تماماً لضمان عدم استنفاد بطاقة الرغبات.",
+      description: "كليات ومعاهد حكومية أقرب لمجموعك لتقليل خطر استنفاد بطاقة الرغبات.",
       badgeClass: "blueprint-badge-safety",
-      sampleColleges: safetyNames.length ? safetyNames : ["الكليات والبدائل المضمونة لشعبتك"],
+      sampleColleges: safetyNames.length ? safetyNames : ["اختيارات الأمان والبدائل المناسبة لشعبتك"],
     },
   ];
 }
