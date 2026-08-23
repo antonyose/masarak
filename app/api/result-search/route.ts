@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { trackEvent } from "@/lib/analytics";
 import { enforceRateLimit } from "@/lib/request-security";
 import { resultSearchSchema } from "@/lib/schemas";
-import { searchTursoResults } from "@/lib/turso";
+import { searchResults } from "@/lib/results-repository";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,8 +27,8 @@ export async function POST(request: Request) {
     const { method, query, year } = parsed.data;
     let search;
     let dataMode = "live";
-    if (process.env.TURSO_DATABASE_URL) {
-      search = await searchTursoResults({ method, query, year });
+    if (process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL) {
+      search = await searchResults({ method, query, year });
     } else if (
       process.env.NODE_ENV !== "production" &&
       process.env.ALLOW_LOCAL_RESULT_FALLBACK === "true"

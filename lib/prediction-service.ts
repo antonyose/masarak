@@ -8,7 +8,7 @@ import type { Branch } from "@/lib/grade-scales";
 import { getPaymentSettings } from "@/lib/settings";
 import { calculateStage2Report, toFreeStage2Report } from "@/lib/stage2-prediction";
 import { loadStage2CoordinationContext } from "@/lib/coordination-repository";
-import { findTursoResultBySeat } from "@/lib/turso";
+import { findResultBySeat } from "@/lib/results-repository";
 import { recordPredictionV2Shadow } from "@/lib/prediction-v2/shadow-service";
 import {
   calculatePredictionV2,
@@ -206,7 +206,7 @@ export async function createPublicImmutablePrediction({
   branch: Branch;
   governorate?: string;
 }) {
-  const result = await findTursoResultBySeat(2026, seatNumber);
+  const result = await findResultBySeat(2026, seatNumber);
   if (!result || result.totalScore == null || result.maxScore == null || result.percentage == null) {
     throw new Error("RESULT_NOT_FOUND");
   }
