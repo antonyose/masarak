@@ -584,7 +584,7 @@ a {
 
 .discount-entry { display: grid; gap: 0.45rem; margin-top: 1rem; }
 .discount-entry > label { color: var(--ink); font-size: 0.82rem; font-weight: 800; }
-.discount-entry > div { display: flex; gap: 0.5rem; }
+.discount-entry > div { width: 100%; min-width: 0; display: flex; gap: 0.5rem; }
 .discount-entry input { min-width: 0; flex: 1; min-height: 44px; padding: 0 0.8rem; color: var(--ink); background: white; border: 1px solid var(--line); border-radius: 0.6rem; font-weight: 800; letter-spacing: 0.12em; }
 .discount-entry button { min-width: 5.5rem; color: white; background: var(--primary); border: 0; border-radius: 0.6rem; font-weight: 800; cursor: pointer; }
 .discount-entry button:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -1172,6 +1172,8 @@ a {
 }
 
 .offer-action {
+  width: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
