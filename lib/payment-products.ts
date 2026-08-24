@@ -58,9 +58,10 @@ export async function validatePaymentSeats({
     throw new Error("DUPLICATE_PAYMENT_SEATS");
   }
 
-  const results = await Promise.all(
-    normalizedSeats.map((seatNumber) => findResultBySeat(year, seatNumber)),
-  );
+  const [results, entitlements] = await Promise.all([
+    Promise.all(normalizedSeats.map((seatNumber) => findResultBySeat(year, seatNumber))),
+    Promise.all(normalizedSeats.map((seatNumber) => getSeatEntitlement({ year, seatNumber }))),
+  ]);
   const missingSeats = normalizedSeats.filter((_, index) => !results[index]);
   if (missingSeats.length) {
     const error = new Error("PAYMENT_SEAT_NOT_FOUND");
@@ -68,11 +69,6 @@ export async function validatePaymentSeats({
     throw error;
   }
 
-  const entitlements = await Promise.all(
-    normalizedSeats.map((seatNumber) =>
-      getSeatEntitlement({ year, seatNumber }),
-    ),
-  );
   const unlockedSeats = normalizedSeats.filter(
     (_, index) => Boolean(entitlements[index]),
   );

@@ -75,6 +75,22 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  async function loadPayments(showLoading = false) {
+    if (showLoading) setLoading(true);
+    try {
+      const response = await fetch("/api/admin/payments?status=all&limit=500", { cache: "no-store" });
+      if (!response.ok) {
+        if (showLoading) setError(response.status === 403 ? "هذا الحساب لا يملك صلاحية الأدمن." : "تعذر تحميل طلبات الدفع.");
+        return;
+      }
+      setPayments((await response.json()).payments);
+    } catch {
+      if (showLoading) setError("تعذر الاتصال بالخادم.");
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  }
+
   async function load() {
     setLoading(true);
     setError("");
@@ -103,11 +119,26 @@ export default function AdminPage() {
     if (session?.user) void load();
   }, [session?.user]);
 
-  // Auto-refresh overview every 60s
+  // Keep the active view fresh without repeatedly loading every dashboard endpoint.
   useEffect(() => {
     if (tab !== "overview" || !session?.user) return;
-    const timer = window.setInterval(() => void load(), 60_000);
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") void load();
+    }, 60_000);
     return () => window.clearInterval(timer);
+  }, [tab, session?.user]);
+
+  useEffect(() => {
+    if (tab !== "payments" || !session?.user) return;
+    const refresh = () => {
+      if (document.visibilityState === "visible") void loadPayments();
+    };
+    const timer = window.setInterval(refresh, 15_000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [tab, session?.user]);
 
   async function review(id: string, action: "approve" | "reject", allowMissingReceipt = false) {
@@ -122,7 +153,7 @@ export default function AdminPage() {
       });
       const result = await response.json();
       if (!response.ok) setError(result.error ?? "تعذر تنفيذ الإجراء.");
-      else await load();
+      else await loadPayments();
     } catch {
       setError("تعذر الاتصال بالخادم. لم يتغير وضع الطلب.");
     } finally {
@@ -266,7 +297,7 @@ export default function AdminPage() {
       {tab === "payments" && (
         <div className="admin-tab-panel">
           <AdminQuickEntitlement onCreated={load} />
-          <AdminPaymentsTable payments={payments} loading={loading} onRefresh={() => void load()} onReview={(id, action, allowMissingReceipt) => void review(id, action, allowMissingReceipt)} />
+          <AdminPaymentsTable payments={payments} loading={loading} onRefresh={() => void loadPayments(true)} onReview={(id, action, allowMissingReceipt) => void review(id, action, allowMissingReceipt)} />
         </div>
       )}
 

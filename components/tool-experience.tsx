@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -10,6 +10,7 @@ import {
   Copy,
   GraduationCap,
   LockKeyhole,
+  RefreshCw,
   Search,
   Sparkles,
   Upload,
@@ -1145,9 +1146,9 @@ function GuestPaymentOffer({
   );
   const [error, setError] = useState("");
   const [polling, setPolling] = useState(paymentState?.status === "pending" && paymentState.hasReceipt);
+  const [checkingStatus, setCheckingStatus] = useState(false);
   const trackFunnel = useTrackFunnel();
   const [now, setNow] = useState(() => Date.now());
-  const pollingRef = useRef(false);
   const copyResetRef = useRef<number | null>(null);
   const offerTrackedRef = useRef<string | null>(null);
 
@@ -1186,43 +1187,59 @@ function GuestPaymentOffer({
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, [activeOffer, settings?.offer.endAt, settings?.offer.showCountdown]);
-
-
+  const checkPaymentStatus = useCallback(async () => {
+    if (document.visibilityState === "hidden") return false;
+    setCheckingStatus(true);
+    try {
+      const response = await fetch(`/api/payments/status?year=2026&seatNumber=${encodeURIComponent(seatNumber)}`, { cache: "no-store" });
+      if (!response.ok) return false;
+      const state = await response.json() as PaymentState;
+      if (state.status === "unlocked") {
+        const reportResponse = await fetch(`/api/predictions/${predictionId}/report`, { cache: "no-store" });
+        const reportData = await reportResponse.json();
+        if (reportResponse.ok && reportData.premium) {
+          setPolling(false);
+          setMode("form");
+          onUnlocked(normalizeReport(reportData));
+          return true;
+        }
+      } else if (state.status === "rejected") {
+        setPolling(false);
+        setMode("rejected");
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    } finally {
+      setCheckingStatus(false);
+    }
+  }, [onUnlocked, predictionId, seatNumber]);
 
   useEffect(() => {
-    if (!polling || pollingRef.current) return;
-    pollingRef.current = true;
+    if (!polling) return;
     let cancelled = false;
-    const check = async () => {
-      try {
-        const response = await fetch(`/api/payments/status?year=2026&seatNumber=${encodeURIComponent(seatNumber)}`, { cache: "no-store" });
-        if (!response.ok) return;
-        const state = await response.json() as PaymentState;
+    let timer: number | undefined;
+    const schedule = (delay: number) => {
+      timer = window.setTimeout(async () => {
         if (cancelled) return;
-        if (state.status === "unlocked") {
-          const reportResponse = await fetch(`/api/predictions/${predictionId}/report`, { cache: "no-store" });
-          const reportData = await reportResponse.json();
-          if (reportResponse.ok && reportData.premium) {
-            setPolling(false);
-            setMode("form");
-            onUnlocked(normalizeReport(reportData));
-          }
-        } else if (state.status === "rejected") {
-          setPolling(false);
-          setMode("rejected");
-        }
-      } catch {
-        // The next poll retries without exposing a client-side authorization state.
-      }
+        const resolved = await checkPaymentStatus();
+        if (!cancelled && !resolved) schedule(15_000);
+      }, delay);
     };
-    void check();
-    const timer = window.setInterval(() => void check(), 5000);
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== "visible") return;
+      if (timer) window.clearTimeout(timer);
+      schedule(250);
+    };
+    schedule(10_000);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
       cancelled = true;
-      pollingRef.current = false;
-      window.clearInterval(timer);
+      if (timer) window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [onUnlocked, paymentId, polling, predictionId, seatNumber]);
+  }, [checkPaymentStatus, paymentId, polling]);
 
   async function copyRecipient(methodId: string, recipient: string) {
     try {
@@ -1359,6 +1376,10 @@ function GuestPaymentOffer({
         <div>
           <strong>تم استلام التحويل</strong>
           <span>جاري مراجعة الدفع — هنفتح التقرير تلقائيًا بعد الموافقة.</span>
+          <button type="button" className="payment-status-check" disabled={checkingStatus} onClick={() => void checkPaymentStatus()}>
+            <RefreshCw size={14} className={checkingStatus ? "animate-spin" : ""} aria-hidden="true" />
+            {checkingStatus ? "بنتحقق…" : "تحقق من حالة الطلب"}
+          </button>
         </div>
       </div>
     );

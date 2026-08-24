@@ -2303,6 +2303,27 @@ a {
   font-weight: 700;
 }
 
+.payment-status-check {
+  align-items: center;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: inherit;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+}
+
+.payment-status-check:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .v2-report-disclaimer {
   margin: 1rem 0 0;
   color: var(--muted);
