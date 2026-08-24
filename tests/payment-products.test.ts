@@ -2,15 +2,15 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-const { getSeatEntitlement, getPaymentSettings, findTursoResultBySeat } = vi.hoisted(() => ({
+const { getSeatEntitlement, getPaymentSettings, findResultBySeat } = vi.hoisted(() => ({
   getSeatEntitlement: vi.fn(),
   getPaymentSettings: vi.fn(),
-  findTursoResultBySeat: vi.fn(),
+  findResultBySeat: vi.fn(),
 }));
 
 vi.mock("@/lib/authz", () => ({ getSeatEntitlement }));
 vi.mock("@/lib/settings", () => ({ getPaymentSettings }));
-vi.mock("@/lib/turso", () => ({ findTursoResultBySeat }));
+vi.mock("@/lib/results-repository", () => ({ findResultBySeat }));
 
 import { getPaymentProduct, validatePaymentSeats } from "@/lib/payment-products";
 
@@ -59,14 +59,14 @@ describe("seat payment products", () => {
 
   it("rejects duplicate, missing, and already-unlocked friend seats", async () => {
     getPaymentSettings.mockResolvedValue(settings);
-    findTursoResultBySeat.mockResolvedValue({ seatNumber: "ok" });
+    findResultBySeat.mockResolvedValue({ seatNumber: "ok" });
     getSeatEntitlement.mockResolvedValue(null);
     await expect(validatePaymentSeats({ year: 2026, productType: "friends_3", seatNumbers: ["١", "1", "2"] })).rejects.toThrow("DUPLICATE_PAYMENT_SEATS");
 
-    findTursoResultBySeat.mockImplementation(async (_year: number, seat: string) => seat === "2001990" ? null : { seatNumber: seat });
+    findResultBySeat.mockImplementation(async (_year: number, seat: string) => seat === "2001990" ? null : { seatNumber: seat });
     await expect(validatePaymentSeats({ year: 2026, productType: "friends_3", seatNumbers: ["2001970", "2001980", "2001990"] })).rejects.toThrow("PAYMENT_SEAT_NOT_FOUND");
 
-    findTursoResultBySeat.mockResolvedValue({ seatNumber: "ok" });
+    findResultBySeat.mockResolvedValue({ seatNumber: "ok" });
     getSeatEntitlement.mockImplementation(async ({ seatNumber }: { seatNumber: string }) => seatNumber === "2001980" ? { id: "entitlement" } : null);
     await expect(validatePaymentSeats({ year: 2026, productType: "friends_3", seatNumbers: ["2001970", "2001980", "2001990"] })).resolves.toMatchObject({ unlockedSeats: ["2001980"] });
   });

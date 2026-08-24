@@ -5,7 +5,7 @@ import { savedStudents } from "@/db/schema";
 import { AuthorizationError, requireSession } from "@/lib/authz";
 import { assertSameOrigin, enforceRateLimit } from "@/lib/request-security";
 import { savedStudentSchema } from "@/lib/schemas";
-import { findTursoResultBySeat } from "@/lib/turso";
+import { findResultBySeat } from "@/lib/results-repository";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const session = await requireSession();
     const parsed = savedStudentSchema.safeParse(await request.json());
     if (!parsed.success) return NextResponse.json({ error: "بيانات النتيجة غير صحيحة." }, { status: 400 });
-    const result = await findTursoResultBySeat(2026, parsed.data.seatNumber);
+    const result = await findResultBySeat(2026, parsed.data.seatNumber);
     if (!result || result.totalScore == null || result.maxScore == null || result.percentage == null) {
       return NextResponse.json({ error: "لم نجد نتيجة 2026 مكتملة برقم الجلوس هذا في المصدر الرسمي." }, { status: 404 });
     }

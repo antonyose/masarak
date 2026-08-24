@@ -5,7 +5,7 @@ import { grantManualSeatEntitlement } from "@/lib/manual-entitlement";
 import { normalizeDigits } from "@/lib/normalize-arabic";
 import { assertSameOrigin } from "@/lib/request-security";
 import { adminManualEntitlementSchema } from "@/lib/schemas";
-import { findTursoResultBySeat } from "@/lib/turso";
+import { findResultBySeat } from "@/lib/results-repository";
 
 export const runtime = "nodejs";
 
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       );
     }
     const seatNumber = normalizeDigits(parsed.data.seatNumber);
-    const student = await findTursoResultBySeat(parsed.data.year, seatNumber);
+    const student = await findResultBySeat(parsed.data.year, seatNumber);
     if (!student) {
       return NextResponse.json({ error: "رقم الجلوس غير موجود في نتائج 2026." }, { status: 404 });
     }

@@ -3,7 +3,8 @@ import "server-only";
 import { getSeatEntitlement } from "@/lib/authz";
 import { getPaymentSettings } from "@/lib/settings";
 import { normalizeDigits } from "@/lib/normalize-arabic";
-import { findTursoResultBySeat, type TursoStudentResult } from "@/lib/turso";
+import { findResultBySeat } from "@/lib/results-repository";
+import type { TursoStudentResult } from "@/lib/turso";
 
 export type PaymentProductType = "single" | "friends_3";
 
@@ -58,7 +59,7 @@ export async function validatePaymentSeats({
   }
 
   const results = await Promise.all(
-    normalizedSeats.map((seatNumber) => findTursoResultBySeat(year, seatNumber)),
+    normalizedSeats.map((seatNumber) => findResultBySeat(year, seatNumber)),
   );
   const missingSeats = normalizedSeats.filter((_, index) => !results[index]);
   if (missingSeats.length) {
