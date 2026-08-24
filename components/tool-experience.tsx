@@ -1371,15 +1371,51 @@ function GuestPaymentOffer({
 
   if (mode === "pending") {
     return (
-      <div className="payment-pending-state">
-        <Check size={22} aria-hidden="true" />
-        <div>
-          <strong>تم استلام التحويل</strong>
-          <span>جاري مراجعة الدفع — هنفتح التقرير تلقائيًا بعد الموافقة.</span>
-          <button type="button" className="payment-status-check" disabled={checkingStatus} onClick={() => void checkPaymentStatus()}>
+      <div className="payment-pending-state" role="status" aria-live="polite">
+        <div className="payment-pending-header">
+          <span className="payment-pending-icon">
+            <Check size={20} aria-hidden="true" />
+          </span>
+          <div>
+            <strong>تم استلام بيانات التحويل بنجاح</strong>
+            <p className="payment-pending-sub">جاري مراجعة وتأكيد الدفع من قِبل الأدمن</p>
+          </div>
+        </div>
+
+        <div className="payment-pending-details">
+          <div className="payment-pending-card">
+            <div className="payment-pending-point">
+              <span className="payment-pending-bullet">⏱️</span>
+              <div>
+                <strong>مدة التفعيل:</strong>
+                <span>تستغرق المراجعة والتفعيل عادةً <strong>من 10 دقائق إلى ساعة</strong>.</span>
+              </div>
+            </div>
+            <div className="payment-pending-point">
+              <span className="payment-pending-bullet">🎓</span>
+              <div>
+                <strong>طريقة فتح التقرير:</strong>
+                <span>
+                  بمجرد تأكيد الأدمن، تقدر تدخل برقم جلوسك (
+                  <bdi className="ltr-number font-bold text-[#0c5643]">{seatNumber}</bdi>
+                  ) في أي وقت وتشوف التقرير الكامل مباشرة دون الحاجة لأي دفع إضافي.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="payment-pending-actions">
+          <button
+            type="button"
+            className="payment-status-check"
+            disabled={checkingStatus}
+            onClick={() => void checkPaymentStatus()}
+          >
             <RefreshCw size={14} className={checkingStatus ? "animate-spin" : ""} aria-hidden="true" />
-            {checkingStatus ? "بنتحقق…" : "تحقق من حالة الطلب"}
+            {checkingStatus ? "جاري التحقق…" : "تحقق من حالة الطلب الآن"}
           </button>
+          <small className="payment-pending-hint">يتم التحقق وتحديث حالة التقرير تلقائيًا أثناء وجودك بالصفحة</small>
         </div>
       </div>
     );

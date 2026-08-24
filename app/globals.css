@@ -1626,32 +1626,95 @@ a {
 
 .payment-pending-state {
   display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-top: 0.9rem;
-  padding: 1rem;
-  color: var(--primary-hover);
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-top: 1rem;
+  padding: 1.15rem 1.25rem;
+  color: var(--navy);
   background: var(--success-soft);
-  border: 1px solid oklch(0.78 0.09 157);
+  border: 1.5px solid oklch(0.78 0.09 157);
   border-radius: var(--radius-md);
+  text-align: right;
 }
 
-.payment-pending-state > svg {
-  flex: 0 0 auto;
-  color: var(--success);
+.payment-pending-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.payment-pending-state div {
-  display: grid;
+.payment-pending-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: #0d7a5f;
+  color: #ffffff;
+  flex-shrink: 0;
 }
 
-.payment-pending-state strong {
-  font-size: 0.9rem;
+.payment-pending-header strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0c5643;
 }
 
-.payment-pending-state span {
+.payment-pending-sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: #173a55;
+  font-weight: 600;
+}
+
+.payment-pending-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-pending-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid oklch(0.85 0.05 157);
+  border-radius: var(--radius-sm, 8px);
+  padding: 0.85rem 1rem;
+}
+
+.payment-pending-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #1e293b;
+}
+
+.payment-pending-point .payment-pending-bullet {
+  font-size: 1.1rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.payment-pending-point strong {
+  color: #0c5643;
+  font-weight: 800;
+  margin-left: 0.35rem;
+}
+
+.payment-pending-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.payment-pending-hint {
+  font-size: 0.72rem;
   color: var(--muted);
-  font-size: 0.7rem;
 }
 
 .offer-loading {
