@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
 import { paymentSubmissionSeats, paymentSubmissions, predictionRuns, savedStudents, user } from "@/db/schema";
 import { AuthorizationError, requireAdmin } from "@/lib/authz";
@@ -18,7 +18,9 @@ export async function GET(request: Request) {
     const limit = Math.min(Math.max(Number(params.get("limit")) || 500, 1), 1000);
     const filters = [];
     if (status !== "all") filters.push(eq(paymentSubmissions.status, status));
-    if (status === "pending") filters.push(isNotNull(paymentSubmissions.submittedAt));
+    // A pending payment is actionable only after the student has submitted it.
+    // Apply the same rule to "all" so incomplete drafts never inflate the queue.
+    if (status === "pending" || status === "all") filters.push(isNotNull(paymentSubmissions.submittedAt));
     if (method === "vodafone_cash" || method === "orange_cash" || method === "instapay") {
       filters.push(eq(paymentSubmissions.method, method));
     }
@@ -35,7 +37,14 @@ export async function GET(request: Request) {
       ));
     }
     const where = filters.length ? and(...filters) : undefined;
-    const rows = await getDatabase()
+    const database = getDatabase();
+    const [countRows, rows] = await Promise.all([
+      database
+        .select({ status: paymentSubmissions.status, total: count() })
+        .from(paymentSubmissions)
+        .where(isNotNull(paymentSubmissions.submittedAt))
+        .groupBy(paymentSubmissions.status),
+      database
       .select({
         id: paymentSubmissions.id,
         status: paymentSubmissions.status,
@@ -60,16 +69,23 @@ export async function GET(request: Request) {
       .leftJoin(savedStudents, eq(savedStudents.id, paymentSubmissions.savedStudentId))
       .where(where)
       .orderBy(desc(paymentSubmissions.submittedAt))
-      .limit(limit);
+      .limit(limit),
+    ]);
+    const counts = { all: 0, pending: 0, approved: 0, rejected: 0, cancelled: 0 };
+    for (const row of countRows) {
+      const key = row.status as keyof typeof counts;
+      if (key !== "all" && key in counts) counts[key] = Number(row.total);
+    }
+    counts.all = counts.pending + counts.approved + counts.rejected + counts.cancelled;
     const payments = await Promise.all(rows.map(async ({ hasReceipt, ...row }) => {
-      const seats = await getDatabase()
+      const seats = await database
         .select({ seatNumber: paymentSubmissionSeats.seatNumber, position: paymentSubmissionSeats.position })
         .from(paymentSubmissionSeats)
         .where(eq(paymentSubmissionSeats.paymentId, row.id))
         .orderBy(paymentSubmissionSeats.position);
       return { ...row, seatNumbers: seats.length ? seats.map((seat) => seat.seatNumber) : [row.seatNumber], hasReceipt: Boolean(hasReceipt) };
     }));
-    return NextResponse.json({ payments }, { headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json({ payments, counts }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     const status = error instanceof AuthorizationError ? error.status : 500;
     return NextResponse.json({ error: "غير مصرح بالوصول." }, { status });

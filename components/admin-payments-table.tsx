@@ -32,9 +32,10 @@ export type AdminPayment = {
   hasReceipt: boolean;
 };
 
-type StatusFilter = "all" | AdminPayment["status"];
+export type StatusFilter = "all" | AdminPayment["status"];
 type ProductFilter = "all" | AdminPayment["productType"];
 type MethodFilter = "all" | AdminPayment["method"];
+type StatusCounts = Record<StatusFilter, number>;
 
 const STATUS_LABELS: Record<StatusFilter, string> = {
   all: "كل الحالات",
@@ -77,32 +78,29 @@ function statusClass(status: AdminPayment["status"]) {
 export function AdminPaymentsTable({
   payments,
   loading,
+  statusFilter,
+  statusCounts,
+  onStatusChange,
   onRefresh,
   onReview,
 }: {
   payments: AdminPayment[];
   loading: boolean;
+  statusFilter: StatusFilter;
+  statusCounts: StatusCounts;
+  onStatusChange: (status: StatusFilter) => void;
   onRefresh: () => void;
   onReview: (id: string, action: "approve" | "reject", allowMissingReceipt?: boolean) => void;
 }) {
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<StatusFilter>("all");
   const [product, setProduct] = useState<ProductFilter>("all");
   const [method, setMethod] = useState<MethodFilter>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const counts = useMemo(() => ({
-    all: payments.length,
-    pending: payments.filter((payment) => payment.status === "pending").length,
-    approved: payments.filter((payment) => payment.status === "approved").length,
-    rejected: payments.filter((payment) => payment.status === "rejected").length,
-    cancelled: payments.filter((payment) => payment.status === "cancelled").length,
-  }), [payments]);
-
   const filtered = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("ar-EG");
     return payments.filter((payment) => {
-      if (status !== "all" && payment.status !== status) return false;
+      if (statusFilter !== "all" && payment.status !== statusFilter) return false;
       if (product !== "all" && payment.productType !== product) return false;
       if (method !== "all" && payment.method !== method) return false;
       if (!normalized) return true;
@@ -117,15 +115,15 @@ export function AdminPaymentsTable({
       ].filter(Boolean).join(" ").toLocaleLowerCase("ar-EG");
       return searchable.includes(normalized);
     });
-  }, [method, payments, product, query, status]);
+  }, [method, payments, product, query, statusFilter]);
 
   return (
     <section className="admin-panel admin-operations-panel">
       <div className="admin-panel-header">
         <div>
           <div className="admin-section-kicker"><Filter size={14} /> مركز المدفوعات</div>
-          <h3 className="admin-panel-title">كل طلبات الدفع</h3>
-          <p className="admin-panel-sub">راجع الإيصال، تابع الحالة، ونفّذ الإجراء من نفس الجدول.</p>
+          <h3 className="admin-panel-title">طلبات الدفع</h3>
+          <p className="admin-panel-sub">تفتح الصفحة على الطلبات المنتظرة للمراجعة. غيّر الحالة عند الحاجة.</p>
         </div>
         <button type="button" onClick={onRefresh} disabled={loading} className="admin-refresh-btn">
           <RefreshCw size={15} className={loading ? "animate-spin" : ""} /> تحديث
@@ -133,16 +131,17 @@ export function AdminPaymentsTable({
       </div>
 
       <div className="admin-payment-summary admin-payment-summary-detailed">
-        {(["all", "pending", "approved", "rejected"] as const).map((key) => (
+        {(["all", "pending", "approved", "rejected", "cancelled"] as const).map((key) => (
           <button
             type="button"
             key={key}
-            className={`admin-summary-item admin-summary-filter${status === key ? " is-selected" : ""}`}
-            onClick={() => setStatus(key)}
-            aria-pressed={status === key}
+            className={`admin-summary-item admin-summary-filter${statusFilter === key ? " is-selected" : ""}`}
+            onClick={() => onStatusChange(key)}
+            aria-pressed={statusFilter === key}
+            disabled={loading}
           >
             <span>{STATUS_LABELS[key]}</span>
-            <strong>{counts[key]}</strong>
+            <strong>{statusCounts[key]}</strong>
           </button>
         ))}
       </div>
@@ -154,9 +153,9 @@ export function AdminPaymentsTable({
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ابحث برقم الجلوس أو الاسم أو رقم العملية" />
         </label>
         <label className="admin-filter-field">
-          <span>الحالة</span>
-          <select value={status} onChange={(event) => setStatus(event.target.value as StatusFilter)}>
-            {Object.entries(STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label} ({counts[value as StatusFilter]})</option>)}
+          <span>حالة الطلب</span>
+          <select value={statusFilter} onChange={(event) => onStatusChange(event.target.value as StatusFilter)} disabled={loading}>
+            {Object.entries(STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label} ({statusCounts[value as StatusFilter]})</option>)}
           </select>
         </label>
         <label className="admin-filter-field">
@@ -176,7 +175,9 @@ export function AdminPaymentsTable({
         </label>
       </div>
 
-      <div className="admin-table-meta">عرض {filtered.length} من {payments.length} طلب · اضغط على «التفاصيل» لعرض بيانات العملية كاملة.</div>
+      <div className="admin-table-meta" aria-live="polite">
+        {loading ? "جارٍ تحميل الطلبات…" : `عرض ${filtered.length} من ${statusCounts[statusFilter]} طلب · اضغط على «التفاصيل» لعرض بيانات العملية كاملة.`}
+      </div>
 
       <div className="admin-table-wrap">
         <table className="admin-data-table">

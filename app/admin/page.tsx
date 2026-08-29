@@ -64,26 +64,40 @@ type V2Diagnostics = {
 };
 
 type Tab = "overview" | "payments" | "audit" | "settings";
+type PaymentStatusFilter = "all" | AdminPayment["status"];
+type PaymentCounts = Record<PaymentStatusFilter, number>;
+
+const EMPTY_PAYMENT_COUNTS: PaymentCounts = {
+  all: 0,
+  pending: 0,
+  approved: 0,
+  rejected: 0,
+  cancelled: 0,
+};
 
 export default function AdminPage() {
   const { data: session, isPending } = useSession();
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>("payments");
   const [payments, setPayments] = useState<AdminPayment[]>([]);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatusFilter>("pending");
+  const [paymentCounts, setPaymentCounts] = useState<PaymentCounts>(EMPTY_PAYMENT_COUNTS);
   const [coordination, setCoordination] = useState<Coordination | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [v2, setV2] = useState<V2Diagnostics | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function loadPayments(showLoading = false) {
+  async function loadPayments(requestedStatus: PaymentStatusFilter = paymentStatus, showLoading = false) {
     if (showLoading) setLoading(true);
     try {
-      const response = await fetch("/api/admin/payments?status=all&limit=500", { cache: "no-store" });
+      const response = await fetch(`/api/admin/payments?status=${requestedStatus}&limit=500`, { cache: "no-store" });
       if (!response.ok) {
         if (showLoading) setError(response.status === 403 ? "هذا الحساب لا يملك صلاحية الأدمن." : "تعذر تحميل طلبات الدفع.");
         return;
       }
-      setPayments((await response.json()).payments);
+      const result = await response.json();
+      setPayments(result.payments);
+      if (result.counts) setPaymentCounts({ ...EMPTY_PAYMENT_COUNTS, ...result.counts });
     } catch {
       if (showLoading) setError("تعذر الاتصال بالخادم.");
     } finally {
@@ -96,7 +110,7 @@ export default function AdminPage() {
     setError("");
     try {
       const [queue, data, statsRes, v2Res] = await Promise.all([
-        fetch("/api/admin/payments?status=all&limit=500"),
+        fetch("/api/admin/payments?status=pending&limit=500"),
         fetch("/api/admin/coordination"),
         fetch("/api/admin/stats?days=14"),
         fetch("/api/admin/coordination/v2-shadow"),
@@ -104,7 +118,9 @@ export default function AdminPage() {
       if (!queue.ok || !data.ok) {
         setError(queue.status === 403 || data.status === 403 ? "هذا الحساب لا يملك صلاحية الأدمن." : "تعذر تحميل لوحة الإدارة.");
       } else {
-        setPayments((await queue.json()).payments);
+        const queueResult = await queue.json();
+        setPayments(queueResult.payments);
+        if (queueResult.counts) setPaymentCounts({ ...EMPTY_PAYMENT_COUNTS, ...queueResult.counts });
         setCoordination(await data.json());
         if (statsRes.ok) setStats(await statsRes.json());
         if (v2Res.ok) setV2(await v2Res.json());
@@ -139,7 +155,7 @@ export default function AdminPage() {
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", refresh);
     };
-  }, [tab, session?.user]);
+  }, [tab, session?.user, paymentStatus]);
 
   async function review(id: string, action: "approve" | "reject", allowMissingReceipt = false) {
     const reason = action === "reject" ? window.prompt("سبب الرفض الظاهر للمستخدم:") : undefined;
@@ -153,7 +169,7 @@ export default function AdminPage() {
       });
       const result = await response.json();
       if (!response.ok) setError(result.error ?? "تعذر تنفيذ الإجراء.");
-      else await loadPayments();
+      else await loadPayments(paymentStatus);
     } catch {
       setError("تعذر الاتصال بالخادم. لم يتغير وضع الطلب.");
     } finally {
@@ -161,7 +177,7 @@ export default function AdminPage() {
     }
   }
 
-  const pendingCount = payments.filter((payment) => payment.status === "pending").length;
+  const pendingCount = paymentCounts.pending;
   const chartData = stats ? buildChartData(stats.timeSeries) : [];
 
   if (isPending) return <div className="admin-container"><div className="admin-card">جارٍ التحقق…</div></div>;
@@ -182,7 +198,7 @@ export default function AdminPage() {
           <h2>لوحة تحكم مسارك 2026</h2>
           <p className="admin-subtitle">تحليلات · مدفوعات · إعدادات</p>
         </div>
-        <button onClick={load} disabled={loading} className="admin-refresh-btn">
+        <button onClick={() => void (tab === "payments" ? loadPayments(paymentStatus, true) : load())} disabled={loading} className="admin-refresh-btn">
           <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
           تحديث
         </button>
@@ -297,7 +313,18 @@ export default function AdminPage() {
       {tab === "payments" && (
         <div className="admin-tab-panel">
           <AdminQuickEntitlement onCreated={load} />
-          <AdminPaymentsTable payments={payments} loading={loading} onRefresh={() => void loadPayments(true)} onReview={(id, action, allowMissingReceipt) => void review(id, action, allowMissingReceipt)} />
+          <AdminPaymentsTable
+            payments={payments}
+            loading={loading}
+            statusFilter={paymentStatus}
+            statusCounts={paymentCounts}
+            onStatusChange={(nextStatus) => {
+              setPaymentStatus(nextStatus);
+              void loadPayments(nextStatus, true);
+            }}
+            onRefresh={() => void loadPayments(paymentStatus, true)}
+            onReview={(id, action, allowMissingReceipt) => void review(id, action, allowMissingReceipt)}
+          />
         </div>
       )}
 

@@ -4691,6 +4691,7 @@ a {
 .admin-summary-filter:hover { border-color: var(--primary); }
 .admin-summary-filter.is-selected { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
 .admin-summary-filter.is-selected span { color: var(--primary); }
+.admin-summary-filter:disabled { cursor: wait; opacity: 0.62; }
 
 /* Payment and audit operations */
 .admin-operations-panel { padding-bottom: 1.1rem; }
