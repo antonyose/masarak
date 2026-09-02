@@ -18,7 +18,12 @@ export type SearchableStudentResult = {
   resultStatus: string;
   schoolName: string | null;
   governorate: string | null;
+  isUpdatedResult?: boolean;
+  originalTotalScore?: number | null;
+  originalPercentage?: number | null;
+  canPromptRound2?: boolean;
 };
+
 
 export type LocalSearchResult = {
   results: SearchableStudentResult[];

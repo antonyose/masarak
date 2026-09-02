@@ -18,7 +18,12 @@ export type TursoStudentResult = {
   resultStatus: string;
   schoolName: string | null;
   governorate: string | null;
+  isUpdatedResult?: boolean;
+  originalTotalScore?: number | null;
+  originalPercentage?: number | null;
+  canPromptRound2?: boolean;
 };
+
 
 let client: Client | null = null;
 

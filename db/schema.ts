@@ -1347,3 +1347,33 @@ export const rateLimits = pgTable(
     index("rate_limits_expires_idx").on(table.expiresAt),
   ],
 );
+
+export const updatedStudentResults = pgTable(
+  "updated_student_results",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    year: integer("year").notNull().default(2026),
+    seatNumber: text("seat_number").notNull(),
+    updatedTotalScore: doublePrecision("updated_total_score").notNull(),
+    updatedPercentage: doublePrecision("updated_percentage").notNull(),
+    maxScore: doublePrecision("max_score").notNull(),
+    originalTotalScore: doublePrecision("original_total_score"),
+    originalPercentage: doublePrecision("original_percentage"),
+    inputMethod: text("input_method").notNull().default("score"),
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("updated_student_results_year_seat_idx").on(
+      table.year,
+      table.seatNumber,
+    ),
+    index("updated_student_results_seat_idx").on(table.seatNumber),
+  ],
+);
+

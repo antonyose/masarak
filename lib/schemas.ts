@@ -71,6 +71,15 @@ export const publicPredictionCreateSchema = z.object({
   governorate: z.enum(egyptianGovernorates).optional(),
 });
 
+export const studentResultUpdateSchema = z.object({
+  year: z.literal(2026),
+  seatNumber: z.string().trim().regex(/^[\d٠-٩۰-۹]{4,14}$/, "أدخل رقم جلوس صحيحًا."),
+  inputMethod: z.enum(["score", "percentage"]),
+  score: z.number().finite().nonnegative("المجموع لا يمكن أن يكون سالبًا."),
+  percentage: z.number().finite().min(0, "النسبة لا يمكن أن تكون سالبة.").max(100, "النسبة لا تتجاوز 100%."),
+});
+
+
 export const accountUpdateSchema = z.object({
   name: z.string().trim().min(2).max(100),
   phone: egyptianPhoneSchema,

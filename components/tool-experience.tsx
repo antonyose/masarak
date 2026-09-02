@@ -47,6 +47,10 @@ type StudentResult = {
   resultStatus: string;
   governorate: string | null;
   schoolName: string | null;
+  isUpdatedResult?: boolean;
+  originalTotalScore?: number | null;
+  originalPercentage?: number | null;
+  canPromptRound2?: boolean;
 };
 type SearchMode = "seat" | "name";
 type Recommendation = {
@@ -227,8 +231,89 @@ export function ToolExperience() {
   const [requestedProduct, setRequestedProduct] = useState<ProductType>("single");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isEditingRound2, setIsEditingRound2] = useState(false);
+  const [round2ScoreInput, setRound2ScoreInput] = useState("");
+  const [round2PercentageInput, setRound2PercentageInput] = useState("");
+  const [round2Error, setRound2Error] = useState("");
+  const [round2Updating, setRound2Updating] = useState(false);
   const nameSearchAbortRef = useRef<AbortController | null>(null);
   const trackFunnel = useTrackFunnel();
+
+  const currentMaxScore = result?.maxScore ?? 320;
+
+  function handleRound2ScoreChange(val: string) {
+    setRound2ScoreInput(val);
+    setRound2Error("");
+    const clean = normalizeDigits(val);
+    const num = parseFloat(clean);
+    if (!isNaN(num) && num >= 0 && currentMaxScore > 0) {
+      const pct = Math.round((num / currentMaxScore) * 10000) / 100;
+      setRound2PercentageInput(String(Math.min(100, pct)));
+    } else if (val === "") {
+      setRound2PercentageInput("");
+    }
+  }
+
+  function handleRound2PercentageChange(val: string) {
+    setRound2PercentageInput(val);
+    setRound2Error("");
+    const clean = normalizeDigits(val);
+    const num = parseFloat(clean);
+    if (!isNaN(num) && num >= 0 && num <= 100 && currentMaxScore > 0) {
+      const score = Math.round(((num / 100) * currentMaxScore) * 100) / 100;
+      setRound2ScoreInput(String(score));
+    } else if (val === "") {
+      setRound2ScoreInput("");
+    }
+  }
+
+  async function submitRound2Update() {
+    if (!result) return;
+    const scoreNum = parseFloat(normalizeDigits(round2ScoreInput));
+    const pctNum = parseFloat(normalizeDigits(round2PercentageInput));
+
+    if (isNaN(scoreNum) || scoreNum < 0 || isNaN(pctNum) || pctNum < 0) {
+      setRound2Error("من فضلك أدخل مجموعًا أو نسبة صحيحة.");
+      return;
+    }
+    if (scoreNum > currentMaxScore) {
+      setRound2Error(`المجموع لا يمكن أن يتجاوز الحد الأقصى (${currentMaxScore} درجة).`);
+      return;
+    }
+    if (pctNum > 100) {
+      setRound2Error("النسبة المئوية لا يمكن أن تتجاوز 100%.");
+      return;
+    }
+    const originalScore = result.originalTotalScore ?? result.totalScore;
+    if (originalScore !== null && scoreNum < originalScore) {
+      setRound2Error("المجموع الجديد لا يمكن أن يكون أقل من مجموعك في الدور الأول.");
+      return;
+    }
+
+    setRound2Updating(true);
+    setRound2Error("");
+    try {
+      const res = await fetch("/api/result-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          year: 2026,
+          seatNumber: result.seatNumber,
+          inputMethod: "score",
+          score: scoreNum,
+          percentage: pctNum,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "تعذر تحديث النتيجة.");
+      setResult(data.result);
+      setIsEditingRound2(false);
+    } catch (caught) {
+      setRound2Error(caught instanceof Error ? caught.message : "تعذر تحديث النتيجة.");
+    } finally {
+      setRound2Updating(false);
+    }
+  }
 
   async function findResult(value: string, method: SearchMode = "seat", signal?: AbortSignal) {
     const response = await fetch("/api/result-search", {
@@ -314,6 +399,8 @@ export function ToolExperience() {
     setLoading(true);
     setError("");
     setReport(null);
+    setIsEditingRound2(false);
+    setRound2Error("");
     try {
       const found = searchMode === "seat"
         ? assertCompleteResult((await findResult(normalizeDigits(seatNumber)))[0])
@@ -323,11 +410,17 @@ export function ToolExperience() {
       setGovernorate(found.governorate ?? "");
       const knownBranch = found.branch === "unknown" ? undefined : found.branch;
       setBranch(knownBranch ?? "");
-      const nextReport = await createReport(found, knownBranch, found.governorate ?? undefined);
-      if (!nextReport.requiresBranch) {
-        setReport(nextReport);
-        trackFunnel("report_viewed", { source: searchMode === "name" ? "name_search" : "seat_search" });
-        if (nextReport.branch) setBranch(nextReport.branch);
+
+      if (found.canPromptRound2 && !found.isUpdatedResult) {
+        setRound2ScoreInput(found.totalScore != null ? String(found.totalScore) : "");
+        setRound2PercentageInput(found.percentage != null ? String(found.percentage) : "");
+      } else {
+        const nextReport = await createReport(found, knownBranch, found.governorate ?? undefined);
+        if (!nextReport.requiresBranch) {
+          setReport(nextReport);
+          trackFunnel("report_viewed", { source: searchMode === "name" ? "name_search" : "seat_search" });
+          if (nextReport.branch) setBranch(nextReport.branch);
+        }
       }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "تعذر إظهار النتيجة.");
@@ -380,7 +473,13 @@ export function ToolExperience() {
     setSettings(null);
     setRequestedProduct("single");
     setError("");
+    setIsEditingRound2(false);
+    setRound2ScoreInput("");
+    setRound2PercentageInput("");
+    setRound2Error("");
+    setRound2Updating(false);
   }
+
 
   function changeSearchMode(mode: SearchMode) {
     setSearchMode(mode);
@@ -522,16 +621,174 @@ export function ToolExperience() {
                 <GraduationCap size={24} />
               </div>
               <div>
-                <span>لقينا نتيجتك</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span>لقينا نتيجتك</span>
+                  {result.isUpdatedResult ? (
+                    <span className="inline-flex items-center gap-1 rounded bg-teal-100/90 px-2 py-0.5 text-[11px] font-extrabold text-teal-900 border border-teal-300">
+                      محدث بعد الدور الثاني ✓
+                    </span>
+                  ) : null}
+                </div>
                 <h3>{result.studentName}</h3>
                 <p>
-                  <b className="ltr-number">{result.percentage}%</b>
+                  <b className="ltr-number">{formatScore(result.percentage)}%</b>
+                  <span aria-hidden="true"> · </span>
+                  <span className="ltr-number">{formatScore(result.totalScore)}</span> من {formatScore(result.maxScore)}
+                  {result.isUpdatedResult && result.originalTotalScore != null ? (
+                    <span className="mr-1.5 text-slate-400"> (الدور الأول: {formatScore(result.originalTotalScore)})</span>
+                  ) : null}
                   <span aria-hidden="true"> · </span>
                   رقم الجلوس <b className="ltr-number">{result.seatNumber}</b>
                 </p>
               </div>
-              <button type="button" onClick={resetJourney}>تغيير البحث</button>
+              <div className="flex flex-col items-end gap-1">
+                <button type="button" onClick={resetJourney}>تغيير البحث</button>
+                {result.isUpdatedResult ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingRound2(true);
+                      setRound2ScoreInput(result.totalScore != null ? String(result.totalScore) : "");
+                      setRound2PercentageInput(result.percentage != null ? String(result.percentage) : "");
+                    }}
+                    className="text-xs text-teal-800 underline hover:text-teal-950 font-bold"
+                  >
+                    تعديل الدرجة
+                  </button>
+                ) : null}
+              </div>
             </div>
+
+            {result.canPromptRound2 && !result.isUpdatedResult && !isEditingRound2 ? (
+              <div className="round2-card mt-4 rounded-xl border border-teal-200 bg-teal-50/70 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 rounded-lg bg-teal-700 p-1.5 text-white">
+                    <Sparkles size={16} aria-hidden="true" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="m-0 text-sm font-extrabold text-teal-950">
+                      هل نتيجتك اتحدثت بعد امتحانات الدور الثاني؟
+                    </h4>
+                    <p className="mt-1 text-xs text-slate-600">
+                      لو امتحنت دور تاني ودرجاتك اتعدلت، تقدر تكتب نتيجتك الجديدة علشان نحسب لك التوقعات بدقة.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsEditingRound2(true);
+                          const current = result.totalScore ?? 0;
+                          setRound2ScoreInput(current ? String(current) : "");
+                          setRound2PercentageInput(result.percentage ? String(result.percentage) : "");
+                        }}
+                        className="rounded-lg bg-teal-700 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-teal-800 transition"
+                      >
+                        نعم، نتيجتي اتعدلت
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setResult({ ...result, canPromptRound2: false });
+                        }}
+                        className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+                      >
+                        لا، مجموعي كما هو
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {isEditingRound2 ? (
+              <div className="round2-editor mt-4 rounded-xl border-2 border-teal-600 bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={16} className="text-teal-700" />
+                    <h4 className="m-0 text-sm font-extrabold text-teal-950">
+                      أدخل نتيجتك الجديدة بعد الدور الثاني
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingRound2(false);
+                      setRound2Error("");
+                    }}
+                    className="text-xs font-bold text-slate-500 hover:text-slate-800"
+                  >
+                    إلغاء
+                  </button>
+                </div>
+                <p className="mt-1 text-xs text-slate-500">
+                  اكتب المجموع كدرجة أو النسبة المئوية وهيتم حساب القيمة التانية تلقائيًا (النهاية العظمى: {currentMaxScore} درجة).
+                </p>
+
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="grid gap-1 text-xs font-bold text-slate-700">
+                    <span>المجموع كدرجة (من {currentMaxScore})</span>
+                    <div className="relative flex items-center">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max={currentMaxScore}
+                        value={round2ScoreInput}
+                        onChange={(e) => handleRound2ScoreChange(e.target.value)}
+                        placeholder={`مثال: ${(currentMaxScore * 0.65).toFixed(1)}`}
+                        className="w-full min-h-10 rounded-lg border border-slate-300 px-3 text-sm font-bold ltr-number focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-100"
+                      />
+                    </div>
+                  </label>
+
+                  <label className="grid gap-1 text-xs font-bold text-slate-700">
+                    <span>النسبة المئوية (%)</span>
+                    <div className="relative flex items-center">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        value={round2PercentageInput}
+                        onChange={(e) => handleRound2PercentageChange(e.target.value)}
+                        placeholder="مثال: 65.50"
+                        className="w-full min-h-10 rounded-lg border border-slate-300 px-3 text-sm font-bold ltr-number focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-100"
+                      />
+                    </div>
+                  </label>
+                </div>
+
+                {round2Error ? (
+                  <p role="alert" className="mt-2 text-xs font-bold text-red-600">
+                    {round2Error}
+                  </p>
+                ) : null}
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={round2Updating || !round2ScoreInput}
+                    onClick={submitRound2Update}
+                    className="rounded-lg bg-teal-700 px-4 py-2 text-xs font-bold text-white hover:bg-teal-800 disabled:opacity-50 transition"
+                  >
+                    {round2Updating ? "جارٍ الحفظ…" : "تأكيد المجموع الجديد ✓"}
+                  </button>
+                  {!result.isUpdatedResult ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditingRound2(false);
+                        setResult({ ...result, canPromptRound2: false });
+                      }}
+                      className="text-xs text-slate-500 hover:text-slate-800 px-2 py-1.5"
+                    >
+                      تخطي والاستمرار بالمجموع الحالي
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+
 
             <fieldset className="branch-choice">
               <legend>اختار شعبتك</legend>
@@ -671,7 +928,14 @@ function Report({
             <GraduationCap size={22} />
           </div>
           <div>
-            <span>نتيجتك</span>
+            <div className="flex items-center gap-1.5">
+              <span>نتيجتك</span>
+              {result.isUpdatedResult ? (
+                <span className="rounded bg-teal-100 px-1.5 py-0.5 text-[10px] font-extrabold text-teal-900 border border-teal-300">
+                  محدث بعد الدور الثاني ✓
+                </span>
+              ) : null}
+            </div>
             <strong title={result.studentName}>{result.studentName}</strong>
             <small>رقم الجلوس <bdi className="ltr-number">{result.seatNumber}</bdi></small>
           </div>
@@ -754,7 +1018,18 @@ function Stage3StudentReport({
       <div className="report-student-summary" aria-label="بيانات نتيجتك">
         <div className="report-student-identity">
           <div className="report-student-avatar" aria-hidden="true"><GraduationCap size={22} /></div>
-          <div><span>نتيجتك</span><strong>{result.studentName}</strong><small>رقم الجلوس <bdi className="ltr-number">{result.seatNumber}</bdi></small></div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span>نتيجتك</span>
+              {result.isUpdatedResult ? (
+                <span className="rounded bg-teal-100 px-1.5 py-0.5 text-[10px] font-extrabold text-teal-900 border border-teal-300">
+                  محدث بعد الدور الثاني ✓
+                </span>
+              ) : null}
+            </div>
+            <strong>{result.studentName}</strong>
+            <small>رقم الجلوس <bdi className="ltr-number">{result.seatNumber}</bdi></small>
+          </div>
         </div>
         <div className="report-score-block"><span>المجموع</span><strong><bdi className="ltr-number">{formatScore(result.totalScore)}</bdi></strong><small>من <bdi className="ltr-number">{formatScore(result.maxScore)}</bdi></small></div>
       </div>
@@ -955,7 +1230,14 @@ function PredictionV2StudentReport({
         <div className="report-student-identity">
           <div className="report-student-avatar" aria-hidden="true"><GraduationCap size={22} /></div>
           <div>
-            <span>نتيجتك</span>
+            <div className="flex items-center gap-1.5">
+              <span>نتيجتك</span>
+              {result.isUpdatedResult ? (
+                <span className="rounded bg-teal-100 px-1.5 py-0.5 text-[10px] font-extrabold text-teal-900 border border-teal-300">
+                  محدث بعد الدور الثاني ✓
+                </span>
+              ) : null}
+            </div>
             <strong title={result.studentName}>{result.studentName}</strong>
             <small>رقم الجلوس <bdi className="ltr-number">{result.seatNumber}</bdi></small>
           </div>
