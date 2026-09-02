@@ -725,10 +725,11 @@ export function ToolExperience() {
                 </p>
 
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label className="grid gap-1 text-xs font-bold text-slate-700">
+                  <label htmlFor="round2-score" className="grid gap-1 text-xs font-bold text-slate-700">
                     <span>المجموع كدرجة (من {currentMaxScore})</span>
                     <div className="relative flex items-center">
                       <input
+                        id="round2-score"
                         type="number"
                         step="0.1"
                         min="0"
@@ -741,10 +742,11 @@ export function ToolExperience() {
                     </div>
                   </label>
 
-                  <label className="grid gap-1 text-xs font-bold text-slate-700">
+                  <label htmlFor="round2-percentage" className="grid gap-1 text-xs font-bold text-slate-700">
                     <span>النسبة المئوية (%)</span>
                     <div className="relative flex items-center">
                       <input
+                        id="round2-percentage"
                         type="number"
                         step="0.01"
                         min="0"
