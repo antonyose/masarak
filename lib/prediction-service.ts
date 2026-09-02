@@ -8,7 +8,7 @@ import type { Branch } from "@/lib/grade-scales";
 import { getPaymentSettings } from "@/lib/settings";
 import { calculateStage2Report, toFreeStage2Report } from "@/lib/stage2-prediction";
 import { loadStage2CoordinationContext } from "@/lib/coordination-repository";
-import { findResultBySeat } from "@/lib/results-repository";
+import { enrichWithUpdatedResult, findResultBySeat, getUpdatedStudentResult } from "@/lib/results-repository";
 import { recordPredictionV2Shadow } from "@/lib/prediction-v2/shadow-service";
 import {
   calculatePredictionV2,
@@ -201,15 +201,35 @@ export async function createPublicImmutablePrediction({
   seatNumber,
   branch,
   governorate,
+  updatedScore,
+  updatedPercentage,
 }: {
   seatNumber: string;
   branch: Branch;
   governorate?: string;
+  updatedScore?: number;
+  updatedPercentage?: number;
 }) {
-  const result = await findResultBySeat(2026, seatNumber);
+  let result = await findResultBySeat(2026, seatNumber);
   if (!result || result.totalScore == null || result.maxScore == null || result.percentage == null) {
     throw new Error("RESULT_NOT_FOUND");
   }
+
+  // If client signaled an updated score or if result hasn't been enriched yet, double check updatedStudentResults
+  if (
+    (updatedScore != null && (result.totalScore !== updatedScore || !result.isUpdatedResult)) ||
+    !result.isUpdatedResult
+  ) {
+    const override = await getUpdatedStudentResult(2026, seatNumber);
+    if (override) {
+      result = enrichWithUpdatedResult(result, override);
+    }
+  }
+
+  if (result.totalScore == null || result.maxScore == null || result.percentage == null) {
+    throw new Error("RESULT_NOT_FOUND");
+  }
+
   if (result.educationSystem !== "new" && result.educationSystem !== "old") {
     throw new Error("UNSUPPORTED_RESULT_SYSTEM");
   }

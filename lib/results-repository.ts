@@ -28,22 +28,28 @@ function mapPostgres(row: typeof studentResults.$inferSelect): TursoStudentResul
 
 export async function getUpdatedStudentResult(year: number, seatNumber: string) {
   if (!process.env.DATABASE_URL) return null;
-  try {
-    const [override] = await getDatabase()
-      .select()
-      .from(updatedStudentResults)
-      .where(
-        and(
-          eq(updatedStudentResults.year, year),
-          eq(updatedStudentResults.seatNumber, normalizeDigits(seatNumber)),
-        ),
-      )
-      .limit(1);
-    return override ?? null;
-  } catch (err) {
-    console.error("Failed to fetch updated student result:", err);
-    return null;
+  const normalized = normalizeDigits(seatNumber);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const [override] = await getDatabase()
+        .select()
+        .from(updatedStudentResults)
+        .where(
+          and(
+            eq(updatedStudentResults.year, year),
+            eq(updatedStudentResults.seatNumber, normalized),
+          ),
+        )
+        .limit(1);
+      return override ?? null;
+    } catch (err) {
+      console.error(`Failed to fetch updated student result (attempt ${attempt + 1}):`, err);
+      if (attempt === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 60));
+      }
+    }
   }
+  return null;
 }
 
 export async function getUpdatedStudentResultsMap(year: number, seatNumbers: string[]) {
@@ -100,20 +106,26 @@ export async function findResultBySeat(year: number, seatNumber: string) {
   let override: typeof updatedStudentResults.$inferSelect | null = null;
 
   if (process.env.DATABASE_URL) {
-    try {
-      const [pgRow, overrideRow] = await Promise.all([
-        getDatabase()
-          .select()
-          .from(studentResults)
-          .where(and(eq(studentResults.year, year), eq(studentResults.seatNumber, normalizedSeat)))
-          .limit(1)
-          .then((rows) => rows[0] ?? null),
-        getUpdatedStudentResult(year, normalizedSeat),
-      ]);
-      postgres = pgRow;
-      override = overrideRow;
-    } catch (err) {
-      console.error("Postgres query in findResultBySeat failed:", err);
+    const [pgResult, overrideResult] = await Promise.allSettled([
+      getDatabase()
+        .select()
+        .from(studentResults)
+        .where(and(eq(studentResults.year, year), eq(studentResults.seatNumber, normalizedSeat)))
+        .limit(1)
+        .then((rows) => rows[0] ?? null),
+      getUpdatedStudentResult(year, normalizedSeat),
+    ]);
+
+    if (pgResult.status === "fulfilled") {
+      postgres = pgResult.value;
+    } else {
+      console.error("Postgres studentResults in findResultBySeat failed:", pgResult.reason);
+    }
+
+    if (overrideResult.status === "fulfilled") {
+      override = overrideResult.value;
+    } else {
+      console.error("Postgres getUpdatedStudentResult in findResultBySeat failed:", overrideResult.reason);
     }
   }
 

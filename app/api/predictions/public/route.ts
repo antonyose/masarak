@@ -61,6 +61,8 @@ export async function POST(request: Request) {
       seatNumber: parsed.data.seatNumber,
       branch,
       governorate,
+      updatedScore: parsed.data.updatedScore,
+      updatedPercentage: parsed.data.updatedPercentage,
     });
     if (entitlement) {
       return NextResponse.json(

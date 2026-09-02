@@ -164,4 +164,37 @@ describe("Round 2 updated student results contract and helpers", () => {
       expect(enriched.canPromptRound2).toBe(false);
     });
   });
+
+  describe("publicPredictionCreateSchema with updated score", () => {
+    it("accepts optional updatedScore and updatedPercentage", async () => {
+      const { publicPredictionCreateSchema } = await import("@/lib/schemas");
+      const parsed = publicPredictionCreateSchema.safeParse({
+        year: 2026,
+        seatNumber: "2261143",
+        branch: "literary",
+        updatedScore: 179.5,
+        updatedPercentage: 56.09,
+      });
+      expect(parsed.success).toBe(true);
+    });
+  });
+
+  describe("Stage 3 prediction eligibility with updated scores", () => {
+    it("ensures updated score of 179.50 (56.09%) is eligible and never below 50% min cutoff", async () => {
+      const { calculateStage3Prediction } = await import("@/lib/prediction-stage3/model");
+      const report = calculateStage3Prediction({
+        score: 179.5,
+        maxScore: 320,
+        percentage: 56.09,
+        educationSystem: "new",
+        branch: "literary",
+      });
+
+      expect(report.registration.eligible).toBe(true);
+      expect(report.registration.minimumScore).toBe(160);
+      expect(report.registration.minimumPercentage).toBe(50);
+      expect(report.recommendations.length).toBeGreaterThan(0);
+      expect(report.groups.closest.items.length).toBeGreaterThan(0);
+    });
+  });
 });

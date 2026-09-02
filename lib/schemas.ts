@@ -69,6 +69,8 @@ export const publicPredictionCreateSchema = z.object({
   seatNumber: z.string().trim().regex(/^[\d٠-٩۰-۹]{4,14}$/),
   branch: z.enum(["science", "mathematics", "literary"]).optional(),
   governorate: z.enum(egyptianGovernorates).optional(),
+  updatedScore: z.number().finite().nonnegative().optional(),
+  updatedPercentage: z.number().finite().min(0).max(100).optional(),
 });
 
 export const studentResultUpdateSchema = z.object({

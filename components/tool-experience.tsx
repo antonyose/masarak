@@ -76,6 +76,9 @@ type LegacyPredictionResponse = {
   requiresBranch?: boolean;
   paymentState?: PaymentState;
   branch?: Branch;
+  score?: number;
+  maxScore?: number;
+  percentage?: number;
 };
 type V2Fit = "green" | "yellow" | "orange" | "red";
 type V2ReportItem = {
@@ -117,6 +120,9 @@ type V2PredictionResponse = {
   requiresBranch?: boolean;
   paymentState?: PaymentState;
   branch?: Branch;
+  score?: number;
+  maxScore?: number;
+  percentage?: number;
 };
 type Stage3PredictionResponse = {
   schemaVersion: "stage3-report@1";
@@ -139,6 +145,9 @@ type Stage3PredictionResponse = {
   paymentState?: PaymentState;
   requiresBranch?: boolean;
   branch?: Branch;
+  score?: number;
+  maxScore?: number;
+  percentage?: number;
 };
 type Stage3ReportItem = Omit<V2ReportItem, "availability" | "availabilityLabel"> & {
   availability: "listed_stage_3";
@@ -308,6 +317,13 @@ export function ToolExperience() {
       if (!res.ok) throw new Error(data.error ?? "تعذر تحديث النتيجة.");
       setResult(data.result);
       setIsEditingRound2(false);
+      if (branch) {
+        const nextReport = await createReport(data.result, branch as Branch, governorate);
+        if (!nextReport.requiresBranch) {
+          setReport(nextReport);
+          trackFunnel("report_viewed", { source: "round2_update" });
+        }
+      }
     } catch (caught) {
       setRound2Error(caught instanceof Error ? caught.message : "تعذر تحديث النتيجة.");
     } finally {
@@ -387,10 +403,15 @@ export function ToolExperience() {
         seatNumber: student.seatNumber,
         branch: selectedBranch || undefined,
         governorate: selectedGovernorate || undefined,
+        updatedScore: student.isUpdatedResult ? (student.totalScore ?? undefined) : undefined,
+        updatedPercentage: student.isUpdatedResult ? (student.percentage ?? undefined) : undefined,
       }),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
+    if (data.result) {
+      setResult(data.result);
+    }
     return normalizeReport(data);
   }
 
@@ -411,10 +432,11 @@ export function ToolExperience() {
       const knownBranch = found.branch === "unknown" ? undefined : found.branch;
       setBranch(knownBranch ?? "");
 
-      if (found.canPromptRound2 && !found.isUpdatedResult) {
+      if (found.canPromptRound2 || found.isUpdatedResult) {
         setRound2ScoreInput(found.totalScore != null ? String(found.totalScore) : "");
         setRound2PercentageInput(found.percentage != null ? String(found.percentage) : "");
-      } else {
+      }
+      if (!found.canPromptRound2 || found.isUpdatedResult) {
         const nextReport = await createReport(found, knownBranch, found.governorate ?? undefined);
         if (!nextReport.requiresBranch) {
           setReport(nextReport);
@@ -478,7 +500,8 @@ export function ToolExperience() {
         setResult(currentStudent);
       }
 
-      setReport(await createReport(currentStudent, branch, governorate));
+      const nextReport = await createReport(currentStudent, branch, governorate);
+      setReport(nextReport);
       trackFunnel("report_viewed", { source: "branch_selection" });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "تعذر تجهيز الترشيح.");
@@ -504,6 +527,30 @@ export function ToolExperience() {
     window.addEventListener("masarak-product-select", selectProduct);
     return () => window.removeEventListener("masarak-product-select", selectProduct);
   }, []);
+
+  function requestEditScore() {
+    setReport(null);
+    setIsEditingRound2(true);
+    if (result) {
+      setRound2ScoreInput(result.totalScore != null ? String(result.totalScore) : "");
+      setRound2PercentageInput(result.percentage != null ? String(result.percentage) : "");
+    }
+  }
+
+  const refreshReport = useCallback(async () => {
+    if (!result || !branch) return;
+    try {
+      setLoading(true);
+      const refreshed = await createReport(result, branch as Branch, governorate);
+      if (!refreshed.requiresBranch) {
+        setReport(refreshed);
+      }
+    } catch (e) {
+      console.error("Failed to refresh report for updated score:", e);
+    } finally {
+      setLoading(false);
+    }
+  }, [result, branch, governorate]);
 
   function resetJourney() {
     setResult(null);
@@ -831,6 +878,8 @@ export function ToolExperience() {
             initialProduct={requestedProduct}
             onReset={resetJourney}
             onUnlocked={setReport}
+            onRequestEditScore={requestEditScore}
+            onRefreshReport={refreshReport}
           />
         )}
 
@@ -849,6 +898,8 @@ function Report({
   initialProduct,
   onReset,
   onUnlocked,
+  onRequestEditScore,
+  onRefreshReport,
 }: {
   report: PredictionResponse;
   result: StudentResult;
@@ -858,7 +909,19 @@ function Report({
   initialProduct: ProductType;
   onReset: () => void;
   onUnlocked: (report: PredictionResponse) => void;
+  onRequestEditScore?: () => void;
+  onRefreshReport?: () => void;
 }) {
+  useEffect(() => {
+    if (
+      report.score != null &&
+      result.totalScore != null &&
+      Math.abs(report.score - result.totalScore) > 0.05
+    ) {
+      onRefreshReport?.();
+    }
+  }, [report.score, result.totalScore, onRefreshReport]);
+
   if (isStage3Report(report)) {
     return (
       <Stage3StudentReport
@@ -868,6 +931,7 @@ function Report({
         initialProduct={initialProduct}
         onReset={onReset}
         onUnlocked={onUnlocked}
+        onRequestEditScore={onRequestEditScore}
       />
     );
   }
@@ -880,6 +944,7 @@ function Report({
         initialProduct={initialProduct}
         onReset={onReset}
         onUnlocked={onUnlocked}
+        onRequestEditScore={onRequestEditScore}
       />
     );
   }
@@ -987,6 +1052,7 @@ function Stage3StudentReport({
   initialProduct,
   onReset,
   onUnlocked,
+  onRequestEditScore,
 }: {
   report: Stage3PredictionResponse;
   result: StudentResult;
@@ -994,7 +1060,18 @@ function Stage3StudentReport({
   initialProduct: ProductType;
   onReset: () => void;
   onUnlocked: (report: PredictionResponse) => void;
+  onRequestEditScore?: () => void;
 }) {
+  const isEligible =
+    report.registration.eligible ||
+    (result.totalScore != null &&
+      result.totalScore >= (report.registration?.minimumScore ?? 160));
+
+  const isStaleReport =
+    report.score != null &&
+    result.totalScore != null &&
+    Math.abs(report.score - result.totalScore) > 0.05;
+
   const sections = [
     { key: "closest", title: "أقرب اختيارات المرحلة الثالثة لمجموعك", items: report.groups.closest.items },
     { key: "ambitious", title: "اختيارات طموحة", items: report.groups.ambitious.items },
@@ -1028,16 +1105,55 @@ function Stage3StudentReport({
             <small>رقم الجلوس <bdi className="ltr-number">{result.seatNumber}</bdi></small>
           </div>
         </div>
-        <div className="report-score-block"><span>المجموع</span><strong><bdi className="ltr-number">{formatScore(result.totalScore)}</bdi></strong><small>من <bdi className="ltr-number">{formatScore(result.maxScore)}</bdi></small></div>
+        <div className="flex items-center gap-3">
+          <div className="report-score-block">
+            <span>المجموع</span>
+            <strong><bdi className="ltr-number">{formatScore(result.totalScore)}</bdi></strong>
+            <small>من <bdi className="ltr-number">{formatScore(result.maxScore)}</bdi></small>
+          </div>
+          {onRequestEditScore ? (
+            <button
+              type="button"
+              onClick={onRequestEditScore}
+              className="text-xs text-teal-800 underline hover:text-teal-950 font-bold self-center px-1"
+              title="تعديل مجموع الدور الثاني"
+            >
+              تعديل الدرجة
+            </button>
+          ) : null}
+        </div>
       </div>
+
+      {isStaleReport ? (
+        <div className="rounded-xl border border-teal-300 bg-teal-50 p-3 text-center text-xs font-bold text-teal-900 mb-3 animate-pulse">
+          جارٍ تحديث الترشيحات لدرجتك الجديدة ({formatScore(result.totalScore)})…
+        </div>
+      ) : null}
 
       <div className="stage3-report-notice" role="note">
         <strong>{report.availabilityLabel}</strong>
         <p>الإتاحة مؤكدة من القائمة الرسمية؛ المتوقع فقط هو الحد النهائي وترتيب الملاءمة.</p>
       </div>
 
-      {!report.registration.eligible ? (
-        <div className="simple-result-state"><h3>مجموعك أقل من الحد الرسمي للتسجيل</h3><p>الحد الأدنى هو {report.registration.minimumScore} درجة ({report.registration.minimumPercentage}%).</p></div>
+      {!isEligible ? (
+        <div className="simple-result-state">
+          <h3>مجموعك أقل من الحد الرسمي للتسجيل</h3>
+          <p>
+            الحد الأدنى هو {report.registration.minimumScore} درجة ({report.registration.minimumPercentage}%).
+          </p>
+          {onRequestEditScore ? (
+            <div className="mt-3">
+              <p className="text-xs text-slate-500 mb-2">لو امتحنت دور تاني ومجموعك اتعدل، تقدر تعدل مجموعك لحساب ترشيحات المرحلة الثالثة:</p>
+              <button
+                type="button"
+                onClick={onRequestEditScore}
+                className="rounded-lg bg-teal-700 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-teal-800 transition"
+              >
+                تعديل الدرجة بعد الدور الثاني ✎
+              </button>
+            </div>
+          ) : null}
+        </div>
       ) : null}
 
       {hasItems ? sections.map((section) => section.items.length ? (
@@ -1059,7 +1175,7 @@ function Stage3StudentReport({
             ))}
           </div>
         </section>
-      ) : null) : (
+      ) : null) : isEligible && isStaleReport ? null : (
         <div className="simple-result-state"><h3>لا توجد اختيارات موثقة يمكن عرضها لهذا النظام</h3><p>{report.availabilityLabel}</p></div>
       )}
 
@@ -1089,6 +1205,7 @@ function PredictionV2StudentReport({
   initialProduct,
   onReset,
   onUnlocked,
+  onRequestEditScore,
 }: {
   report: V2PredictionResponse;
   result: StudentResult;
@@ -1096,6 +1213,7 @@ function PredictionV2StudentReport({
   initialProduct: ProductType;
   onReset: () => void;
   onUnlocked: (report: PredictionResponse) => void;
+  onRequestEditScore?: () => void;
 }) {
   const isStage3Report = !report.eligibility.eligible;
   const sections = isStage3Report
@@ -1239,10 +1357,22 @@ function PredictionV2StudentReport({
             <small>رقم الجلوس <bdi className="ltr-number">{result.seatNumber}</bdi></small>
           </div>
         </div>
-        <div className="report-score-block">
-          <span>المجموع</span>
-          <strong><bdi className="ltr-number">{formatScore(result.totalScore)}</bdi></strong>
-          <small>من <bdi className="ltr-number">{formatScore(result.maxScore)}</bdi></small>
+        <div className="flex items-center gap-3">
+          <div className="report-score-block">
+            <span>المجموع</span>
+            <strong><bdi className="ltr-number">{formatScore(result.totalScore)}</bdi></strong>
+            <small>من <bdi className="ltr-number">{formatScore(result.maxScore)}</bdi></small>
+          </div>
+          {onRequestEditScore ? (
+            <button
+              type="button"
+              onClick={onRequestEditScore}
+              className="text-xs text-teal-800 underline hover:text-teal-950 font-bold self-center px-1"
+              title="تعديل مجموع الدور الثاني"
+            >
+              تعديل الدرجة
+            </button>
+          ) : null}
         </div>
       </div>
 
